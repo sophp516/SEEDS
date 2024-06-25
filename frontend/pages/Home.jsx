@@ -2,15 +2,14 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Navbar from '../components/Navbar.jsx';
 
-type PostProps = () => {}
-
-const Post = () => {
+const Home = () => {
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>Post</Text>
-            {/* <Navbar /> */}
+            <Text style={styles.text}>Home</Text>
+            <Navbar />
+            
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -27,4 +26,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Post;
+export default Home;
