@@ -1,15 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react'; 
 import { StyleSheet, Text, View } from 'react-native';
 import Navbar from '../components/Navbar.jsx';
 
-const Home = () => {
+const SelectedPost = () => {
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>Home</Text>
+            <Text style={styles.text}>Selected Post</Text>
             <Navbar />
-            
         </View>
-    );
+    )
 }
 
 const styles = StyleSheet.create({
@@ -26,4 +25,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Home;
+export default SelectedPost;
