@@ -3,6 +3,7 @@ import React from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Navbar from '../components/Navbar.jsx';
 import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
+import Slider from '@react-native-community/slider';
 
 interface newPost{
     image: File;
@@ -15,12 +16,14 @@ interface newReview {
     taste: number;
     health: number;
     image: File;
-    tags:string | null,
+    tags:string[] | null,
     comment: string,
 }
 
 // when click send, passes a object to the firebase function
 const Post = () => {
+    const [tag, setTag] = useState<string>('');
+    const navigation = useNavigation();
     const [toggle, setToggle] = useState<boolean>(true); // true = post, false = review 
     const [post, setPost] = useState<newPost>();
     const [review, setReview] = useState<newReview>({
@@ -30,32 +33,35 @@ const Post = () => {
         taste: 0,
         health: 0,
         image: {} as File,
-        tags: null,
+        tags: [],
         comment: '',
     });
+    const handleCreatePost = () => {
 
-    const navigation = useNavigation();
-
+    }
+    const handleCreateReview = () =>{
+        // call firebase function
+        navigation.goBack();
+    }
     /* function handleExit(): Brings user back to the last visited page
     * Also resets the data stored in the use state
      */
     const handleExit = () => {
         navigation.goBack();
     }
-    const handlePost = () => {
-        setToggle(true)
-    }
-    const handleReview = () =>{
-        setToggle(false)
-    }
     /* Later we can do food reccomendation from API if time */
     const handleChangeFoodName = (text: string) => {
         setReview(prevReview => ({ ...prevReview, foodName: text }));
     };
-    /* Later we can implement dropdown and auto complete
-     text based off locations within the campus*/
+    /* Later we can implement dropdown and auto complete text based off locations within the campus*/
     const handleChangeLocation = (text: string) => {
         setReview(prevReview => ({...prevReview, location: text}));
+    }
+    const handleSubmitTag = () => {
+        if (tag){
+            review.tags.push(tag);
+            setTag('');
+        }
     }
 
     return (
@@ -64,10 +70,10 @@ const Post = () => {
                 <Text>Exit</Text>
              </TouchableOpacity>
             <View style={styles.toggleContainer}>
-                <TouchableOpacity onPress={handlePost} style={styles.toggleButton}>
+                <TouchableOpacity onPress={()=>setToggle(true)} style={styles.toggleButton}>
                     <Text>Post</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleReview} style={styles.toggleButton}>
+                <TouchableOpacity onPress={()=>setToggle(false)} style={styles.toggleButton}>
                     <Text>Button</Text>
                 </TouchableOpacity>
             </View>
@@ -97,8 +103,41 @@ const Post = () => {
                             placeholder='enter price'
                         />
                      <Text> Taste </Text>
-                     
+                     <Slider
+                        // style={styles.slider}
+                        minimumValue={1}
+                        maximumValue={5}
+                        step={1}
+                        value={review.taste}
+                        onValueChange={(value)=> setReview(prevReview => ({...prevReview, taste: value }))}
+                        minimumTrackTintColor="#1fb28a"
+                        maximumTrackTintColor="#d3d3d3"
+                        thumbTintColor="#b9e4c9"
+                    />
                      <Text> Health</Text>
+                     <Slider
+                        // style={styles.slider}
+                        minimumValue={1}
+                        maximumValue={5}
+                        step={1}
+                        value={review.health}
+                        onValueChange={(value)=> setReview(prevReview => ({...prevReview, health: value }))}
+                        minimumTrackTintColor="#1fb28a"
+                        maximumTrackTintColor="#d3d3d3"
+                        thumbTintColor="#b9e4c9"
+                    />
+                     
+                     <Text> Add Tags</Text>
+                     <TextInput 
+                            value={tag}
+                            onChangeText={(tag)=> setTag(tag)}
+                            placeholder='enter a tag'
+                            onSubmitEditing={handleSubmitTag}
+                            returnKeyType='done'
+                        />
+                    <TouchableOpacity onPress={handleCreateReview}>
+                        <Text>Post</Text>
+                    </TouchableOpacity>
                 </View>
              }
 
@@ -111,6 +150,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
+        width: '100%',
         alignItems: 'center',
         backgroundColor: 'white', // Set background color if necessary
     },
