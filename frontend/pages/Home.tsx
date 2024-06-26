@@ -8,6 +8,7 @@ const Home = () => {
         <View style={styles.container}>
             <Text style={styles.text}>Home</Text>
             <Navbar />
+            
         </View>
     );
 }
