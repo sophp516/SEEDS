@@ -40,6 +40,7 @@ const Home = () => {
         <View style={styles.container}>
             <Text style={styles.text}>Welcome {displayName || 'Guest'}</Text>
             <Navbar />
+            
         </View>
     );
 }
