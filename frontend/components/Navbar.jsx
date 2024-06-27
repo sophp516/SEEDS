@@ -23,6 +23,9 @@ const Navbar = () => {
             <TouchableOpacity onPress={() => handlePress('Profile')} style={styles.button}>
                 <Text style={styles.buttonText}>profile</Text>
             </TouchableOpacity>
+            <TouchableOpacity onPress={() => handlePress('SignUp')} style={styles.button}>
+                <Text style={styles.buttonText}>SignUp</Text>
+            </TouchableOpacity>
         </View>
     )
 }
