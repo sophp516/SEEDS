@@ -1,0 +1,50 @@
+[
+    {
+        "id": "1",
+        "title": "Dartmouth College"
+    },
+    {
+        "id": "2",
+        "title": "University of Maryland"
+    },
+    {
+        "id": "3",
+        "title": "Harvard University"
+    },
+    {
+        "id": "4",
+        "title": "Stanford University"
+    },
+    {
+        "id": "5",
+        "title": "Massachusetts Institute of Technology (MIT)"
+    },
+    {
+        "id": "6",
+        "title": "California Institute of Technology (Caltech)"
+    },
+    {
+        "id": "7",
+        "title": "University of California, Berkeley (UC Berkeley)"
+    },
+    {
+        "id": "8",
+        "title": "Princeton University"
+    },
+    {
+        "id": "9",
+        "title": "Yale University"
+    },
+    {
+        "id": "10",
+        "title": "Columbia University"
+    },
+    {
+        "id": "11",
+        "title": "University of Chicago"
+    },
+    {
+        "id": "12",
+        "title": "University of Michigan, Ann Arbor"
+    }
+]

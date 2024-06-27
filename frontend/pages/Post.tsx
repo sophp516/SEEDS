@@ -2,11 +2,13 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Navbar from '../components/Navbar.jsx';
 
+type PostProps = () => {}
+
 const Post = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.text}>Post</Text>
-            <Navbar />
+            {/* <Navbar /> */}
         </View>
     )
 }
