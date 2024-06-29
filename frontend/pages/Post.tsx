@@ -166,6 +166,7 @@ const Post = () => {
     }
 
     return (
+
         <View style={styles.container}>
                
             {/* <TouchableOpacity onPress={handleExit}>
@@ -272,6 +273,7 @@ const Post = () => {
 
             <Navbar />
         </View>
+
     )
 }
 
@@ -281,12 +283,20 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingTop:60,
         alignItems: 'center',
-        backgroundColor: 'white', // Set background color if necessary
+        backgroundColor: 'white', 
+        
+    },
+    containerTop: {
+      padding: 20,
+      height: 200,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'white', 
     },
     text: {
-        fontSize: 24, // Increase font size for prominence
-        fontWeight: 'bold', // Add bold style for prominence
-        marginBottom: 20, // Add margin bottom to separate from Navbar
+        fontSize: 24, 
+        fontWeight: 'bold', 
+        marginBottom: 20, 
     },
     slider:{
         width: 300, 
