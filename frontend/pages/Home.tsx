@@ -62,6 +62,7 @@ const Home = () => {
             </View>
             </ScrollView>
             <Navbar />
+            
         </View>
     );
 }
