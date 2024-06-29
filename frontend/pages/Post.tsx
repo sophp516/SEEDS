@@ -46,12 +46,26 @@ const Post = () => {
         comment: '',
     });
 
-    const handleCreatePost = () => {
-        let finalPost = {...post};
-        if (post.image){
-            finalPost.image = post.image;
-        }else{
-            delete finalPost.image;
+    const handleCreatePost = async() => {
+        try{
+            let finalPost = {...post};
+            if (post.image){
+                /* Tried to write a upload function, however that resulted in app crashing unless we keep path name the same*/
+                const response = await fetch(post.image);
+                const blob = await response.blob(); // convert 
+                const imgName = "img-" + new Date().getTime();
+                const storageRef = ref(storage, `posts/${imgName}.jpg`)
+                const snapshop = await uploadBytes(storageRef, blob);
+                const imageUrl = await getDownloadURL(storageRef);
+                finalPost.image = imageUrl;
+            }else{
+                delete finalPost.image;
+            }
+            const postRef = await addDoc(collection(db, 'posts'), finalPost);
+            console.log("Post added to Firestore with ID:", postRef.id);
+            setPost({ image: '',comment: '',}); // reset the post
+        }catch{
+            console.error("Error adding post to Firestore");
         }
     }
 
@@ -114,19 +128,13 @@ const Post = () => {
         })
         // console.log("image:", result);        
         if (!result.canceled){ // if image is selected, then save the latest upload
-            if (toggle){
+            if (toggle == true){
                 setPost(prevPost => ({...prevPost, image: result.assets[0].uri}));
             }else{
                 setReview(prevReview => ({...prevReview, image: result.assets[0].uri}))
             }
-
         }
     }
-    const uploadImage = async () => {
-        
-    }
-
-
   
     /* function handleExit(): Brings user back to the last visited page
     * Also resets the data stored in the use state
@@ -187,6 +195,7 @@ const Post = () => {
                     <TouchableOpacity onPress={selectImage} >
                         <Image source={require('../assets/camera.png')} style={styles.cameraIcon} />
                     </TouchableOpacity>
+
                     <TouchableOpacity onPress={handleCreatePost}>
                         <Text>Add post</Text>
                     </TouchableOpacity>
