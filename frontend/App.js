@@ -7,8 +7,10 @@ import SelectedPost from './pages/SelectedPost.tsx';
 import Post from './pages/Post.tsx';
 import Profile from './pages/Profile.tsx';
 import Discover from './pages/Discover.tsx';
+import DiningHome from './pages/DiningHome.tsx';
 import SignUp from './pages/SignUp.tsx';
 import LogIn from './pages/LogIn.tsx';
+import Toast from 'react-native-toast-message';
 
 const Stack = createStackNavigator();
 
@@ -23,10 +25,12 @@ export default function App() {
           <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
           <Stack.Screen name="Discover" component={Discover} options={{ headerShown: false }} /> 
           <Stack.Screen name="SelectedPost" component={SelectedPost} options={{ headerShown: false }} />
+          <Stack.Screen name="DiningHome" component={DiningHome} options={{ headerShown: false }} />
           <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
-          <Stack.Screen name="LogIn" component={LogIn} options={{ headerShown: false }} />    
+          <Stack.Screen name="LogIn" component={LogIn} options={{ headerShown: false }} />  
         </Stack.Navigator>
       </NavigationContainer>
+      <Toast />  
       </AutocompleteDropdownContextProvider>
     </AuthProvider>
   );

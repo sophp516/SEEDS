@@ -23,9 +23,9 @@ const Navbar = () => {
             <TouchableOpacity onPress={() => handlePress('Profile')} style={styles.button}>
                 <Text style={styles.buttonText}>profile</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => handlePress('SignUp')} style={styles.button}>
+            {/*<TouchableOpacity onPress={() => handlePress('SignUp')} style={styles.button}>
                 <Text style={styles.buttonText}>SignUp</Text>
-            </TouchableOpacity>
+            </TouchableOpacity>*/}
         </View>
     )
 }
@@ -42,7 +42,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'gray', 
         paddingTop: 20, 
         paddingBottom: 20,
-        borderTopWidth: 1,
     },
     button: {
         padding: 10,
