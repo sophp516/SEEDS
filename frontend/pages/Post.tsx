@@ -4,9 +4,11 @@ import { Image, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } 
 import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
 import Slider from '@react-native-community/slider';
 import * as ImagePicker from 'expo-image-picker';
-import { db } from '../services/firestore';
+import { db , storage } from '../services/firestore';
 import { collection, addDoc} from 'firebase/firestore';
 import Navbar from '../components/Navbar';
+import { ref, uploadBytes,getDownloadURL } from 'firebase/storage';
+
 // import storage from '@react-native-firebase/storage';
 
 interface newPost{
@@ -45,7 +47,12 @@ const Post = () => {
     });
 
     const handleCreatePost = () => {
-
+        let finalPost = {...post};
+        if (post.image){
+            finalPost.image = post.image;
+        }else{
+            delete finalPost.image;
+        }
     }
 
     const handleCreateReview = async () =>{
@@ -53,18 +60,18 @@ const Post = () => {
             let finalReview = {...review};
             console.log("Review added to Firestore with ID:");
             // ERROR: Image upload doesn't work but else wise it does update on the database
-            // if (review.image){
-            //     const response = await fetch(review.image);
-            //     const blob = await response.blob();
-            //     const imgName = "img-" + new Date().getTime();
-            //     const storageRef = storage().ref(`reviews/${imgName}.jpg`);
-            //     const snapshop = await storageRef.put(blob);
-            //     const imageUrl = await storage().ref(`reviews/${imgName}.jpg`).getDownloadURL();
-            //     finalReview.image = imageUrl;
-            //     console.log("Review added to Firestore with ID:");
-            // }else{  
-            //     delete finalReview.image;
-            // }
+            if (review.image){
+                const response = await fetch(review.image);
+                const blob = await response.blob(); // convert 
+                const imgName = "img-" + new Date().getTime();
+                const storageRef = ref(storage, `reviews/${imgName}.jpg`)
+                const snapshop = await uploadBytes(storageRef, blob);
+                const imageUrl = await getDownloadURL(storageRef);
+                finalReview.image = imageUrl;
+                console.log("Review added to Firestore with ID:");
+            }else{  
+                delete finalReview.image;
+            }
 
             const reviewRef = await addDoc(collection(db, 'reviews'), finalReview);
             console.log("Review added to Firestore with ID:", reviewRef.id);
@@ -115,6 +122,9 @@ const Post = () => {
 
         }
     }
+    const uploadImage = async () => {
+        
+    }
 
 
   
@@ -155,10 +165,10 @@ const Post = () => {
              </TouchableOpacity> */}
 
             <View style={styles.toggleContainer}>
-                <TouchableOpacity onPress={()=>setToggle(true)} style={styles.toggleButton}>
+                <TouchableOpacity onPress={()=>setToggle(true)} style={toggle ? styles.activeToggle : styles.inactiveToggle}>
                     <Text>Post</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={()=>setToggle(false)} style={styles.toggleButton}>
+                <TouchableOpacity onPress={()=>setToggle(false)} style={toggle ?  styles.inactiveToggle : styles.activeToggle }>
                     <Text>Review</Text>
                 </TouchableOpacity>
             </View>
@@ -290,8 +300,20 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         margin: 15,
     }, 
-    toggleButton:{
+    activeToggle: {
         padding: 10,
+        width: '50%',
+        justifyContent: 'center',
+        alignContent: 'center',
+        backgroundColor: '#B7B7B7',
+        borderRadius: 20,
+        borderColor: '#B7B7B7',
+        borderStyle: 'solid',
+    },
+    inactiveToggle: {
+        padding: 9,
+        width: '50%',
+        borderRadius: 20,
         justifyContent: 'center',
         alignContent: 'center',
     },
