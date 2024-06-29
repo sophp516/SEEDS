@@ -6,10 +6,11 @@ import Slider from '@react-native-community/slider';
 import * as ImagePicker from 'expo-image-picker';
 import { db } from '../services/firestore';
 import { collection, addDoc} from 'firebase/firestore';
+import Navbar from '../components/Navbar';
 // import storage from '@react-native-firebase/storage';
 
 interface newPost{
-    image: File;
+    image: string | null;
     comment: string;
 }
 interface newReview {
@@ -28,7 +29,10 @@ const Post = () => {
     const [tag, setTag] = useState<string>('');
     const navigation = useNavigation();
     const [toggle, setToggle] = useState<boolean>(true); // true = post, false = review 
-    const [post, setPost] = useState<newPost>();
+    const [post, setPost] = useState<newPost>({
+        comment: '',
+        image: '',
+    });
     const [review, setReview] = useState<newReview>({
         foodName: '',
         location: '',
@@ -103,7 +107,12 @@ const Post = () => {
         })
         // console.log("image:", result);        
         if (!result.canceled){ // if image is selected, then save the latest upload
-            setReview(prevReview => ({...prevReview, image: result.assets[0].uri}))
+            if (toggle){
+                setPost(prevPost => ({...prevPost, image: result.assets[0].uri}));
+            }else{
+                setReview(prevReview => ({...prevReview, image: result.assets[0].uri}))
+            }
+
         }
     }
 
@@ -140,27 +149,43 @@ const Post = () => {
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity onPress={handleExit}>
+               
+            {/* <TouchableOpacity onPress={handleExit}>
                 <Text>Exit</Text>
-             </TouchableOpacity>
-
+             </TouchableOpacity> */}
 
             <View style={styles.toggleContainer}>
                 <TouchableOpacity onPress={()=>setToggle(true)} style={styles.toggleButton}>
                     <Text>Post</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={()=>setToggle(false)} style={styles.toggleButton}>
-                    <Text>Button</Text>
+                    <Text>Review</Text>
                 </TouchableOpacity>
             </View>
+            
             {toggle ? 
                 <View>
+                    
+                    <Text> Comment </Text>
+                    <TextInput 
+                        style={styles.commentBox}
+                        value={post.comment}
+                        onChangeText={(text)=> setPost(prevPost => ({...prevPost, comment: text}))}
+                        placeholder='enter comment'
+                    />
+
+                    <TouchableOpacity onPress={selectImage} >
+                        <Image source={require('../assets/camera.png')} style={styles.cameraIcon} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleCreatePost}>
+                        <Text>Add post</Text>
+                    </TouchableOpacity>
     
                 </View>
                 : 
-                <View>
+                <View style={styles.reviewContainer}>
                     
-                    <TouchableOpacity onPress={selectImage}>
+                    <TouchableOpacity onPress={selectImage} style={styles.imagebox}>
                         <Image source={require('../assets/camera.png')} style={styles.cameraIcon} />
                     </TouchableOpacity>
                      <Text> Food Name </Text>
@@ -187,7 +212,7 @@ const Post = () => {
                         />
                      <Text> Taste </Text>
                      <Slider
-                        // style={styles.slider}
+                        style={styles.slider}
                         minimumValue={1}
                         maximumValue={5}
                         step={1}
@@ -199,7 +224,7 @@ const Post = () => {
                     />
                      <Text> Health</Text>
                      <Slider
-                        // style={styles.slider}
+                        style={styles.slider}
                         minimumValue={1}
                         maximumValue={5}
                         step={1}
@@ -208,6 +233,7 @@ const Post = () => {
                         minimumTrackTintColor="#1fb28a"
                         maximumTrackTintColor="#d3d3d3"
                         thumbTintColor="#b9e4c9"
+                    
                     />
                      
                      <Text> Add Tags</Text>
@@ -219,13 +245,13 @@ const Post = () => {
                             onSubmitEditing={handleSubmitTag}
                             returnKeyType='done'
                         />
-                    <TouchableOpacity onPress={handleCreateReview}>
-                        <Text>Post</Text>
+                    <TouchableOpacity onPress={handleCreateReview} style={styles.addReviewBtn}>
+                        <Text>Add review</Text>
                     </TouchableOpacity>
                 </View>
              }
 
-            {/* <Navbar /> */}
+            <Navbar />
         </View>
     )
 }
@@ -234,8 +260,7 @@ const Post = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        width: '100%',
+        paddingTop:60,
         alignItems: 'center',
         backgroundColor: 'white', // Set background color if necessary
     },
@@ -244,11 +269,39 @@ const styles = StyleSheet.create({
         fontWeight: 'bold', // Add bold style for prominence
         marginBottom: 20, // Add margin bottom to separate from Navbar
     },
+    slider:{
+        width: 300, 
+        height: 40, 
+        marginTop: 20, 
+        marginBottom: 20,
+        padding: 10, 
+    },
+    reviewContainer: {
+        alignItems: 'center',
+    },
     toggleContainer: {
         flexDirection: 'row',
+        borderRadius: 20,
+        borderColor: '#B7B7B7',
+        borderStyle: 'solid',
+        borderWidth: 2,
+        width: '60%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: 15,
     }, 
     toggleButton:{
-        padding: 20,
+        padding: 10,
+        justifyContent: 'center',
+        alignContent: 'center',
+    },
+    imagebox:{
+        backgroundColor: '#D9D9D9',
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 350,
+        height: 179,
     },
     textbox: {
         borderColor: 'black',
@@ -258,10 +311,28 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 10,
     },
+    commentBox:{
+        borderColor: 'black',
+        backgroundColor: '#D9D9D9',
+        width: 300,
+        height: 100,
+        borderRadius: 10,
+        padding: 10,
+    },
     cameraIcon:{
-        width: '20%',
-        height: '20%',
-    }
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+    },
+    addReviewBtn: {
+        borderRadius: 15,
+        backgroundColor: '#B0B0B0',
+        width: 124,
+        height: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: 10,
+    },
 });
 
 export default Post;
