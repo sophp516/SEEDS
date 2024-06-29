@@ -1,0 +1,30 @@
+[
+    {
+        "placeName": "Class of 1953 Commons (FoCo)",
+        "openingHour": "7:00 a.m.",
+        "closingHour": "8:30 p.m.",
+        "businessLevel": "very crowded"
+
+    },
+    {
+        "placeName": "Collis Café",
+        "openingHour": "7:00 a.m.",
+        "closingHour": "8:00 p.m.",
+        "businessLevel": "very crowded"
+
+    },
+    {
+        "placeName": "Courtyard Café",
+        "openingHour": "10:00 a.m.",
+        "closingHour": "8:00 p.m.",
+        "businessLevel": "mildly crowded"
+
+    },
+    {
+        "placeName": "Novack Café",
+        "openingHour": "",
+        "closingHour": "",
+        "businessLevel": ""
+
+    }
+]

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, Alert, TouchableOpacity } from 'react-native';
 import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { ActivityIndicator } from 'react-native';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { db, auth } from '../services/firestore.js';
 import { useAuth } from '../context/authContext.js';
@@ -12,16 +13,17 @@ type RootStackParamList = {
     Home: undefined;
 };
 
-const SignUp = () => {
+const LogIn = () => {
     const [input, setInput] = useState({
         email: "",
         password: "",
     });
+    const [loading, setLoading] = useState(false);
 
     const { setLoggedInUser } = useAuth();
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-    const handleChange = (name, value) => {
+    const handleChange = (name: string, value: string) => {
         setInput({ ...input, [name]: value });
     }
 
@@ -33,6 +35,7 @@ const SignUp = () => {
     };
 
     const asyncLogIn = async () => {
+        setLoading(true);
         try {
             const emailExists = await doesEmailExist();
             if (!emailExists) {
@@ -41,6 +44,7 @@ const SignUp = () => {
                     text1: 'User Does Not Exist',
                     text2: 'Please ensure your email is correct.'
                 });
+                setLoading(false);
                 return;
             }
 
@@ -61,26 +65,39 @@ const SignUp = () => {
                 text1: 'Login Error',
                 text2: 'An error occurred during login. Please try again.'
             });
+        } finally {
+            setLoading(false);
         }
-    }                       
+    }
 
     return (
         <View style={styles.container}>
-            <TextInput
-                style={styles.input}
-                placeholder="email"
-                value={input.email}
-                onChangeText={(text) => handleChange('email', text)}
-            />
-            <TextInput
-                style={styles.input}
-                placeholder="Password"
-                value={input.password}
-                secureTextEntry={true}
-                onChangeText={(text) => handleChange('password', text)}
-            />
-            <Button title="Log In" onPress={asyncLogIn} />
-            <Button title="Want to create an account?" onPress={() => navigation.navigate('SignUp')} />
+            <View style={styles.backButtonContainer}>
+                <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+                    <Text style={styles.backButtonText}>Back</Text>
+                </TouchableOpacity>
+            </View>
+            {loading ? (
+                <ActivityIndicator size="large" color="#0000ff" />
+            ) : (
+                <>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Email"
+                        value={input.email}
+                        onChangeText={(text) => handleChange('email', text)}
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Password"
+                        value={input.password}
+                        secureTextEntry={true}
+                        onChangeText={(text) => handleChange('password', text)}
+                    />
+                    <Button title="Log In" onPress={asyncLogIn} />
+                    <Button title="Want to create an account?" onPress={() => navigation.navigate('SignUp')} />
+                </>
+            )}
         </View>
     )
 }
@@ -100,6 +117,14 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         width: '100%',
     },
+    backButtonContainer: {
+        position: 'absolute',
+        top: 50,
+        left: 30,
+    },
+    backButtonText: {
+        fontSize: 15,
+    }
 });
 
-export default SignUp;
+export default LogIn;

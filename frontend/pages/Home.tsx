@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import { useAuth } from '../context/authContext.js';
 import { db } from '../services/firestore.js';
 import Navbar from '../components/Navbar.jsx';
+import DiningPlaceHome from '../components/DiningPlaceHome.tsx';
+import DartmouthDining from '../services/DartmouthDining.json';
 
 const Home = () => {
 
     const { user, setLoggedInUser } = useAuth();
     const { loggedInUser, displayName } = user;
+    const [ diningPlaceList, setDiningPlaceList ] = useState(DartmouthDining);
 
     useEffect(() => {
         const fetchDisplayName = async () => {
@@ -38,7 +41,26 @@ const Home = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.text}>Welcome {displayName || 'Guest'}</Text>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <View style={styles.homeTextContainer}>
+                <Text style={styles.welcomeText}>Welcome, {displayName || 'Guest'}</Text>
+                <Text style={styles.guideText}>Select a dining option below</Text>
+            </View>
+            <View style={styles.placeComponentContainer}>
+            {diningPlaceList && 
+            diningPlaceList.map((place, i) => {
+                return (
+                    <DiningPlaceHome 
+                        key={i}
+                        placeName={place.placeName}
+                        openingHour={place.openingHour}
+                        closingHour={place.closingHour}
+                        businessLevel={place.businessLevel}
+                    />
+                )
+            })}
+            </View>
+            </ScrollView>
             <Navbar />
             
         </View>
@@ -47,16 +69,31 @@ const Home = () => {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        backgroundColor: 'white',
+        width: '100%',
+    },
+    homeTextContainer: {
+        paddingLeft: 20,
+        marginTop: 40,
+    },
+    scrollContainer: {
+        paddingTop: 60,
+        paddingHorizontal: 20,
+        paddingBottom: 100,
+        flexGrow: 1,
+    },
+    welcomeText: {
+        fontSize: 35,
+        marginBottom: 5, 
+    },
+    placeComponentContainer: {
+        width: '100%',
         justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'white', // Set background color if necessary
     },
-    text: {
-        fontSize: 24, // Increase font size for prominence
-        fontWeight: 'bold', // Add bold style for prominence
-        marginBottom: 20, // Add margin bottom to separate from Navbar
-    },
+    guideText: {
+        fontSize: 18,
+        marginBottom: 20,
+    }
 });
 
 export default Home;
