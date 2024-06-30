@@ -4,9 +4,11 @@ import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/fire
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../context/authContext.js';
 import { signOut } from "firebase/auth";
-import { db, auth } from '../services/firestore.js';
+import { db, auth, storage } from '../services/firestore.js';
+import Toast from 'react-native-toast-message';
 import * as ImagePicker from 'expo-image-picker';
 import Navbar from '../components/Navbar.jsx';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 
 type RootStackParamList = {
     SignUp: undefined;
@@ -15,29 +17,28 @@ type RootStackParamList = {
 const Profile = () => {
     const { user, setLoggedInUser } = useAuth();
     const { loggedInUser, displayName } = user;
-    const [ editingStatus, setEditingStatus ] = useState(false);
-    const [ nameEditingStatus, setNameEditingStatus ] = useState(false);
-    const [ tags, setTags ] = useState([]);
-    const [ profileImage, setProfileImage ] = useState<string | null>(null);
-    const [ nameInput, setNameInput ] = useState('');
-    const [ tagInput, setTagInput ] = useState('');
-    const [ postHistory, setPostHistory ] = useState(true);
+    const [editingStatus, setEditingStatus] = useState(false);
+    const [tags, setTags] = useState<string[]>([]);
+    const [profileImage, setProfileImage] = useState<string | null>(null);
+    const [nameInput, setNameInput] = useState('');
+    const [tagInput, setTagInput] = useState('');
+    const [postHistory, setPostHistory] = useState(true);
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-
-    const asyncSaveUser = async (field, value) => {
-        try {
-            const userDocRef = doc(db, 'users', loggedInUser.uid);
-            await updateDoc(userDocRef, { [field]: value })
-        } catch (e) {
-            console.error(e);
-        }
-    }
 
     useEffect(() => {
         const fetchDisplayName = async () => {
             try {
+                const userId = loggedInUser?.loggedInUser?.uid;
+                if (!userId) {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Error',
+                        text2: 'User not found.'
+                    });
+                    return;
+                }
                 const usersRef = collection(db, 'users');
-                const q = query(usersRef, where('id', '==', loggedInUser.loggedInUser.uid));
+                const q = query(usersRef, where('id', '==', userId));
                 const querySnapshot = await getDocs(q);
                 
                 if (!querySnapshot.empty) {
@@ -47,6 +48,7 @@ const Profile = () => {
                         ...user,
                         displayName: userData.displayName
                     });
+                    setNameInput(userData.displayName); 
                 }
             } catch (error) {
                 console.error('Error fetching displayName:', error);
@@ -61,8 +63,17 @@ const Profile = () => {
     useEffect(() => {
         const fetchTags = async () => {
             try {
+                const userId = loggedInUser?.loggedInUser?.uid;
+                if (!userId) {
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Error',
+                        text2: 'User not found.'
+                    });
+                    return;
+                }
                 const usersRef = collection(db, 'users');
-                const q = query(usersRef, where('id', '==', loggedInUser.loggedInUser.uid));
+                const q = query(usersRef, where('id', '==', userId));
                 const querySnapshot = await getDocs(q);
     
                 if (!querySnapshot.empty) {
@@ -87,6 +98,11 @@ const Profile = () => {
         }
     }, [loggedInUser]);
 
+    const handleEditToggle = () => {
+        setNameInput(displayName);
+        setEditingStatus(true);
+    }
+
     const asyncSignOut = async () => {
         try {
             await signOut(auth);
@@ -94,17 +110,17 @@ const Profile = () => {
         } catch (err) {
             console.error(err);
         }
-    }
+    };
 
     const handleAddTag = () => {
-        setTags( [ ...tags, tagInput] );
+        setTags([...tags, tagInput]);
         setTagInput('');
-    }
+    };
 
-    const handleDeleteTag = (index) => {
-        const newTags = tags.filter((tag, i) => i !== index);
+    const handleDeleteTag = (index: number) => {
+        const newTags = tags.filter((_, i) => i !== index);
         setTags(newTags);
-    }
+    };
 
     const pickImage = async () => {
         const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -125,46 +141,123 @@ const Profile = () => {
         }
     };
 
-    const handleSaveDisplayName = () => {
-        setNameEditingStatus(false);
+    const uploadImageAsync = async (uri: string) => {
+        try {
+            const response = await fetch(uri);
+            const blob = await response.blob();
+            const imageRef = ref(storage, `profileImages/${loggedInUser?.uid}`);
+            await uploadBytes(imageRef, blob);
+            const downloadURL = await getDownloadURL(imageRef);
+            return downloadURL;
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            Toast.show({
+                type: 'error',
+                text1: 'Image Upload Failed',
+                text2: 'Failed to upload your profile image. Please try again later.',
+            });
+            return null;
+        }
+    };
+
+    const handleSaveProfile = async () => {
+        try {
+            const userId = loggedInUser.loggedInUser.uid;
+            console.log(userId);
+    
+            if (!userId) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error',
+                    text2: 'No user is currently logged in.'
+                });
+                return;
+            }
+
+            if (!nameInput) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Display Name Missing',
+                });
+                return;
+            }
+    
+            const usersRef = collection(db, 'users');
+            const q = query(usersRef, where('id', '==', userId));
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error',
+                    text2: 'user not found.'
+                });
+                return;
+            }
+
+            const userDoc = querySnapshot.docs[0];
+            const userDocRef = userDoc.ref;
+
+            let imageURL = null;
+            if (profileImage) {
+                imageURL = await uploadImageAsync(profileImage);
+            }
+    
+            let updates;
+    
+            if (imageURL) {
+                updates = {
+                    displayName: nameInput,
+                    tags: tags,
+                    profileImage: imageURL,
+                };
+            } else {
+                updates = {
+                    displayName: nameInput,
+                    tags: tags,
+                };
+            }
+    
+            await updateDoc(userDocRef, updates);
+    
+            Toast.show({
+                type: 'success',
+                text1: 'Profile Updated',
+                text2: 'Your profile has been updated successfully!'
+            });
+    
+        } catch (e) {
+            console.error('Error updating profile:', e);
+            Toast.show({
+                type: 'error',
+                text1: 'Update Failed',
+                text2: 'There was an error updating your profile. Please try again later.'
+            });
+        } finally {
+            setEditingStatus(false);
+        }
     };
 
     return (
         <View style={styles.container}>
             {displayName ? (
-                editingStatus ? (
-                    <View style={styles.profileBox}>
-                        <TouchableOpacity onPress={pickImage}>
-                            <Image
-                                source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
-                                style={styles.profileImage}
-                            />
-                        </TouchableOpacity>
-                        <View>
-                            {nameEditingStatus ? (
-                                <View style={styles.editingContainer}>
-                                    <TextInput
-                                        style={styles.input}
-                                        value={nameInput}
-                                        onChangeText={setNameInput}
-                                        placeholder="Enter your display name"
-                                    />
-                                    <TouchableOpacity onPress={() => setNameEditingStatus(false)}>
-                                        <Text>Cancel</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={handleSaveDisplayName}>
-                                        <Text>Save</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            ) : (
-                                <View style={styles.displayContainer}>
-                                    <Text style={styles.displayName}>{displayName || 'Guest'}</Text>
-                                    <TouchableOpacity onPress={() => setNameEditingStatus(true)}>
-                                        <Text>edit</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            )}
-                            <View style={styles.tagContainer}>
+                <View style={styles.profileBox}>
+                    <TouchableOpacity onPress={pickImage}>
+                        <Image
+                            source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
+                            style={styles.profileImage}
+                        />
+                    </TouchableOpacity>
+                    <View>
+                        {editingStatus ? (
+                            <View style={styles.editingContainer}>
+                                <TextInput
+                                    style={styles.inputName}
+                                    value={nameInput}
+                                    onChangeText={setNameInput}
+                                    placeholder="Enter your display name"
+                                />
+                                <View style={styles.tagList}>
                                 {tags.map((tag, i) => (
                                     <View style={styles.tagWithDelete} key={i}>
                                         <Text>{tag}</Text>
@@ -173,54 +266,52 @@ const Profile = () => {
                                         </TouchableOpacity>
                                     </View>
                                 ))}
-                            </View>
-                            <View style={styles.tagInputContainer}>
-                                <TextInput 
-                                    style={styles.tagInput}
-                                    value={tagInput}
-                                    onChangeText={setTagInput}
-                                />
-                                <TouchableOpacity onPress={handleAddTag} style={styles.editProfileButton}>
-                                    <Text>add</Text>
-                                </TouchableOpacity>
-                            </View>
-                            <View style={styles.profileButtonContainer}>
-                                <TouchableOpacity onPress={() => setEditingStatus(false)} style={styles.editProfileButton}>
-                                    <Text>Cancel</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => setEditingStatus(false)} style={styles.editProfileButton}>
-                                    <Text>Save Profile</Text>
-                                </TouchableOpacity>
-                            </View>
                         </View>
-                    </View>
-                ) : (
-                    <View style={styles.profileBox}>
-                        <Image
-                            source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
-                            style={styles.profileImage}
-                        />
-                        <View>
-                            <Text style={styles.displayName}>{displayName}</Text>
-                            <View style={styles.tagContainer}>
-                                {tags.map((tag, i) => (
-                                    <View style={styles.tagWithDelete} key={i}>
-                                        <Text>{tag}</Text>
-                                    </View>
-                                ))}
+                                <View style={styles.tagContainer}>
+                                    <TextInput 
+                                        style={styles.tagInput}
+                                        value={tagInput}
+                                        onChangeText={setTagInput}
+                                    />
+                                    <TouchableOpacity onPress={handleAddTag} style={styles.editProfileButton}>
+                                        <Text>Add Tag</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={styles.saveCancelContainer}>
+                                    <TouchableOpacity style={styles.saveButton} onPress={handleSaveProfile}>
+                                        <Text>Save</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={styles.cancelButton} onPress={() => setEditingStatus(false)}>
+                                        <Text>Cancel</Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
-                            <TouchableOpacity onPress={() => setEditingStatus(true)} style={styles.editProfileButton}>
-                                <Text>Edit Profile</Text>
-                            </TouchableOpacity>
+                        ) : (
+                            <View style={styles.displayContainer}>
+                                <Text style={styles.displayName}>{displayName}</Text>
+                                <View style={styles.tagList}>
+                            {tags.map((tag, i) => (
+                                <View style={styles.tagWithDelete} key={i}>
+                                    <Text>{tag}</Text>
+                                    <TouchableOpacity onPress={() => handleDeleteTag(i)}>
+                                        <Text style={styles.tagDeleteButton}>x</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
                         </View>
+                                <TouchableOpacity onPress={handleEditToggle}>
+                                    <Text>Edit</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
                     </View>
-                )
+                </View>
             ) : (
                 <View style={styles.profileBox}>
                     <Image
-                            source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
-                            style={styles.profileImage}
-                        />
+                        source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
+                        style={styles.profileImage}
+                    />
                     <View style={styles.guestProfileButtonContainer}>
                         <Text style={styles.displayName}>Guest</Text>
                         <TouchableOpacity onPress={() => {navigation.navigate('SignUp')}}>
@@ -229,15 +320,13 @@ const Profile = () => {
                     </View>
                 </View>
             )}
-            <View>
-                <View style={styles.profileToggle}>
-                    <TouchableOpacity style={[styles.profileToggleButton, postHistory && styles.activeButton]} onPress={() => setPostHistory(true)}>
-                        <Text>my posts</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={[styles.profileToggleButton, !postHistory && styles.activeButton]} onPress={() => setPostHistory(false)}>
-                        <Text>favorites</Text>
-                    </TouchableOpacity>
-                </View>
+            <View style={styles.profileToggle}>
+                <TouchableOpacity style={[styles.profileToggleButton, postHistory && styles.activeButton]} onPress={() => setPostHistory(true)}>
+                    <Text>My Posts</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.profileToggleButton, !postHistory && styles.activeButton]} onPress={() => setPostHistory(false)}>
+                    <Text>Favorites</Text>
+                </TouchableOpacity>
             </View>
             <TouchableOpacity onPress={asyncSignOut}>
                 <Text>Sign Out</Text>
@@ -245,7 +334,7 @@ const Profile = () => {
             <Navbar />
         </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -258,7 +347,9 @@ const styles = StyleSheet.create({
     profileBox: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 20
+        marginBottom: 20,
+        justifyContent: 'center',
+        marginHorizontal: 20,
     },
     profileImage: {
         width: 100,
@@ -276,41 +367,64 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         paddingHorizontal: 10,
         borderRadius: 15,
-        marginRight: 10
+    },
+    saveButton: {
+        backgroundColor: 'gray',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 15,
+    },
+    cancelButton: {
+        backgroundColor: 'gray',
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        borderRadius: 15,
+        marginRight: 5,
+    },
+    saveCancelContainer: {
+        flexDirection: 'row-reverse',
+        marginTop: 10,
     },
     profileButtonContainer: {
         flexDirection: 'row',
         marginTop: 10
     },
     tagInputContainer: {
-        flexDirection: 'row',
+        marginTop: 10,
+        width: '100%',
     },
     tagInput: {
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 5,
-        width: 100,
-        height: 25,
+        width: 140,
+        paddingVertical: 3,
         marginRight: 5,
+        marginBottom: 5
     },
-    input: {
+    inputName: {
         borderWidth: 1,
         borderColor: '#ccc',
         borderRadius: 5,
-        padding: 8,
-        marginBottom: 10
+        paddingVertical: 4,
+        paddingHorizontal: 8,
+        marginBottom: 10,
+        width: '60%',
     },
     displayContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: 'column',
         marginBottom: 10
     },
     editingContainer: {
         marginBottom: 10
     },
+    tagList: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        marginBottom: 10
+    },
     tagContainer: {
         flexDirection: 'row',
-        marginBottom: 10
     },
     tagWithDelete: {
         flexDirection: 'row',
@@ -321,7 +435,8 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
         backgroundColor: 'gray',
-        marginRight: 5
+        marginRight: 5,
+        marginBottom: 5
     }, 
     tagDeleteButton: {
         marginLeft: 5
