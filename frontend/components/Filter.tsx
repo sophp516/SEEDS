@@ -23,7 +23,7 @@ interface FilterProps {
 const Filter: React.FC<FilterProps> = ({ items, onFilter }) => {
   const [filterText, setFilterText] = useState('');
 
-  // To-Do: connect with firebase and Perform search logic here
+  // To-Do: connect with firebase and Perform filter logic here
   const applyFilter = () => {
     const filteredItems = items.filter(item =>
       item.toLowerCase().includes(filterText.toLowerCase())
