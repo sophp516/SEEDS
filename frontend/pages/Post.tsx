@@ -227,8 +227,8 @@ const Post = () => {
                             style={styles.textbox}
                             value={review.price ? review.price.toString() :  null}
                             keyboardType='decimal-pad'
-                            onChangeText={(text)=> setReview(prevReview => ({...prevReview, price: parseFloat(text) || -1 }))}
-                            placeholder='enter price'
+                            onChangeText={(text)=> setReview(prevReview => ({...prevReview, price: parseFloat(text) || null }))}
+                            placeholder='0.00'
                         />
                      <Text> Taste </Text>
                      <Slider
@@ -255,7 +255,18 @@ const Post = () => {
                         thumbTintColor="#b9e4c9"
                     
                     />
-                     
+                    <View style={styles.tagsContainer}> 
+                        {review.tags && review.tags.map((tag, index) =>
+                            <View key={index} style={styles.tags}>
+                                <TouchableOpacity onPress={()=> setReview(prevReview => ({...prevReview, tags: [
+                                    ...prevReview.tags.slice(0, index), // copies item in array, excluding index
+                                    ...prevReview.tags.slice(index + 1) // copies item after index
+                                ]}))}>
+                                    <Text> x </Text>
+                                </TouchableOpacity>
+                                  <Text >{tag}</Text>
+                            </View>)}   
+                    </View>
                      <Text> Add Tags</Text>
                      <TextInput 
                             style={styles.textbox}
@@ -299,7 +310,7 @@ const styles = StyleSheet.create({
         marginBottom: 20, 
     },
     slider:{
-        width: 300, 
+        width: 200, 
         height: 40, 
         marginTop: 20, 
         marginBottom: 20,
@@ -364,6 +375,18 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         justifyContent: 'center',
+    },
+    tagsContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center'
+    },
+    tags:{
+        backgroundColor: '#B7B7B7',
+        borderRadius: 20,
+        padding: 5,
+        margin: 5,
+        flexDirection: 'row',
     },
     addReviewBtn: {
         borderRadius: 15,
