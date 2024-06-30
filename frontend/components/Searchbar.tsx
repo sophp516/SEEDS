@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, TextInput, Image, StyleSheet } from 'react-native';
+import Filter from './Filter';
 
 // SearchBar component: (functional component)
 const SearchBar: React.FC = () => {
@@ -26,6 +27,12 @@ const SearchBar: React.FC = () => {
           onSubmitEditing={handleSearch}
         />
       </View>
+
+      <Filter
+        items={['Shellfish', 'fish', 'Sushi', 'Pasta', 'Salad', 'Sandwich', 'Soup', 'Dessert', 'Drink']}
+        onFilter={(filteredItems) => console.log('Filtered Items:', filteredItems)}
+      />
+
     </View>
   );
 };
@@ -33,10 +40,10 @@ const SearchBar: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 10, 
+    marginTop: 25,
   },
   searchSection: {
     flexDirection: 'row',
@@ -44,14 +51,14 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     borderWidth: 1,
     marginBottom: 10,
+    borderRadius: 20,
+    height: 40,
   },
   searchIcon: {
     padding: 10,
     margin: 5,
     height: 20,
     width: 20,
-    resizeMode: 'stretch',
-    alignItems: 'center',
   },
   textInput: {
     flex: 1,
