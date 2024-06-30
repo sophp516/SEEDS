@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     borderRadius: 10, 
   },
   filterIcon: {
-    padding: 10,
+    padding: 5,
     margin: 5,
     height: 20,
     width: 20,
@@ -67,8 +67,8 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#D9D9E4',
-    padding: 10,
-    borderRadius: 20,
+    padding: 5,
+    borderRadius: 15,
     marginBottom: 10,
   },
 });
