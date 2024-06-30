@@ -39,7 +39,7 @@ const SearchBar: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
+    padding: 0,
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
