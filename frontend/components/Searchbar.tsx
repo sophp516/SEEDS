@@ -39,13 +39,16 @@ const SearchBar: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
+    padding: 10,
     flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 10, 
     marginTop: 25,
   },
   searchSection: {
+    flex: 8, 
     flexDirection: 'row',
     alignItems: 'center',
     borderColor: 'gray',
@@ -53,6 +56,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 20,
     height: 40,
+    marginRight: 10,
   },
   searchIcon: {
     padding: 10,
