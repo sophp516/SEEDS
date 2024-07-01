@@ -45,11 +45,15 @@ const Discover = () => {
       
       <Navbar />
       <BottomSheet
+        backgroundStyle={{ backgroundColor: '#C7C7C7' }}
         ref={bottomSheetRef}
-        index={-1} // Start closed
+        index={-1}
         snapPoints={snapPoints}
       >
-        <Text> HI THERE PLEASE WORK I BEG</Text>
+        <View style={styles.bottomSheetContainer}>
+          <Text style={styles.bottomSheetText}> filtering...</Text>
+        </View>
+       
       </BottomSheet>
       
     </View>
@@ -82,6 +86,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 100,
 
+  },
+
+  bottomSheetContainer: {
+    flex: 1,
+    padding: 16,
+    alignItems: 'center',
+  },
+
+  bottomSheetText: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

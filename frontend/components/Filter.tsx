@@ -1,6 +1,4 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, Image, StyleSheet, Button } from 'react-native';
-import BottomSheet from '@gorhom/bottom-sheet';
+import { View, TouchableOpacity, Image, StyleSheet} from 'react-native';
 
 const foodCatergory: string[] = [
   'Shellfish',
