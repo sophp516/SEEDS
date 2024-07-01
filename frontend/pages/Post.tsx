@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import React from 'react';
-import { Image, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
 import Slider from '@react-native-community/slider';
 import * as ImagePicker from 'expo-image-picker';
@@ -29,6 +29,7 @@ interface newReview {
 // when click send, passes a object to the firebase function
 const Post = () => {
     const [tag, setTag] = useState<string>('');
+    const [selectedImg, setSelectedImg] = useState<string | null>(null);
     const navigation = useNavigation();
     const [toggle, setToggle] = useState<boolean>(true); // true = post, false = review 
     const [post, setPost] = useState<newPost>({
@@ -164,6 +165,10 @@ const Post = () => {
             setTag('');
         }
     }
+    const handleDeleteTag = (index) => {
+        const newTags = review.tags.filter((tags, i) => i !== index);
+        setReview((prev => ({...prev, tags: newTags})));
+    }
 
     return (
 
@@ -192,7 +197,6 @@ const Post = () => {
                         onChangeText={(text)=> setPost(prevPost => ({...prevPost, comment: text}))}
                         placeholder='enter comment'
                     />
-
                     <TouchableOpacity onPress={selectImage} >
                         <Image source={require('../assets/camera.png')} style={styles.cameraIcon} />
                     </TouchableOpacity>
@@ -203,11 +207,20 @@ const Post = () => {
     
                 </View>
                 : 
-                <View style={styles.reviewContainer}>
+                <ScrollView contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>   
+                    <View style={styles.reviewContainer}>
+                    {review.image ?   
+                        <TouchableOpacity onPress={selectImage} >
+                            <Image source={{uri: review.image}} style={{width: 350, height: 179, borderRadius: 10, margin: 10,}} />
+                        </TouchableOpacity>
+                        :
+                        <TouchableOpacity onPress={selectImage} style={styles.imagebox}>
+                          <Image source={require('../assets/camera.png')} style={styles.cameraIcon} />
+                      </TouchableOpacity>
                     
-                    <TouchableOpacity onPress={selectImage} style={styles.imagebox}>
-                        <Image source={require('../assets/camera.png')} style={styles.cameraIcon} />
-                    </TouchableOpacity>
+                    }
+                  
+
                      <Text> Food Name </Text>
                         <TextInput 
                             style={styles.textbox}
@@ -258,10 +271,7 @@ const Post = () => {
                     <View style={styles.tagsContainer}> 
                         {review.tags && review.tags.map((tag, index) =>
                             <View key={index} style={styles.tags}>
-                                <TouchableOpacity onPress={()=> setReview(prevReview => ({...prevReview, tags: [
-                                    ...prevReview.tags.slice(0, index), // copies item in array, excluding index
-                                    ...prevReview.tags.slice(index + 1) // copies item after index
-                                ]}))}>
+                                <TouchableOpacity onPress={()=>handleDeleteTag(index)}>
                                     <Text> x </Text>
                                 </TouchableOpacity>
                                   <Text >{tag}</Text>
@@ -276,10 +286,17 @@ const Post = () => {
                             onSubmitEditing={handleSubmitTag}
                             returnKeyType='done'
                         />
+                    <Text> Comment </Text>
+                    <TextInput 
+                        style={styles.commentBox}
+                        value={review.comment}
+                        onChangeText={(text)=> setReview(prevReview => ({...prevReview, comment: text}))}
+                        placeholder='enter comment'/>
                     <TouchableOpacity onPress={handleCreateReview} style={styles.addReviewBtn}>
                         <Text>Add review</Text>
                     </TouchableOpacity>
-                </View>
+                    </View>   
+                </ScrollView>
              }
 
             <Navbar />
@@ -317,7 +334,11 @@ const styles = StyleSheet.create({
         padding: 10, 
     },
     reviewContainer: {
-        alignItems: 'center',
+        flex: 1,
+        marginBottom: 60,
+        paddingVertical: 20,
+        alignItems: 'center'
+        //  backgroundColor: 'whitesmoke'
     },
     toggleContainer: {
         flexDirection: 'row',
