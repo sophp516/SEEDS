@@ -76,12 +76,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     backgroundColor: 'white',
     borderRadius: 10, 
   },
   filterIcon: {
-    padding: 5,
     margin: 5,
     height: 20,
     width: 20,
@@ -91,7 +90,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#D9D9E4',
     padding: 5,
     borderRadius: 15,
-    marginBottom: 10,
+    marginBottom: -15,
   },
 });
 export default Filter;

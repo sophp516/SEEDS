@@ -28,11 +28,7 @@ const SearchBar: React.FC = () => {
         />
       </View>
 
-      <Filter
-        items={['Shellfish', 'fish', 'Sushi', 'Pasta', 'Salad', 'Sandwich', 'Soup', 'Dessert', 'Drink']}
-        onFilter={(filteredItems) => console.log('Filtered Items:', filteredItems)}
-        isBottomSheetOpen={false}
-      />
+
 
     </View>
   );
@@ -49,7 +45,7 @@ const styles = StyleSheet.create({
     marginTop: 25,
   },
   searchSection: {
-    flex: 8, 
+    flex: 1, 
     flexDirection: 'row',
     alignItems: 'center',
     borderColor: 'gray',
@@ -58,6 +54,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     height: 40,
     marginRight: 10,
+
   },
   searchIcon: {
     padding: 10,

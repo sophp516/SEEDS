@@ -1,43 +1,62 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Navbar from '../components/Navbar.jsx';
 import SearchBar from '../components/Searchbar.tsx';
 import Filter from '../components/Filter.tsx';
-import BottomSheet from '@gorhom/bottom-sheet';
 
 const Discover = () => {
-
-    return (
-        <View style={styles.container}>
-            <View style= {styles.containerTop}>
-              <SearchBar />
-            </View>
-            <Text style={styles.text}>Discover</Text>
-            <Navbar />
+  const bottomSheetRef = useRef(null);
+  return (
+    <View style={styles.outerContainer}>
+      <View style={styles.containerTop}>
+        <View style={styles.searchFilterRow}>
+          <View style={styles.searchBarContainer}>
+            <SearchBar />
+          </View>
+          <View style={styles.filterButtonContainer}>
+            <Filter
+              items={['Shellfish', 'fish', 'Sushi', 'Pasta', 'Salad', 'Sandwich', 'Soup', 'Dessert', 'Drink']}
+              onFilter={(filteredItems) => console.log('Filtered Items:', filteredItems)}
+              isBottomSheetOpen={false}
+            />
+          </View>
         </View>
-    );
-}
+      </View>
+      <Text style={styles.text}>Discover</Text>
+      <Navbar />
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-  container: {
+  outerContainer: {
     flex: 1,
-    justifyContent: 'flex-start',
     alignItems: 'center',
-    backgroundColor: 'white', 
-
-},
-containerTop: {
-  padding: 20,
-  height: 200,
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: 'white', 
-},
-text: {
-    fontSize: 24, 
-    fontWeight: 'bold', 
-    marginBottom: 20, 
-},
+    backgroundColor: 'white',
+  },
+  containerTop: {
+    padding: 20,
+    alignItems: 'center',
+    backgroundColor: 'white',
+    marginTop: 25,
+  },
+  searchFilterRow: {
+    justifyContent: 'flex-start',
+    flex: 0,
+    flexDirection: 'row',
+    width: '100%', // Ensure the row takes the full width of the container
+  },
+  searchBarContainer: {
+    flex: 1, // Ensure the search bar takes up as much space as possible
+  },
+  filterButtonContainer: {
+    flex: 0, // Ensure the filter button takes up only as much space as needed
+  },
+  text: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
 });
 
 export default Discover;
