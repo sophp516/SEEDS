@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, TextInput, Image, StyleSheet } from 'react-native';
-import Filter from './Filter';
 
 // SearchBar component: (functional component)
 const SearchBar: React.FC = () => {

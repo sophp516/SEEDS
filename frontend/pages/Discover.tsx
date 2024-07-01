@@ -8,20 +8,26 @@ const Discover = () => {
   const bottomSheetRef = useRef(null);
   return (
     <View style={styles.outerContainer}>
+
       <View style={styles.containerTop}>
         <View style={styles.searchFilterRow}>
+
           <View style={styles.searchBarContainer}>
             <SearchBar />
           </View>
-          <View style={styles.filterButtonContainer}>
+
+          <View>
             <Filter
               items={['Shellfish', 'fish', 'Sushi', 'Pasta', 'Salad', 'Sandwich', 'Soup', 'Dessert', 'Drink']}
               onFilter={(filteredItems) => console.log('Filtered Items:', filteredItems)}
               isBottomSheetOpen={false}
             />
           </View>
+          
         </View>
       </View>
+
+
       <Text style={styles.text}>Discover</Text>
       <Navbar />
     </View>
@@ -44,14 +50,11 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     flex: 0,
     flexDirection: 'row',
-    width: '100%', // Ensure the row takes the full width of the container
   },
   searchBarContainer: {
-    flex: 1, // Ensure the search bar takes up as much space as possible
+    flex: 1,
   },
-  filterButtonContainer: {
-    flex: 0, // Ensure the filter button takes up only as much space as needed
-  },
+
   text: {
     fontSize: 24,
     fontWeight: 'bold',
