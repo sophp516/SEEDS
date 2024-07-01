@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Image, StyleSheet, Button } from 'react-native';
+import { View, TouchableOpacity, Image, StyleSheet} from 'react-native';
 
 const foodCatergory: string[] = [
   'Shellfish',
@@ -18,25 +17,27 @@ const foodCatergory: string[] = [
 interface FilterProps {
   items: string[];
   onFilter: (filteredItems: string[]) => void;
+  toggleBottomSheet: () => void;
 }
 
-const Filter: React.FC<FilterProps> = ({ items, onFilter }) => {
-  const [filterText, setFilterText] = useState('');
+const Filter: React.FC<FilterProps> = ({ items, onFilter, toggleBottomSheet }) => {
 
   // To-Do: connect with firebase and Perform filter logic here
-  const applyFilter = () => {
-    const filteredItems = items.filter(item =>
-      item.toLowerCase().includes(filterText.toLowerCase())
-    );
-    onFilter(filteredItems);
-  };
+  // const applyFilter = () => {
+  //   const filteredItems = items.filter(item =>
+  //     item.toLowerCase().includes(filterText.toLowerCase())
+  //   );
+  //   onFilter(filteredItems);
+  // };
+
+
 
   return (
     <View style={styles.container}>
       <TouchableOpacity 
         onPress={() => {
-          setFilterText('');
-          applyFilter()
+          //apply filter logic
+          toggleBottomSheet();
         }} 
         style={styles.button}
       >
@@ -45,7 +46,6 @@ const Filter: React.FC<FilterProps> = ({ items, onFilter }) => {
           style={styles.filterIcon}
         />
       </TouchableOpacity> 
-
     </View>
   );
 };
@@ -54,12 +54,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     backgroundColor: 'white',
     borderRadius: 10, 
   },
   filterIcon: {
-    padding: 5,
     margin: 5,
     height: 20,
     width: 20,
@@ -69,7 +68,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#D9D9E4',
     padding: 5,
     borderRadius: 15,
-    marginBottom: 10,
+    marginBottom: -15,
   },
 });
 export default Filter;
