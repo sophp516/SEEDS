@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, Button } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet';
 
@@ -19,38 +19,26 @@ const foodCatergory: string[] = [
 interface FilterProps {
   items: string[];
   onFilter: (filteredItems: string[]) => void;
-  isBottomSheetOpen: boolean;
+  toggleBottomSheet: () => void;
 }
 
-const Filter: React.FC<FilterProps> = ({ items, onFilter }) => {
-  const [filterText, setFilterText] = useState('');
-  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  const bottomSheetRef = useRef<BottomSheet>(null);
+const Filter: React.FC<FilterProps> = ({ items, onFilter, toggleBottomSheet }) => {
 
   // To-Do: connect with firebase and Perform filter logic here
-  const applyFilter = () => {
-    const filteredItems = items.filter(item =>
-      item.toLowerCase().includes(filterText.toLowerCase())
-    );
-    onFilter(filteredItems);
-  };
+  // const applyFilter = () => {
+  //   const filteredItems = items.filter(item =>
+  //     item.toLowerCase().includes(filterText.toLowerCase())
+  //   );
+  //   onFilter(filteredItems);
+  // };
 
-  const toggleBottomSheet = () => {
-    if (isBottomSheetOpen) {
-      bottomSheetRef.current?.close();
-    } else {
-      bottomSheetRef.current?.expand();
-    }
-    setIsBottomSheetOpen(!isBottomSheetOpen);
-  }
-  const snapPoints = useMemo(() => ['25%', '50%', '70%', '100%'], []);
+
 
   return (
     <View style={styles.container}>
       <TouchableOpacity 
         onPress={() => {
-          setFilterText('');
-          applyFilter()
+          //apply filter logic
           toggleBottomSheet();
         }} 
         style={styles.button}
@@ -60,14 +48,6 @@ const Filter: React.FC<FilterProps> = ({ items, onFilter }) => {
           style={styles.filterIcon}
         />
       </TouchableOpacity> 
-
-      <BottomSheet
-        ref={bottomSheetRef}
-        index={1}
-        snapPoints={snapPoints}
-      >
-      <Text> Filtering </Text>
-      </BottomSheet>
     </View>
   );
 };

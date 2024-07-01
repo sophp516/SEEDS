@@ -1,11 +1,24 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Navbar from '../components/Navbar.jsx';
 import SearchBar from '../components/Searchbar.tsx';
 import Filter from '../components/Filter.tsx';
+import BottomSheet from '@gorhom/bottom-sheet';
 
 const Discover = () => {
   const bottomSheetRef = useRef(null);
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+
+  const toggleBottomSheet = () => {
+    if (isBottomSheetOpen) {
+      bottomSheetRef.current?.close();
+    } else {
+      bottomSheetRef.current?.expand();
+    }
+    setIsBottomSheetOpen(!isBottomSheetOpen);
+  };
+  const snapPoints = useMemo(() => ['25%', '50%', '70%'], []);
+
   return (
     <View style={styles.outerContainer}>
 
@@ -20,7 +33,7 @@ const Discover = () => {
             <Filter
               items={['Shellfish', 'fish', 'Sushi', 'Pasta', 'Salad', 'Sandwich', 'Soup', 'Dessert', 'Drink']}
               onFilter={(filteredItems) => console.log('Filtered Items:', filteredItems)}
-              isBottomSheetOpen={false}
+              toggleBottomSheet={toggleBottomSheet}
             />
           </View>
           
@@ -29,7 +42,16 @@ const Discover = () => {
 
 
       <Text style={styles.text}>Discover</Text>
+      
       <Navbar />
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={-1} // Start closed
+        snapPoints={snapPoints}
+      >
+        <Text> HI THERE PLEASE WORK I BEG</Text>
+      </BottomSheet>
+      
     </View>
   );
 };
@@ -58,7 +80,8 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginTop: 100,
+
   },
 });
 
