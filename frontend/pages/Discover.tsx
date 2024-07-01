@@ -2,6 +2,8 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Navbar from '../components/Navbar.jsx';
 import SearchBar from '../components/Searchbar.tsx';
+import Filter from '../components/Filter.tsx';
+import BottomSheet from '@gorhom/bottom-sheet';
 
 const Discover = () => {
 

@@ -31,6 +31,7 @@ const SearchBar: React.FC = () => {
       <Filter
         items={['Shellfish', 'fish', 'Sushi', 'Pasta', 'Salad', 'Sandwich', 'Soup', 'Dessert', 'Drink']}
         onFilter={(filteredItems) => console.log('Filtered Items:', filteredItems)}
+        isBottomSheetOpen={false}
       />
 
     </View>

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Image, StyleSheet, Button } from 'react-native';
+import React, { useState, useMemo, useRef } from 'react';
+import { View, Text, TouchableOpacity, Image, StyleSheet, Button } from 'react-native';
+import BottomSheet from '@gorhom/bottom-sheet';
 
 const foodCatergory: string[] = [
   'Shellfish',
@@ -18,10 +19,13 @@ const foodCatergory: string[] = [
 interface FilterProps {
   items: string[];
   onFilter: (filteredItems: string[]) => void;
+  isBottomSheetOpen: boolean;
 }
 
 const Filter: React.FC<FilterProps> = ({ items, onFilter }) => {
   const [filterText, setFilterText] = useState('');
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const bottomSheetRef = useRef<BottomSheet>(null);
 
   // To-Do: connect with firebase and Perform filter logic here
   const applyFilter = () => {
@@ -31,12 +35,23 @@ const Filter: React.FC<FilterProps> = ({ items, onFilter }) => {
     onFilter(filteredItems);
   };
 
+  const toggleBottomSheet = () => {
+    if (isBottomSheetOpen) {
+      bottomSheetRef.current?.close();
+    } else {
+      bottomSheetRef.current?.expand();
+    }
+    setIsBottomSheetOpen(!isBottomSheetOpen);
+  }
+  const snapPoints = useMemo(() => ['25%', '50%', '70%', '100%'], []);
+
   return (
     <View style={styles.container}>
       <TouchableOpacity 
         onPress={() => {
           setFilterText('');
           applyFilter()
+          toggleBottomSheet();
         }} 
         style={styles.button}
       >
@@ -46,6 +61,13 @@ const Filter: React.FC<FilterProps> = ({ items, onFilter }) => {
         />
       </TouchableOpacity> 
 
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={1}
+        snapPoints={snapPoints}
+      >
+      <Text> Filtering </Text>
+      </BottomSheet>
     </View>
   );
 };
