@@ -66,10 +66,17 @@ const styles = StyleSheet.create({
       justifyContent: 'space-around',
       alignItems: 'center',
       backgroundColor: 'gray', 
-      paddingTop: 20, 
-      paddingBottom: 20,
+      paddingTop: 5, 
+      paddingBottom: 5,
       paddingLeft: 10,
       paddingRight: 10,
+      borderRadius: 20,
+      shadowColor: 'black',
+      shadowOpacity: 0.30, // Shadow opacity
+      shadowRadius: 3.84, // Shadow blur radius
+
+
+      
   },
   button: {
       padding: 10,
@@ -78,9 +85,10 @@ const styles = StyleSheet.create({
       color: 'black',
   },
   Icon: {
-      width: 30,
-      height: 30,
+      width: 25,
+      height: 25,
       margin: 'auto' 
+
   },
     
 });
