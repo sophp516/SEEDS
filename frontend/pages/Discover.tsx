@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     backgroundColor: 'white',
-    marginTop: 25,
+    marginTop: 40,
   },
   searchFilterRow: {
     justifyContent: 'flex-start',
