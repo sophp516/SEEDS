@@ -7,6 +7,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { db, auth } from '../services/firestore.js';
 import { useAuth } from '../context/authContext.js';
 import Toast from 'react-native-toast-message';
+import colors from '../styles.js';
 
 type RootStackParamList = {
     SignUp: undefined;
@@ -72,6 +73,9 @@ const LogIn = () => {
 
     return (
         <View style={styles.container}>
+            <View style={styles.welcomeContainer}>
+                <Text style={styles.welcomeText}>Welcome back!</Text>
+            </View>
             <View style={styles.backButtonContainer}>
                 <TouchableOpacity onPress={() => navigation.navigate('Home')}>
                     <Text style={styles.backButtonText}>Back</Text>
@@ -94,8 +98,15 @@ const LogIn = () => {
                         secureTextEntry={true}
                         onChangeText={(text) => handleChange('password', text)}
                     />
-                    <Button title="Log In" onPress={asyncLogIn} />
-                    <Button title="Want to create an account?" onPress={() => navigation.navigate('SignUp')} />
+                    <TouchableOpacity onPress={asyncLogIn} style={styles.signUpButton}>
+                        <Text style={styles.signUpText}>LOG IN</Text>
+                    </TouchableOpacity>
+                    <View style={styles.logInNav}>
+                        <Text>Want to create an account?</Text>
+                        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+                            <Text style={styles.logInNavText}>Log in</Text>
+                        </TouchableOpacity>
+                    </View>
                 </>
             )}
         </View>
@@ -108,23 +119,52 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 16,
+        backgroundColor: colors.backgroundGray
+    },
+    logInNav: {
+        paddingTop: 20,
+        flexDirection: 'row',
+    },
+    logInNavText: {
+        marginLeft: 5,
+        textDecorationLine: 'underline',
     },
     input: {
         height: 40,
-        borderColor: 'gray',
+        borderColor: 'black',
         borderWidth: 1,
-        marginBottom: 12,
+        marginBottom: 25,
         paddingHorizontal: 8,
         width: '100%',
+        borderRadius: 10,
     },
     backButtonContainer: {
         position: 'absolute',
         top: 50,
-        left: 30,
+        left: 20,
     },
     backButtonText: {
         fontSize: 15,
-    }
+    },
+    signUpButton: {
+        backgroundColor: colors.orangeHighlight,
+        width: '100%',
+        height: 40,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    signUpText: {
+        fontSize: 20,
+    },
+    welcomeContainer: {
+        width: '100%',
+        marginBottom: 20,
+    },
+    welcomeText: {
+        fontSize: 23,
+        fontWeight: '500',
+    },
 });
 
 export default LogIn;

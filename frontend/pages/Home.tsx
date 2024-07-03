@@ -6,6 +6,7 @@ import { db } from '../services/firestore.js';
 import Navbar from '../components/Navbar.jsx';
 import DiningPlaceHome from '../components/DiningPlaceHome.tsx';
 import DartmouthDining from '../services/DartmouthDining.json';
+import colors from '../styles.js';
 
 const Home = () => {
 
@@ -69,7 +70,7 @@ const Home = () => {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: 'white',
+        backgroundColor: colors.backgroundGray,
         width: '100%',
     },
     homeTextContainer: {
@@ -83,7 +84,8 @@ const styles = StyleSheet.create({
         flexGrow: 1,
     },
     welcomeText: {
-        fontSize: 35,
+        fontSize: 29,
+        fontWeight: '500',
         marginBottom: 5, 
     },
     placeComponentContainer: {
