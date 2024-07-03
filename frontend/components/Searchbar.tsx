@@ -26,32 +26,40 @@ const SearchBar: React.FC = () => {
           onSubmitEditing={handleSearch}
         />
       </View>
+
+
+
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    padding: 0,
     flex: 1,
-    justifyContent: 'center',
+    flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 10, 
+    marginTop: 25,
   },
   searchSection: {
+    flex: 1, 
     flexDirection: 'row',
     alignItems: 'center',
     borderColor: 'gray',
     borderWidth: 1,
     marginBottom: 10,
+    borderRadius: 20,
+    height: 40,
+    marginRight: 10,
+
   },
   searchIcon: {
     padding: 10,
     margin: 5,
     height: 20,
     width: 20,
-    resizeMode: 'stretch',
-    alignItems: 'center',
   },
   textInput: {
     flex: 1,

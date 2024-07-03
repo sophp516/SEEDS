@@ -3,6 +3,7 @@ import React from 'react';
 import { Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
 import Slider from '@react-native-community/slider';
+// import Sliders from '../components/Ratebar';
 import * as ImagePicker from 'expo-image-picker';
 import { db , storage } from '../services/firestore';
 import { collection, addDoc} from 'firebase/firestore';
@@ -215,86 +216,91 @@ const Post = () => {
                         </TouchableOpacity>
                         :
                         <TouchableOpacity onPress={selectImage} style={styles.imagebox}>
-                          <Image source={require('../assets/camera.png')} style={styles.cameraIcon} />
+                          <Image source={require('../assets/image.png')} style={styles.cameraIcon} />
                       </TouchableOpacity>
                     
                     }
                   
-
-                     <Text> Food Name </Text>
+                    <View style={styles.reviewContentContainer}>
+                        <Text style={styles.text}> Food name </Text>
+                            <TextInput 
+                                style={styles.textbox}
+                                value={review.foodName}
+                                onChangeText={handleChangeFoodName}
+                                placeholder='ex. Apple'
+                            />
+                        <Text style={styles.text}> Location </Text>
+                            <TextInput 
+                                style={styles.textbox}
+                                value={review.location}
+                                onChangeText={handleChangeLocation}
+                                placeholder='ex. Collis Cafe'
+                            />
+                        <Text style={styles.text}> Price </Text>
+                            <TextInput 
+                                style={styles.textbox}
+                                value={review.price ? review.price.toString() :  null}
+                                keyboardType='decimal-pad'
+                                onChangeText={(text)=> setReview(prevReview => ({...prevReview, price: parseFloat(text) || null }))}
+                                placeholder='0.00'
+                            />
+                        <Text style={styles.text}> Taste </Text>
+                        {/* <Sliders
+                         initialValue={review.taste} 
+                         setValue={(value)=> setReview(prevReview => ({...prevReview, taste: value }))} 
+                         /> */}
+                        <Slider
+                            style={styles.slider}
+                            minimumValue={1}
+                            maximumValue={5}
+                            step={1}
+                            value={review.taste}
+                            onValueChange={(value)=> setReview(prevReview => ({...prevReview, taste: value }))}
+                            minimumTrackTintColor="#1fb28a"
+                            maximumTrackTintColor="#d3d3d3"
+                            thumbTintColor="#b9e4c9"
+                        />
+                        <Text style={styles.text}> Health</Text>
+                        <Slider
+                            style={styles.slider}
+                            minimumValue={1}
+                            maximumValue={5}
+                            step={1}
+                            value={review.health}
+                            onValueChange={(value)=> setReview(prevReview => ({...prevReview, health: value }))}
+                            minimumTrackTintColor="#1fb28a"
+                            maximumTrackTintColor="#d3d3d3"
+                            thumbTintColor="#b9e4c9"
+                        
+                        />
+                        <View style={styles.tagsContainer}> 
+                            {review.tags && review.tags.map((tag, index) =>
+                                <View key={index} style={styles.tags}>
+                                    <TouchableOpacity onPress={()=>handleDeleteTag(index)}>
+                                        <Text> x </Text>
+                                    </TouchableOpacity>
+                                    <Text >{tag}</Text>
+                                </View>)}   
+                        </View>
+                        <Text style={styles.text}> Add Tags</Text>
                         <TextInput 
-                            style={styles.textbox}
-                            value={review.foodName}
-                            onChangeText={handleChangeFoodName}
-                            placeholder='ex. Apple'
-                        />
-                    <Text> Location </Text>
-                         <TextInput 
-                            style={styles.textbox}
-                            value={review.location}
-                            onChangeText={handleChangeLocation}
-                            placeholder='ex. Collis Cafe'
-                        />
-                    <Text> Price </Text>
+                                style={styles.textbox}
+                                value={tag}
+                                onChangeText={(tag)=> setTag(tag)}
+                                placeholder='enter a tag'
+                                onSubmitEditing={handleSubmitTag}
+                                returnKeyType='done'
+                            />
+                        <Text style={styles.text}> Comment </Text>
                         <TextInput 
-                            style={styles.textbox}
-                            value={review.price ? review.price.toString() :  null}
-                            keyboardType='decimal-pad'
-                            onChangeText={(text)=> setReview(prevReview => ({...prevReview, price: parseFloat(text) || null }))}
-                            placeholder='0.00'
-                        />
-                     <Text> Taste </Text>
-                     <Slider
-                        style={styles.slider}
-                        minimumValue={1}
-                        maximumValue={5}
-                        step={1}
-                        value={review.taste}
-                        onValueChange={(value)=> setReview(prevReview => ({...prevReview, taste: value }))}
-                        minimumTrackTintColor="#1fb28a"
-                        maximumTrackTintColor="#d3d3d3"
-                        thumbTintColor="#b9e4c9"
-                    />
-                     <Text> Health</Text>
-                     <Slider
-                        style={styles.slider}
-                        minimumValue={1}
-                        maximumValue={5}
-                        step={1}
-                        value={review.health}
-                        onValueChange={(value)=> setReview(prevReview => ({...prevReview, health: value }))}
-                        minimumTrackTintColor="#1fb28a"
-                        maximumTrackTintColor="#d3d3d3"
-                        thumbTintColor="#b9e4c9"
-                    
-                    />
-                    <View style={styles.tagsContainer}> 
-                        {review.tags && review.tags.map((tag, index) =>
-                            <View key={index} style={styles.tags}>
-                                <TouchableOpacity onPress={()=>handleDeleteTag(index)}>
-                                    <Text> x </Text>
-                                </TouchableOpacity>
-                                  <Text >{tag}</Text>
-                            </View>)}   
-                    </View>
-                     <Text> Add Tags</Text>
-                     <TextInput 
-                            style={styles.textbox}
-                            value={tag}
-                            onChangeText={(tag)=> setTag(tag)}
-                            placeholder='enter a tag'
-                            onSubmitEditing={handleSubmitTag}
-                            returnKeyType='done'
-                        />
-                    <Text> Comment </Text>
-                    <TextInput 
-                        style={styles.commentBox}
-                        value={review.comment}
-                        onChangeText={(text)=> setReview(prevReview => ({...prevReview, comment: text}))}
-                        placeholder='enter comment'/>
-                    <TouchableOpacity onPress={handleCreateReview} style={styles.addReviewBtn}>
-                        <Text>Add review</Text>
-                    </TouchableOpacity>
+                            style={styles.commentBox}
+                            value={review.comment}
+                            onChangeText={(text)=> setReview(prevReview => ({...prevReview, comment: text}))}
+                            placeholder='enter comment'/>
+                        </View>
+                        <TouchableOpacity onPress={handleCreateReview} style={styles.addReviewBtn}>
+                            <Text style={styles.text}>Add review</Text>
+                        </TouchableOpacity>
                     </View>   
                 </ScrollView>
              }
@@ -322,9 +328,15 @@ const styles = StyleSheet.create({
       backgroundColor: 'white', 
     },
     text: {
-        fontSize: 24, 
-        fontWeight: 'bold', 
-        marginBottom: 20, 
+        color: '#000',
+        fontFamily: 'Satoshi',
+        fontSize: 16,
+        fontStyle: 'normal',
+        fontWeight: '500',
+        lineHeight: 18,
+        letterSpacing: 0.1,
+        textAlign: 'left',
+        paddingVertical: 5,
     },
     slider:{
         width: 200, 
@@ -337,7 +349,8 @@ const styles = StyleSheet.create({
         flex: 1,
         marginBottom: 60,
         paddingVertical: 20,
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'center',
         //  backgroundColor: 'whitesmoke'
     },
     toggleContainer: {
@@ -368,6 +381,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignContent: 'center',
     },
+    reviewContentContainer:{
+        justifyContent: 'flex-start',
+    },
     imagebox:{
         backgroundColor: '#D9D9D9',
         borderRadius: 10,
@@ -379,7 +395,7 @@ const styles = StyleSheet.create({
     textbox: {
         borderColor: 'black',
         backgroundColor: '#D9D9D9',
-        width: 300,
+        width: 350,
         height: 30,
         borderRadius: 10,
         padding: 10,
@@ -387,14 +403,14 @@ const styles = StyleSheet.create({
     commentBox:{
         borderColor: 'black',
         backgroundColor: '#D9D9D9',
-        width: 300,
+        width: 350,
         height: 100,
         borderRadius: 10,
         padding: 10,
     },
     cameraIcon:{
-        width: 40,
-        height: 40,
+        width: "30%",
+        height: "50%",
         justifyContent: 'center',
     },
     tagsContainer: {
