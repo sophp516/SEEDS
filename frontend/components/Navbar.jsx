@@ -1,5 +1,6 @@
 import { TouchableOpacity, StyleSheet, Text, View, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import colors from '../styles';
 
 const Navbar = () => {
 
@@ -65,18 +66,14 @@ const styles = StyleSheet.create({
       flexDirection: 'row',
       justifyContent: 'space-around',
       alignItems: 'center',
-      backgroundColor: 'gray', 
+      backgroundColor: colors.navbarBackground, 
       paddingTop: 5, 
       paddingBottom: 5,
       paddingLeft: 10,
       paddingRight: 10,
-      borderRadius: 20,
       shadowColor: 'black',
-      shadowOpacity: 0.30, // Shadow opacity
-      shadowRadius: 3.84, // Shadow blur radius
-
-
-      
+      shadowOpacity: 0.30,
+      shadowRadius: 3.84,
   },
   button: {
       padding: 10,
@@ -88,7 +85,6 @@ const styles = StyleSheet.create({
       width: 25,
       height: 25,
       margin: 'auto' 
-
   },
     
 });

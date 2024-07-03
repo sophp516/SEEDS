@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar.jsx';
 import SearchBar from '../components/Searchbar.tsx';
 import Filter from '../components/Filter.tsx';
 import BottomSheet from '@gorhom/bottom-sheet';
+import colors from '../styles.js';
 
 const Discover = () => {
   const bottomSheetRef = useRef(null);
@@ -64,7 +65,7 @@ const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: 'white',
+    backgroundColor: colors.backgroundGray,
   },
   containerTop: {
     padding: 20,
@@ -80,7 +81,6 @@ const styles = StyleSheet.create({
   searchBarContainer: {
     flex: 1,
   },
-
   text: {
     fontSize: 24,
     fontWeight: 'bold',
