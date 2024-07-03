@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, TextInput, Image, StyleSheet } from 'react-native';
+import colors from '../styles';
 
 // SearchBar component: (functional component)
 const SearchBar: React.FC = () => {
@@ -39,7 +40,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'white',
     borderRadius: 10, 
     marginTop: 25,
   },
@@ -47,24 +47,21 @@ const styles = StyleSheet.create({
     flex: 1, 
     flexDirection: 'row',
     alignItems: 'center',
-    borderColor: 'gray',
-    borderWidth: 1,
     marginBottom: 10,
     borderRadius: 20,
-    height: 40,
+    height: 35,
     marginRight: 10,
-
+    backgroundColor: colors.inputGray,
   },
   searchIcon: {
-    padding: 10,
-    margin: 5,
-    height: 20,
-    width: 20,
+    padding: 8,
+    margin: 10,
+    height: 15,
+    width: 15,
   },
   textInput: {
     flex: 1,
     height: 40,
-
   },
 });
 

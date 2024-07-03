@@ -10,6 +10,7 @@ import { db, auth } from '../services/firestore.js';
 import { useAuth } from '../context/authContext.js';
 import Toast from 'react-native-toast-message';
 import collegesData from '../services/UScolleges.json';
+import colors from '../styles.js';
 
 type RootStackParamList = {
     LogIn: undefined;
@@ -146,6 +147,9 @@ const SignUp = () => {
             <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.backButtonContainer}>
                 <Text style={styles.backButtonText}>Back</Text>
             </TouchableOpacity>
+            <View style={styles.welcomeContainer}>
+                <Text style={styles.welcomeText}>Welcome!</Text>
+            </View>
             {loading ? (
                 <ActivityIndicator size="large" color="#0000ff" />
             ) : (
@@ -181,23 +185,33 @@ const SignUp = () => {
                             autoCorrect: false,
                             autoCapitalize: 'none',
                             style: {
-                                borderRadius: 25,
-                                backgroundColor: '#383b42',
+                                borderRadius: 10,
+                                borderColor: 'black',
+                                borderWidth: 1,
+                                backgroundColor: colors.backgroundGra,
                                 color: '#fff',
                                 paddingLeft: 18,
+                                marginRight: 20,
+                                height: 40,
+                                width: '100%',
+                                marginBottom: 13,
                             },
                         }}
                         rightButtonsContainerStyle={{
                             right: 8,
-                            height: 30,
                             alignSelf: 'center',
+                            borderRadius: 30,
+                            backgroundColor: colors.inputGray,
+                            height: 40,
+                            width: 40,
+                            marginBottom: 13,
                         }}
                         inputContainerStyle={{
-                            backgroundColor: '#383b42',
-                            borderRadius: 25,
+                            backgroundColor: colors.backgroundGra,
+                            borderRadius: 10,
                         }}
                         suggestionsListContainerStyle={{
-                            backgroundColor: '#383b42',
+                            backgroundColor: colors.backgroundGray,
                         }}
                         containerStyle={{ width: '100%', marginBottom: 12 }}
                         renderItem={(item, text) => (
@@ -217,8 +231,15 @@ const SignUp = () => {
                         value={input.confirmPassword}
                         onChangeText={(text) => handleChange('confirmPassword', text)}
                     />
-                    <Button title="Sign Up" onPress={asyncSignUp} />
-                    <Button title="Already have an account?" onPress={() => navigation.navigate('LogIn')} />
+                    <TouchableOpacity onPress={asyncSignUp} style={styles.signUpButton}>
+                        <Text style={styles.signUpText}>SIGN UP</Text>
+                    </TouchableOpacity>
+                    <View style={styles.logInNav}>
+                        <Text>Already have an account?</Text>
+                        <TouchableOpacity onPress={() => navigation.navigate('LogIn')}>
+                            <Text style={styles.logInNavText}>Log in</Text>
+                        </TouchableOpacity>
+                    </View>
                 </>
             )}
         </View>
@@ -231,22 +252,51 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 16,
+        backgroundColor: colors.backgroundGray,
+    },
+    welcomeContainer: {
+        width: '100%',
+        marginBottom: 20,
+    },
+    welcomeText: {
+        fontSize: 23,
+        fontWeight: '500',
+    },
+    logInNav: {
+        paddingTop: 20,
+        flexDirection: 'row',
     },
     input: {
         height: 40,
-        borderColor: 'gray',
+        borderColor: 'black',
         borderWidth: 1,
-        marginBottom: 12,
+        marginBottom: 25,
         paddingHorizontal: 8,
         width: '100%',
+        borderRadius: 10,
+    },
+    signUpButton: {
+        backgroundColor: colors.orangeHighlight,
+        width: '100%',
+        height: 40,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     backButtonContainer: {
         position: 'absolute',
         top: 50,
-        left: 30,
+        left: 20,
+    },
+    signUpText: {
+        fontSize: 20,
     },
     backButtonText: {
         fontSize: 15,
+    },
+    logInNavText: {
+        marginLeft: 5,
+        textDecorationLine: 'underline',
     },
 });
 
