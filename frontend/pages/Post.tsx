@@ -3,7 +3,7 @@ import React from 'react';
 import { Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
 import Slider from '@react-native-community/slider';
-// import Sliders from '../components/Ratebar';
+import CustomSlider from '../components/CustomSlider';
 import * as ImagePicker from 'expo-image-picker';
 import { db , storage } from '../services/firestore';
 import { collection, addDoc} from 'firebase/firestore';
@@ -245,34 +245,26 @@ const Post = () => {
                                 placeholder='0.00'
                             />
                         <Text style={styles.text}> Taste </Text>
-                        {/* <Sliders
-                         initialValue={review.taste} 
-                         setValue={(value)=> setReview(prevReview => ({...prevReview, taste: value }))} 
-                         /> */}
-                        <Slider
-                            style={styles.slider}
-                            minimumValue={1}
-                            maximumValue={5}
-                            step={1}
-                            value={review.taste}
-                            onValueChange={(value)=> setReview(prevReview => ({...prevReview, taste: value }))}
-                            minimumTrackTintColor="#1fb28a"
-                            maximumTrackTintColor="#d3d3d3"
-                            thumbTintColor="#b9e4c9"
-                        />
+                            <CustomSlider 
+                                    minimumValue={1} 
+                                    maximumValue={5}
+                                    step={1}
+                                    onValueChange={(value)=> setReview(prevReview => ({...prevReview, taste: value }))}
+                                    value={review.taste}
+                                    sliderColor='#F9A05F'
+                                    trackColor='#E7E2DB'         
+                            />
                         <Text style={styles.text}> Health</Text>
-                        <Slider
-                            style={styles.slider}
-                            minimumValue={1}
-                            maximumValue={5}
-                            step={1}
-                            value={review.health}
-                            onValueChange={(value)=> setReview(prevReview => ({...prevReview, health: value }))}
-                            minimumTrackTintColor="#1fb28a"
-                            maximumTrackTintColor="#d3d3d3"
-                            thumbTintColor="#b9e4c9"
-                        
-                        />
+                            <CustomSlider 
+                                    minimumValue={1} 
+                                    maximumValue={5}
+                                    step={1}
+                                    onValueChange={(value)=> setReview(prevReview => ({...prevReview, health: value }))}
+                                    value={review.health}
+                                    sliderColor='#7FB676'
+                                    trackColor='#E7E2DB'         
+                            />
+                    
                         <View style={styles.tagsContainer}> 
                             {review.tags && review.tags.map((tag, index) =>
                                 <View key={index} style={styles.tags}>
@@ -299,7 +291,7 @@ const Post = () => {
                             placeholder='enter comment'/>
                         </View>
                         <TouchableOpacity onPress={handleCreateReview} style={styles.addReviewBtn}>
-                            <Text style={styles.text}>Add review</Text>
+                            <Text style={{ color: 'white',}}>Add review</Text>
                         </TouchableOpacity>
                     </View>   
                 </ScrollView>
@@ -317,7 +309,7 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingTop:60,
         alignItems: 'center',
-        backgroundColor: 'white', 
+        backgroundColor: '#FBFAF5', 
         
     },
     containerTop: {
@@ -359,13 +351,14 @@ const styles = StyleSheet.create({
         borderColor: '#B7B7B7',
         borderStyle: 'solid',
         borderWidth: 2,
-        width: '60%',
+        width: '70%',
+        height: '4%',
         alignItems: 'center',
         justifyContent: 'center',
         margin: 15,
     }, 
     activeToggle: {
-        padding: 10,
+        padding: 5,
         width: '50%',
         justifyContent: 'center',
         alignContent: 'center',
@@ -375,7 +368,7 @@ const styles = StyleSheet.create({
         borderStyle: 'solid',
     },
     inactiveToggle: {
-        padding: 9,
+        padding: 5,
         width: '50%',
         borderRadius: 20,
         justifyContent: 'center',
@@ -385,7 +378,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
     },
     imagebox:{
-        backgroundColor: '#D9D9D9',
+        backgroundColor: '#E7E2DB',
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
@@ -394,7 +387,7 @@ const styles = StyleSheet.create({
     },
     textbox: {
         borderColor: 'black',
-        backgroundColor: '#D9D9D9',
+        backgroundColor: '#E7E2DB',
         width: 350,
         height: 30,
         borderRadius: 10,
@@ -402,7 +395,7 @@ const styles = StyleSheet.create({
     },
     commentBox:{
         borderColor: 'black',
-        backgroundColor: '#D9D9D9',
+        backgroundColor: '#E7E2DB',
         width: 350,
         height: 100,
         borderRadius: 10,
@@ -427,7 +420,7 @@ const styles = StyleSheet.create({
     },
     addReviewBtn: {
         borderRadius: 15,
-        backgroundColor: '#B0B0B0',
+        backgroundColor: '#E36609',
         width: 124,
         height: 40,
         alignItems: 'center',
