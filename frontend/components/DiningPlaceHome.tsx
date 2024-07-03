@@ -1,5 +1,6 @@
 import { TouchableOpacity, StyleSheet, Text, View } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
+import colors from '../styles.js';
 
 type RootStackParamList = {
     DiningHome: {
@@ -35,11 +36,15 @@ const DiningPlaceHome: React.FC<Props> = ({ placeName, openingHour, closingHour,
             <View style={styles.diningPlaceContainer}>
                 <View style={styles.diningPlaceImage}></View>
                 <View style={styles.diningPlaceInfo}>
-                    <View style={styles.nameContainer}><Text style={styles.placeNameText}>{placeName}</Text></View>
+                    <Text style={styles.placeNameText}>{placeName}</Text>
                     <View style={styles.diningInfoContainer}>
-                        <Text style={styles.diningInfoText}>Opens: {openingHour}</Text>
-                        <Text style={styles.diningInfoText}>Closes: {closingHour}</Text>
-                        <Text style={styles.diningInfoText}>Business: {businessLevel}</Text>
+                        <View style={styles.hoursContainer}>
+                            <Text style={styles.diningInfoText}>Opens: {openingHour}</Text>
+                            <Text style={styles.diningInfoText}>Closes: {closingHour}</Text>
+                        </View>
+                        <View style={styles.businessContainer}>
+                            <Text style={styles.diningInfoText}>Business: {businessLevel}</Text>
+                        </View>
                     </View>
                 </View>
             </View>
@@ -49,40 +54,49 @@ const DiningPlaceHome: React.FC<Props> = ({ placeName, openingHour, closingHour,
 
 const styles = StyleSheet.create({
     diningPlaceContainer: {
-        flexDirection: 'row',
-        backgroundColor: 'gray',
-        paddingTop: 15,
-        paddingBottom: 15,
-        paddingLeft: 15,
-        paddingRight: 15,
+        flexDirection: 'column',
+        backgroundColor: colors.primaryWhite,
+        borderColor: colors.grayStroke,
+        borderWidth: 1,
+        paddingTop: 13,
+        paddingBottom: 13,
+        paddingLeft: 13,
+        paddingRight: 13,
         marginBottom: 20,
         marginLeft: 10,
         marginRight: 10,
-        borderRadius: 5,
+        borderRadius: 10,
     },
     diningPlaceImage: {
-        width: 140,
-        height: 140,
-        backgroundColor: 'white',
+        width: '100%',
+        height: 170,
+        backgroundColor: 'gray',
         marginRight: 20,
-        borderRadius: 5,
+        marginBottom: 20,
+        borderRadius: 7,
     },
     diningPlaceInfo: {
         flexDirection: 'column',
         justifyContent: 'space-between',
         flex: 1,
     }, 
+    businessContainer: {
+
+    },
+    hoursContainer: {
+        flexDirection: 'column',
+    },
     placeNameText: {
-        fontWeight: 'bold',
-        fontSize: 14,
+        fontSize: 16,
     },
     diningInfoText: {
         fontSize: 12,
-    },
-    nameContainer: {
-        width: 95,
+        marginBottom: 3,
     },
     diningInfoContainer: {
+        paddingTop: 12,
+        justifyContent: 'space-between',
+        flexDirection: 'row',
         bottom: 0,
     }
 })

@@ -9,6 +9,7 @@ import Toast from 'react-native-toast-message';
 import * as ImagePicker from 'expo-image-picker';
 import Navbar from '../components/Navbar.jsx';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import colors from '../styles.js';
 
 type RootStackParamList = {
     SignUp: undefined;
@@ -339,14 +340,14 @@ const Profile = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'white',
+        backgroundColor: colors.backgroundGray,
         flexDirection: 'column'
     },
     profileBox: {
         flexDirection: 'row',
         alignItems: 'center',
+        marginTop: 70,
         marginBottom: 20,
         justifyContent: 'center',
         marginHorizontal: 20,

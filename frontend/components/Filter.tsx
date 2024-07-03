@@ -1,4 +1,5 @@
 import { View, TouchableOpacity, Image, StyleSheet} from 'react-native';
+import colors from '../styles';
 
 const foodCatergory: string[] = [
   'Shellfish',
@@ -55,7 +56,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'flex-end',
-    backgroundColor: 'white',
     borderRadius: 10, 
   },
   filterIcon: {
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button: {
-    backgroundColor: '#D9D9E4',
+    backgroundColor: colors.inputGray,
     padding: 5,
     borderRadius: 15,
     marginBottom: -15,
