@@ -1,15 +1,32 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import Navbar from '../components/Navbar.jsx';
 import SearchBar from '../components/Searchbar.tsx';
+import SmallMenu from '../components/SmallMenu.tsx';
 import Filter from '../components/Filter.tsx';
 import BottomSheet from '@gorhom/bottom-sheet'
 import colors from '../styles.js';
+import ExampleMenu from '../services/ExampleMenu.json';
+import SelectedMenu from './SelectedMenu.tsx';
+
 
 type RootStackParamList = {
     Home: undefined
 };
+
+interface SelectedMenuProps {
+    key: String,
+    id: String,
+    foodName: string;
+    image: string;
+    location: string;
+    price: number;
+    taste: number;
+    tags: string[];
+    allergens: string[];
+}
+
 
 type Props = {
     route: {
@@ -27,7 +44,10 @@ const DiningHome: React.FC<Props> = ({ route }) => {
     const { placeName, openingHour, closingHour, businessLevel } = route.params;
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const bottomSheetRef = useRef(null);
-    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+    const [ isBottomSheetOpen, setIsBottomSheetOpen ] = useState(false);
+    const [onTheMenu, setOnTheMenu] = useState(ExampleMenu);
+    const [topRated, setTopRated] = useState(ExampleMenu);
+    const [recommended, setRecommended] = useState(ExampleMenu);
 
     const toggleBottomSheet = () => {
         if (isBottomSheetOpen) {
@@ -67,6 +87,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                     </View>
                 </View>
             </View>
+            <ScrollView style={styles.contentContainer} contentContainerStyle={{ paddingBottom: 100 }}>
             <View style={styles.recHolder}>
                 <View>
                     <View style={styles.recHeader}>
@@ -75,6 +96,23 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                             <Text>See all</Text>
                         </TouchableOpacity>
                     </View>
+                    <ScrollView horizontal={true} style={styles.horizontalScrollView}>
+                            <View style={styles.smallMenuContainer}>
+                                {topRated.map((item) => (
+                                    <SmallMenu 
+                                        key={item.id}
+                                        id={item.id}
+                                        foodName={item.foodName}
+                                        image={item.image}
+                                        location={item.location}
+                                        price={item.price}
+                                        taste={item.taste}
+                                        tags={item.tags}
+                                        allergens={item.allergens}
+                                    />
+                                ))}
+                            </View>
+                        </ScrollView>
                 </View>
                 <View>
                     <View style={styles.recHeader}>
@@ -83,6 +121,23 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                             <Text>See all</Text>
                         </TouchableOpacity>
                     </View>
+                    <ScrollView horizontal={true} style={styles.horizontalScrollView}>
+                            <View style={styles.smallMenuContainer}>
+                                {onTheMenu.map((item) => (
+                                    <SmallMenu 
+                                        key={item.id}
+                                        id={item.id}
+                                        foodName={item.foodName}
+                                        image={item.image}
+                                        location={item.location}
+                                        price={item.price}
+                                        taste={item.taste}
+                                        tags={item.tags}
+                                        allergens={item.allergens}
+                                    />
+                                ))}
+                            </View>
+                        </ScrollView>
                 </View>
                 <View>
                     <View style={styles.recHeader}>
@@ -91,8 +146,26 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                             <Text>See all</Text>
                         </TouchableOpacity>
                     </View>
+                    <ScrollView horizontal={true} style={styles.horizontalScrollView}>
+                            <View style={styles.smallMenuContainer}>
+                                {recommended.map((item) => (
+                                    <SmallMenu 
+                                        key={item.id}
+                                        id={item.id}
+                                        foodName={item.foodName}
+                                        image={item.image}
+                                        location={item.location}
+                                        price={item.price}
+                                        taste={item.taste}
+                                        tags={item.tags}
+                                        allergens={item.allergens}
+                                    />
+                                ))}
+                            </View>
+                        </ScrollView>
                 </View>
             </View>
+            </ScrollView>
         </View>
             <Navbar />
             <BottomSheet
@@ -171,10 +244,17 @@ const styles = StyleSheet.create({
     contentContainer: {
         flexDirection: 'column',
         width: '100%',
-        paddingHorizontal: 20,
+        marginLeft: 20,
     },
     recHolder: {
         flexDirection: 'column',
+    },
+    smallMenuContainer: {
+        flexDirection: 'row',
+        marginBottom: 10,
+    },
+    horizontalScrollView: {
+        flexDirection: 'row',
     }
 })
 
