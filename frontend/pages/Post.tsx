@@ -170,9 +170,7 @@ const Post = () => {
         const newTags = review.tags.filter((tags, i) => i !== index);
         setReview((prev => ({...prev, tags: newTags})));
     }
-
     return (
-
         <View style={styles.container}>
                
             {/* <TouchableOpacity onPress={handleExit}>
@@ -195,16 +193,19 @@ const Post = () => {
                     <TextInput 
                         style={styles.commentBox}
                         value={post.comment}
+                        numberOfLines={100}
+                        multiline={true}
                         onChangeText={(text)=> setPost(prevPost => ({...prevPost, comment: text}))}
                         placeholder='enter comment'
                     />
                     <TouchableOpacity onPress={selectImage} >
-                        <Image source={require('../assets/camera.png')} style={styles.cameraIcon} />
+                        <Image source={require('../assets/postImg.png')} style={styles.postImgicon} />
                     </TouchableOpacity>
-
-                    <TouchableOpacity onPress={handleCreatePost}>
-                        <Text>Add post</Text>
-                    </TouchableOpacity>
+                    <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                        <TouchableOpacity style={styles.addPostBtn} onPress={handleCreatePost}>
+                            <Text style={{ color: 'white',}}>Add post</Text>
+                        </TouchableOpacity>
+                    </View>
     
                 </View>
                 : 
@@ -264,16 +265,6 @@ const Post = () => {
                                     sliderColor='#7FB676'
                                     trackColor='#E7E2DB'         
                             />
-                    
-                        <View style={styles.tagsContainer}> 
-                            {review.tags && review.tags.map((tag, index) =>
-                                <View key={index} style={styles.tags}>
-                                    <TouchableOpacity onPress={()=>handleDeleteTag(index)}>
-                                        <Text> x </Text>
-                                    </TouchableOpacity>
-                                    <Text >{tag}</Text>
-                                </View>)}   
-                        </View>
                         <Text style={styles.text}> Add Tags</Text>
                         <TextInput 
                                 style={styles.textbox}
@@ -282,13 +273,25 @@ const Post = () => {
                                 placeholder='enter a tag'
                                 onSubmitEditing={handleSubmitTag}
                                 returnKeyType='done'
-                            />
+                        />
+                        <View style={styles.tagsContainer} > 
+                            {review.tags && review.tags.map((tag, index) =>
+                                <View key={index} style={styles.tags}>
+                                    <Text >{tag}</Text>
+                                    <TouchableOpacity onPress={()=>handleDeleteTag(index)}>
+                                        <Text> x </Text>
+                                    </TouchableOpacity>
+                                </View>)}   
+                        </View>
+
                         <Text style={styles.text}> Comment </Text>
-                        <TextInput 
-                            style={styles.commentBox}
-                            value={review.comment}
-                            onChangeText={(text)=> setReview(prevReview => ({...prevReview, comment: text}))}
-                            placeholder='enter comment'/>
+                             <TextInput 
+                                style={styles.commentBox}
+                                value={review.comment}
+                                numberOfLines={100}
+                                multiline={true}
+                                onChangeText={(text)=> setReview(prevReview => ({...prevReview, comment: text}))}
+                                placeholder='enter comment'/>
                         </View>
                         <TouchableOpacity onPress={handleCreateReview} style={styles.addReviewBtn}>
                             <Text style={{ color: 'white',}}>Add review</Text>
@@ -328,7 +331,7 @@ const styles = StyleSheet.create({
         lineHeight: 18,
         letterSpacing: 0.1,
         textAlign: 'left',
-        paddingVertical: 5,
+        paddingVertical: 15,
     },
     slider:{
         width: 200, 
@@ -394,31 +397,59 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     commentBox:{
-        borderColor: 'black',
         backgroundColor: '#E7E2DB',
+        height: 200,
         width: 350,
-        height: 100,
+        borderColor: 'black',
         borderRadius: 10,
-        padding: 10,
+        padding: 20,
+        textAlign: 'left',
+        textAlignVertical: 'top',
+        flexWrap: 'wrap',
     },
     cameraIcon:{
         width: "30%",
         height: "50%",
         justifyContent: 'center',
     },
+    postImgicon:{
+        width: 45,
+        height: 31,
+        margin: 10,
+    },
     tagsContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'center'
+        borderRadius: 10,
+        borderColor: '#D1CABF',
+        borderStyle: 'solid',
+        borderWidth: 1,
+        alignItems: 'center',
+        width: 350,
+        paddingVertical: 5,
+        marginVertical: 10,
     },
     tags:{
-        backgroundColor: '#B7B7B7',
-        borderRadius: 20,
-        padding: 5,
-        margin: 5,
+        paddingHorizontal: 10,
+        paddingVertical: 3,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 15,
+        backgroundColor: '#D9D9D9',
         flexDirection: 'row',
+        marginHorizontal: 5,
+        marginVertical: 5,
     },
     addReviewBtn: {
+        borderRadius: 15,
+        backgroundColor: '#E36609',
+        width: 124,
+        height: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: 10,
+    },
+    addPostBtn:{ // incase there may be difference styles
         borderRadius: 15,
         backgroundColor: '#E36609',
         width: 124,
