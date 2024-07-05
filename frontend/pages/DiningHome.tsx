@@ -1,15 +1,30 @@
-import React, { useState, useRef, useMemo, useEffect } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState, useRef, useMemo } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import Navbar from '../components/Navbar.jsx';
 import SearchBar from '../components/Searchbar.tsx';
+import SmallMenu from '../components/SmallMenu.tsx';
 import Filter from '../components/Filter.tsx';
-import BottomSheet from '@gorhom/bottom-sheet'
+import BottomSheet from '@gorhom/bottom-sheet';
 import colors from '../styles.js';
+import ExampleMenu from '../services/ExampleMenu.json';
 
 type RootStackParamList = {
-    Home: undefined
+    Home: undefined,
+    OnTheMenu: { placeName: string },
 };
+
+interface SelectedMenuProps {
+    key: String,
+    id: String,
+    foodName: string;
+    image: string;
+    location: string;
+    price: number;
+    taste: number;
+    tags: string[];
+    allergens: string[];
+}
 
 type Props = {
     route: {
@@ -23,21 +38,24 @@ type Props = {
 };
 
 const DiningHome: React.FC<Props> = ({ route }) => {
-
-    const { placeName, openingHour, closingHour, businessLevel } = route.params;
+    const { placeName, closingHour } = route.params;
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const bottomSheetRef = useRef(null);
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+    const [onTheMenu, setOnTheMenu] = useState(ExampleMenu);
+    const [topRated, setTopRated] = useState(ExampleMenu);
+    const [recommended, setRecommended] = useState(ExampleMenu);
 
     const toggleBottomSheet = () => {
         if (isBottomSheetOpen) {
-          bottomSheetRef.current?.close();
+            bottomSheetRef.current?.close();
         } else {
-          bottomSheetRef.current?.expand();
+            bottomSheetRef.current?.expand();
         }
         setIsBottomSheetOpen(!isBottomSheetOpen);
-      };
-      const snapPoints = useMemo(() => ['25%', '50%', '70%'], []);
+    };
+
+    const snapPoints = useMemo(() => ['25%', '50%', '70%'], []);
 
     return (
         <View style={styles.container}>
@@ -55,45 +73,98 @@ const DiningHome: React.FC<Props> = ({ route }) => {
             <View style={styles.contentContainer}>
                 <View style={styles.containerTop}>
                     <View style={styles.searchFilterRow}>
-                    <View style={styles.searchBarContainer}>
-                        <SearchBar />
-                    </View>
-                    <View>
-                        <Filter
-                        items={['Shellfish', 'fish', 'Sushi', 'Pasta', 'Salad', 'Sandwich', 'Soup', 'Dessert', 'Drink']}
-                        onFilter={(filteredItems) => console.log('Filtered Items:', filteredItems)}
-                        toggleBottomSheet={toggleBottomSheet}
-                        />
+                        <View style={styles.searchBarContainer}>
+                            <SearchBar />
+                        </View>
+                        <View style={styles.filterContainer}>
+                            <Filter
+                                items={['Shellfish', 'fish', 'Sushi', 'Pasta', 'Salad', 'Sandwich', 'Soup', 'Dessert', 'Drink']}
+                                onFilter={(filteredItems) => console.log('Filtered Items:', filteredItems)}
+                                toggleBottomSheet={toggleBottomSheet}
+                            />
+                        </View>
                     </View>
                 </View>
+                <ScrollView style={styles.contentScrollContainer} contentContainerStyle={{ paddingBottom: 100 }}>
+                    <View style={styles.recHolder}>
+                        <View>
+                            <View style={styles.recHeader}>
+                                <Text style={styles.recHeaderText}>Top rated</Text>
+                                <TouchableOpacity style={styles.seeAllContainer}>
+                                    <Text style={styles.seeAllText}>See all</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <ScrollView horizontal={true} style={styles.horizontalScrollView}>
+                                <View style={styles.smallMenuContainer}>
+                                    {topRated.map((item) => (
+                                        <SmallMenu
+                                            key={item.id}
+                                            id={item.id}
+                                            foodName={item.foodName}
+                                            image={item.image}
+                                            location={item.location}
+                                            price={item.price}
+                                            taste={item.taste}
+                                            tags={item.tags}
+                                            allergens={item.allergens}
+                                        />
+                                    ))}
+                                </View>
+                            </ScrollView>
+                        </View>
+                        <View>
+                            <View style={styles.recHeader}>
+                                <Text style={styles.recHeaderText}>On the menu</Text>
+                                <TouchableOpacity style={styles.seeAllContainer} onPress={() => navigation.navigate('OnTheMenu', { placeName })}>
+                                    <Text style={styles.seeAllText}>See all</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <ScrollView horizontal={true} style={styles.horizontalScrollView}>
+                                <View style={styles.smallMenuContainer}>
+                                    {onTheMenu.map((item) => (
+                                        <SmallMenu
+                                            key={item.id}
+                                            id={item.id}
+                                            foodName={item.foodName}
+                                            image={item.image}
+                                            location={item.location}
+                                            price={item.price}
+                                            taste={item.taste}
+                                            tags={item.tags}
+                                            allergens={item.allergens}
+                                        />
+                                    ))}
+                                </View>
+                            </ScrollView>
+                        </View>
+                        <View>
+                            <View style={styles.recHeader}>
+                                <Text style={styles.recHeaderText}>Recommended for you</Text>
+                                <TouchableOpacity style={styles.seeAllContainer}>
+                                    <Text style={styles.seeAllText}>See all</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <ScrollView horizontal={true} style={styles.horizontalScrollView}>
+                                <View style={styles.smallMenuContainer}>
+                                    {recommended.map((item) => (
+                                        <SmallMenu
+                                            key={item.id}
+                                            id={item.id}
+                                            foodName={item.foodName}
+                                            image={item.image}
+                                            location={item.location}
+                                            price={item.price}
+                                            taste={item.taste}
+                                            tags={item.tags}
+                                            allergens={item.allergens}
+                                        />
+                                    ))}
+                                </View>
+                            </ScrollView>
+                        </View>
+                    </View>
+                </ScrollView>
             </View>
-            <View style={styles.recHolder}>
-                <View>
-                    <View style={styles.recHeader}>
-                        <Text style={styles.recHeaderText}>Top rated</Text>
-                        <TouchableOpacity>
-                            <Text>See all</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-                <View>
-                    <View style={styles.recHeader}>
-                        <Text style={styles.recHeaderText}>On the menu</Text>
-                        <TouchableOpacity>
-                            <Text>See all</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-                <View>
-                    <View style={styles.recHeader}>
-                        <Text style={styles.recHeaderText}>Recommended for you</Text>
-                        <TouchableOpacity>
-                            <Text>See all</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </View>
-        </View>
             <Navbar />
             <BottomSheet
                 backgroundStyle={{ backgroundColor: '#C7C7C7' }}
@@ -107,8 +178,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
 
 const styles = StyleSheet.create({
     container: {
-        flexGrow: 1,
-        width: '100%',
+        flex: 1,
         backgroundColor: colors.backgroundGray,
     },
     containerTop: {
@@ -116,8 +186,8 @@ const styles = StyleSheet.create({
     },
     searchFilterRow: {
         justifyContent: 'flex-start',
-        flex: 0,
         flexDirection: 'row',
+        paddingBottom: 20,
     },
     diningHomeBody: {
         width: '100%',
@@ -169,12 +239,30 @@ const styles = StyleSheet.create({
         fontSize: 20,
     },
     contentContainer: {
-        flexDirection: 'column',
-        width: '100%',
-        paddingHorizontal: 20,
+        flex: 1,
+        marginLeft: 20,
+    },
+    contentScrollContainer: {
+        flexGrow: 1,
     },
     recHolder: {
         flexDirection: 'column',
+    },
+    smallMenuContainer: {
+        flexDirection: 'row',
+        marginBottom: 10,
+    },
+    horizontalScrollView: {
+        flexDirection: 'row',
+    },
+    seeAllText: {
+        fontSize: 16,
+    },
+    seeAllContainer: {
+        paddingRight: 20,
+    },
+    filterContainer: {
+        marginRight: 20,
     }
 })
 

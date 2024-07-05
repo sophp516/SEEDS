@@ -1,0 +1,110 @@
+[
+    {
+        "id": "1",
+        "foodName": "Collis Stir-fry",
+        "image": "",
+        "location": "Collis",
+        "price": 15.25,
+        "taste": 4.8,
+        "tags": [
+            "Vegetarian-friendly",
+            "High Protein",
+            "Rice",
+            "Lunch"
+        ],
+        "allergens": [
+            "Gluten",
+            "Soy",
+            "Chicken"
+        ]
+    },
+    {
+        "id": "2",
+        "foodName": "Hanover Salad",
+        "image": "",
+        "location": "Hanover",
+        "price": 12.00,
+        "taste": 4.5,
+        "tags": [
+            "Vegan",
+            "Low Carb",
+            "Salad",
+            "Dinner"
+        ],
+        "allergens": [
+            "Nuts"
+        ]
+    },
+    {
+        "id": "3",
+        "foodName": "Baker's Omelette",
+        "image": "",
+        "location": "Baker",
+        "price": 9.50,
+        "taste": 4.7,
+        "tags": [
+            "Breakfast",
+            "High Protein",
+            "Eggs",
+            "Vegetarian-friendly"
+        ],
+        "allergens": [
+            "Dairy",
+            "Eggs"
+        ]
+    },
+    {
+        "id": "4",
+        "foodName": "Foco's Grilled Chicken Sandwich",
+        "image": "",
+        "location": "Foco",
+        "price": 11.75,
+        "taste": 4.6,
+        "tags": [
+            "Lunch",
+            "High Protein",
+            "Sandwich"
+        ],
+        "allergens": [
+            "Gluten",
+            "Soy",
+            "Chicken"
+        ]
+    },
+    {
+        "id": "5",
+        "foodName": "Collis Sushi Roll",
+        "image": "",
+        "location": "Collis",
+        "price": 14.00,
+        "taste": 4.9,
+        "tags": [
+            "Dinner",
+            "Seafood",
+            "Rice",
+            "Gluten-Free"
+        ],
+        "allergens": [
+            "Fish",
+            "Soy"
+        ]
+    },
+    {
+        "id": "6",
+        "foodName": "Novack's Beef Burger",
+        "image": "",
+        "location": "Novack",
+        "price": 13.50,
+        "taste": 4.3,
+        "tags": [
+            "Lunch",
+            "Beef",
+            "High Protein",
+            "Burger"
+        ],
+        "allergens": [
+            "Gluten",
+            "Dairy"
+        ]
+    }
+]
