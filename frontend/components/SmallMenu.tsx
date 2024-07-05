@@ -65,7 +65,9 @@ const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, image, location, pr
                     </View>
                 )}
                 <View>
-                <Text style={styles.nameText}>{foodName}</Text>
+                <Text style={styles.nameText} numberOfLines={1} ellipsizeMode="tail">
+                    {foodName}
+                </Text>
                 <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(taste) }]}>
                     <Text style={styles.starText}>{taste} stars</Text>
                 </View>
@@ -107,6 +109,7 @@ const styles = StyleSheet.create({
     },
     nameText: {
         fontSize: 17,
+        maxWidth: 150, 
     },
     starText: {
         fontSize: 12,

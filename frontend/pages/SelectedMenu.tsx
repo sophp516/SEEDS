@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
-import { useNavigation, RouteProp } from '@react-navigation/native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView } from "react-native";
+import { useNavigation, RouteProp, NavigationProp, ParamListBase } from '@react-navigation/native';
+import Navbar from '../components/Navbar.jsx';
 import colors from '../styles.js';
 
 export type RootStackParamList = {
@@ -13,7 +14,8 @@ export type RootStackParamList = {
         taste: number;
         tags: string[];
         allergens: string[];
-    };
+    },
+    Post: { toggle: boolean; foodName: string };
 };
 
 type SelectedMenuRouteProp = RouteProp<RootStackParamList, 'SelectedMenu'>;
@@ -24,7 +26,7 @@ interface SelectedMenuProps {
 
 const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
     const { id, foodName, image, location, price, taste, tags, allergens } = route.params;
-    const navigation = useNavigation();
+    const navigation = useNavigation<NavigationProp<ParamListBase>>();
     const [toggleOverview, setToggleOverview] = useState(true);
 
     const getRatingBackgroundColor = (taste: number) => {
@@ -36,6 +38,10 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
             return colors.grayStroke;
         }
     };
+
+    const navigateToReview = () => {
+        navigation.navigate('Post', { toggle: false, foodName: foodName });
+    }
 
     return (
         <View style={styles.container}>
@@ -65,55 +71,63 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                     </TouchableOpacity>
                 </View>
             </View>
-            {toggleOverview ? 
-                <View style={styles.toggleContentContainer}>
-                    {image ? (
-                        <Image source={{ uri: image }} style={styles.image} />
-                    ) : (
-                        <View style={styles.placeholderImage}>
-                            <Text style={styles.placeholderText}>No Image</Text>
+            <ScrollView style={styles.scrollContainer}>
+                {toggleOverview ? 
+                    <View style={styles.toggleContentContainer}>
+                        {image ? (
+                            <Image source={{ uri: image }} style={styles.image} />
+                        ) : (
+                            <View style={styles.placeholderImage}>
+                                <Text style={styles.placeholderText}>No Image</Text>
+                            </View>
+                        )}
+                        <View style={styles.priceContainer}>
+                            <Text style={styles.priceText}>$ {price}</Text>
                         </View>
-                    )}
-                    <View style={styles.priceContainer}>
-                        <Text style={styles.priceText}>$ {price}</Text>
+                        <View style={styles.bottomContainer}>
+                            <View style={styles.tagContainer}>
+                                <View style={styles.tagHeader}>
+                                    <Text style={styles.tagText}>Tags</Text>
+                                    <Text>inputted by reviewers</Text>
+                                </View>
+                                <View style={styles.tagContent}> 
+                                    {tags.map((item, i) => {
+                                        return (
+                                            <View style={styles.tagBlob} key={i}>
+                                                <Text>{item}</Text>
+                                            </View>
+                                        )
+                                    })}
+                                </View>
+                                <View style={styles.tagHeader}>
+                                    <Text style={styles.tagText}>Allergens</Text>
+                                    <Text>inputted by reviewers</Text>
+                                </View>
+                                <View style={styles.allergenContent}> 
+                                    {allergens.map((item, i) => {
+                                        return (
+                                            <View style={styles.allergenBlob} key={i}>
+                                                <Text>{item}</Text>
+                                            </View>
+                                        )
+                                    })}
+                                </View>
+                                <Text style={styles.tagText}>Nutrition</Text>
+                            </View>
+                        </View>
                     </View>
+                    :
                     <View>
-                        <View style={styles.tagContainer}>
-                            <View style={styles.tagHeader}>
-                                <Text style={styles.tagText}>Tags</Text>
-                                <Text>inputted by reviewers</Text>
-                            </View>
-                            <View style={styles.tagContent}> 
-                                {tags.map((item, i) => {
-                                    return (
-                                        <View style={styles.tagBlob} key={i}>
-                                            <Text>{item}</Text>
-                                        </View>
-                                    )
-                                })}
-                            </View>
-                            <View style={styles.tagHeader}>
-                                <Text style={styles.tagText}>Allergens</Text>
-                                <Text>inputted by reviewers</Text>
-                            </View>
-                            <View style={styles.allergenContent}> 
-                                {allergens.map((item, i) => {
-                                    return (
-                                        <View style={styles.allergenBlob} key={i}>
-                                            <Text>{item}</Text>
-                                        </View>
-                                    )
-                                })}
-                            </View>
-                            <Text style={styles.tagText}>Nutrition</Text>
-                        </View>
+                        <Text>Reviews content here</Text>
                     </View>
-                </View>
-                :
-                <View>
-                    {/* Review content */}
-                </View>
-            }
+                }
+            </ScrollView>
+            <View style={styles.addReviewContainer}>
+                <TouchableOpacity onPress={navigateToReview} style={styles.addReviewButton}>
+                    <Text style={styles.addReviewText}>Add Review</Text>
+                </TouchableOpacity>
+            </View>
+            <Navbar />
         </View>
     );
 };
@@ -122,6 +136,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingTop: 50,
+        height: '100%',
     },
     selectedHeader: {
         paddingHorizontal: 20,
@@ -144,6 +159,8 @@ const styles = StyleSheet.create({
         fontSize: 23,
         fontWeight: '500',
         marginRight: 20,
+        maxWidth: '70%',
+        flexWrap: 'wrap',
     },
     ratingBackground: {
         paddingVertical: 3,
@@ -157,19 +174,6 @@ const styles = StyleSheet.create({
     },
     outerHeader: {
         flexDirection: 'column',
-    },
-    toggleContentContainer: {
-        flexDirection: 'column',
-        justifyContent: 'center',
-        marginVertical: 20,
-        marginHorizontal: 40,
-        alignItems: 'center',
-    },
-    locationText: {
-        color: colors.grayStroke,
-        marginLeft: 10,
-        marginTop: 5,
-        fontSize: 19,
     },
     toggleContainer: {
         flexDirection: 'row',
@@ -192,8 +196,21 @@ const styles = StyleSheet.create({
     activeBorder: {
         borderBottomColor: colors.orangeHighlight,
     },
-    priceText: {
-        fontSize: 17,
+    scrollContainer: {
+        flex: 1,
+    },
+    toggleContentContainer: {
+        flexDirection: 'column',
+        justifyContent: 'center',
+        marginVertical: 20,
+        marginHorizontal: 30,
+        alignItems: 'center',
+    },
+    locationText: {
+        color: colors.grayStroke,
+        marginLeft: 10,
+        marginTop: 5,
+        fontSize: 19,
     },
     priceContainer: {
         borderWidth: 1,
@@ -202,7 +219,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         paddingVertical: 3,
         paddingHorizontal: 10,
-        justifyContent: 'flex-end', // Aligns content to the right
+        justifyContent: 'flex-end',
         alignSelf: 'flex-end', 
         marginRight: 4,
     },
@@ -227,7 +244,7 @@ const styles = StyleSheet.create({
     },
     tagHeader: {
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     tagText: {
         marginRight: 20,
@@ -260,6 +277,25 @@ const styles = StyleSheet.create({
         marginRight: 3,
         marginBottom: 3,
         backgroundColor: colors.warningPink,
+    },
+    bottomContainer: {
+        width: '100%',
+    },
+    addReviewButton: {
+        backgroundColor: colors.orangeHighlight,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 10,
+    },
+    addReviewContainer: {
+        position: 'absolute',
+        flexDirection: 'row-reverse',
+        bottom: 100,
+        right: 20,
+    },
+    addReviewText: {
+        color: 'white',
+        fontSize: 18,
     }
 });
 

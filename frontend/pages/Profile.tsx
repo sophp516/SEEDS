@@ -315,8 +315,8 @@ const Profile = () => {
                     />
                     <View style={styles.guestProfileButtonContainer}>
                         <Text style={styles.displayName}>Guest</Text>
-                        <TouchableOpacity onPress={() => {navigation.navigate('SignUp')}}>
-                            <Text>Create an account</Text>
+                        <TouchableOpacity onPress={() => {navigation.navigate('SignUp')}} style={styles.createAccountButton}>
+                            <Text style={styles.createAccountText}>Create an account</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -340,23 +340,21 @@ const Profile = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignItems: 'center',
         backgroundColor: colors.backgroundGray,
         flexDirection: 'column'
     },
     profileBox: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 70,
+        marginTop: 90,
         marginBottom: 20,
-        justifyContent: 'center',
-        marginHorizontal: 20,
+        marginHorizontal: 60,
     },
     profileImage: {
         width: 100,
         height: 100,
         borderRadius: 50,
-        marginRight: 20
+        marginRight: 20,
     },
     displayName: {
         fontSize: 24,
@@ -444,22 +442,32 @@ const styles = StyleSheet.create({
     },
     profileToggle: {
         flexDirection: 'row',
-        marginTop: 10
+        marginTop: 10,
+        justifyContent: 'center'
     },
     profileToggleButton: {
-        paddingLeft: 40,
-        paddingRight: 40,
-        paddingTop: 5,
-        paddingBottom: 5,
-        backgroundColor: 'gray',
+        paddingLeft: 55,
+        paddingRight: 55,
+        paddingTop: 7,
+        paddingBottom: 7,
+        backgroundColor: '#d9d9d9',
     },
     activeButton: {
         backgroundColor: 'white',
         borderWidth: 1,
-        borderColor: '#ccc', 
+        borderColor: colors.grayStroke, 
     },
     guestProfileButtonContainer: {
         flexDirection: 'column',
+    },
+    createAccountButton: {
+        backgroundColor: colors.orangeHighlight,
+        paddingHorizontal: 10,
+        paddingVertical: 3,
+        borderRadius: 10,
+    },
+    createAccountText: {
+        color: 'white',
     }
 });
 

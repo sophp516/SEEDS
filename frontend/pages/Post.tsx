@@ -1,7 +1,7 @@
-import {useState} from 'react';
+import { useState, useEffect } from 'react';
 import React from 'react';
 import { Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp, NavigationProp, ParamListBase } from '@react-navigation/native';
 import Slider from '@react-native-community/slider';
 import CustomSlider from '../components/CustomSlider';
 import * as ImagePicker from 'expo-image-picker';
@@ -27,11 +27,16 @@ interface newReview {
     comment: string|null,
 }
 
+type RootStackParamList = {
+    Post: { toggle: boolean, foodName: string };
+};
+
 // when click send, passes a object to the firebase function
 const Post = () => {
     const [tag, setTag] = useState<string>('');
+    const route = useRoute<RouteProp<RootStackParamList, 'Post'>>();
     const [selectedImg, setSelectedImg] = useState<string | null>(null);
-    const navigation = useNavigation();
+    const navigation = useNavigation<NavigationProp<ParamListBase>>();
     const [toggle, setToggle] = useState<boolean>(true); // true = post, false = review 
     const [post, setPost] = useState<newPost>({
         comment: '',
@@ -47,6 +52,15 @@ const Post = () => {
         tags: [],
         comment: '',
     });
+
+    useEffect(() => {
+        if (route.params?.toggle !== undefined) {
+            setToggle(route.params.toggle);
+        }
+        if (route.params?.foodName !== undefined) {
+            setReview(prevReview => ({ ...prevReview, foodName: route.params.foodName }));
+        }
+    }, [route.params?.toggle, route.params?.foodName]);
 
     const handleCreatePost = async() => {
         try{
