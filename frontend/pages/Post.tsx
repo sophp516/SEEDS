@@ -2,14 +2,14 @@ import {useState} from 'react';
 import React from 'react';
 import { Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
-import Slider from '@react-native-community/slider';
+import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
 import CustomSlider from '../components/CustomSlider';
 import * as ImagePicker from 'expo-image-picker';
 import { db , storage } from '../services/firestore';
 import { collection, addDoc} from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import { ref, uploadBytes,getDownloadURL } from 'firebase/storage';
-
+// import dartmouthDining from '../data/dartmouthDining.json';
 // import storage from '@react-native-firebase/storage';
 
 interface newPost{
@@ -47,7 +47,7 @@ const Post = () => {
         tags: [],
         comment: '',
     });
-
+    const diningLocation = []
     const handleCreatePost = async() => {
         try{
             let finalPost = {...post};
@@ -170,6 +170,8 @@ const Post = () => {
         const newTags = review.tags.filter((tags, i) => i !== index);
         setReview((prev => ({...prev, tags: newTags})));
     }
+
+
     return (
         <View style={styles.container}>
                
@@ -179,17 +181,17 @@ const Post = () => {
 
             <View style={styles.toggleContainer}>
                 <TouchableOpacity onPress={()=>setToggle(true)} style={toggle ? styles.activeToggle : styles.inactiveToggle}>
-                    <Text>Post</Text>
+                    <Text style={toggle ? styles.btnText1 : styles.btnText2}>Post</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={()=>setToggle(false)} style={toggle ?  styles.inactiveToggle : styles.activeToggle }>
-                    <Text>Review</Text>
+                    <Text style={!toggle ? styles.btnText1 : styles.btnText2}>Review</Text>
                 </TouchableOpacity>
             </View>
             
             {toggle ? 
                 <View>
                     
-                    <Text> Comment </Text>
+                    <Text style={styles.text}> Comments </Text>
                     <TextInput 
                         style={styles.commentBox}
                         value={post.comment}
@@ -203,7 +205,7 @@ const Post = () => {
                     </TouchableOpacity>
                     <View style={{alignItems: 'center', justifyContent: 'center'}}>
                         <TouchableOpacity style={styles.addPostBtn} onPress={handleCreatePost}>
-                            <Text style={{ color: 'white',}}>Add post</Text>
+                            <Text style={styles.btnText1}>Add post</Text>
                         </TouchableOpacity>
                     </View>
     
@@ -237,6 +239,13 @@ const Post = () => {
                                 onChangeText={handleChangeLocation}
                                 placeholder='ex. Collis Cafe'
                             />
+                            {/* <AutocompleteDropdown 
+                                dataSet={diningLocation}
+                                value={review.location}
+                                onChangeText={handleChangeLocation}
+                                placeholder='Enter a dining location'
+            
+                            /> */}
                         <Text style={styles.text}> Price </Text>
                             <TextInput 
                                 style={styles.textbox}
@@ -294,7 +303,7 @@ const Post = () => {
                                 placeholder='enter comment'/>
                         </View>
                         <TouchableOpacity onPress={handleCreateReview} style={styles.addReviewBtn}>
-                            <Text style={{ color: 'white',}}>Add review</Text>
+                            <Text style={styles.btnText1}>Add review</Text>
                         </TouchableOpacity>
                     </View>   
                 </ScrollView>
@@ -331,7 +340,27 @@ const styles = StyleSheet.create({
         lineHeight: 18,
         letterSpacing: 0.1,
         textAlign: 'left',
-        paddingVertical: 15,
+        paddingVertical: 12,
+    },
+    btnText1:{ // white
+        color: 'white',
+        fontFamily: 'Satoshi',
+        fontSize: 16,
+        fontStyle: 'normal',
+        fontWeight: '500',
+        lineHeight: 18,
+        letterSpacing: 0.1,
+        textAlign: 'center',
+    },
+    btnText2:{ // white
+        color: '#000',
+        fontFamily: 'Satoshi',
+        fontSize: 16,
+        fontStyle: 'normal',
+        fontWeight: '500',
+        lineHeight: 18,
+        letterSpacing: 0.1,
+        textAlign: 'center',
     },
     slider:{
         width: 200, 
@@ -365,7 +394,7 @@ const styles = StyleSheet.create({
         width: '50%',
         justifyContent: 'center',
         alignContent: 'center',
-        backgroundColor: '#B7B7B7',
+        backgroundColor: '#E36609',
         borderRadius: 20,
         borderColor: '#B7B7B7',
         borderStyle: 'solid',
