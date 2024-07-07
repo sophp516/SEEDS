@@ -15,13 +15,21 @@ const Navbar = () => {
         navigation.navigate(dest);
     }
 
+    //There is a bug occur where not all route is on nav bar change color
+    //Function to determine if the current route is home
+    const isHomeRouteSelected = () => {
+      const homeRoutes = ['Home', 'DiningHome', 'SelectedMenu', 'OnTheMenu'];
+      return homeRoutes.includes(route.name);
+    };
+
     return (
       //changing the color of the navbar base on current routing
+      //if the current route is home, the color will be selectedColor
       <View style={styles.container}>
       {['Home', 'Discover', 'Post', 'Ranking', 'Profile'].map((dest) => (
           <TouchableOpacity key={dest} onPress={() => handlePress(dest)} style={styles.button}>
-              <SvgIcon iconName={dest} color={route.name === dest? selectedColor : unselectedColor} />
-              <Text style={[styles.buttonText, {color: route.name === dest ? selectedColor : unselectedColor }]}>{dest}</Text>
+      <SvgIcon iconName={dest} color={isHomeRouteSelected() && dest === 'Home' ? selectedColor : route.name === dest ? selectedColor : unselectedColor} />
+      <Text style={[styles.buttonText, {color: isHomeRouteSelected() && dest === 'Home' ? selectedColor : route.name === dest ? selectedColor : unselectedColor }]}>{dest}</Text>
           </TouchableOpacity>
       ))}
        </View>
