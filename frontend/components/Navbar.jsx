@@ -1,59 +1,38 @@
 import { TouchableOpacity, StyleSheet, Text, View, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import colors from '../styles';
+import SvgIcon from './SvgIcon';
 
 const Navbar = () => {
+    
+    const selectedColor = '#E36609';
+    const unselectedColor = 'black';
 
     const navigation = useNavigation();
+    const route = useRoute();
 
     const handlePress = (dest) => {
         navigation.navigate(dest);
-        //changing the styling to orange if the button is pressed
-        //document.getElementById(dest).style.backgroundColor = 'orange';
     }
 
+    //There is a bug occur where not all route is on nav bar change color
+    //Function to determine if the current route is home
+    const isHomeRouteSelected = () => {
+      const homeRoutes = ['Home', 'DiningHome', 'SelectedMenu', 'OnTheMenu'];
+      return homeRoutes.includes(route.name);
+    };
 
     return (
-        <View style={styles.container}>
-            <TouchableOpacity onPress={() => handlePress('Home')} style={styles.button}>
-                <Image
-                  source={require('../assets/home.png')}
-                  style={styles.Icon}
-                />
-                <Text style={styles.buttonText}>Home</Text>
-            </TouchableOpacity> 
-            <TouchableOpacity onPress={() => handlePress('Discover')} style={styles.button}>
-                <Image
-                  source={require('../assets/search.png')}
-                  style={styles.Icon}
-                />
-                <Text style={styles.buttonText}>Discover</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handlePress('Post')} style={styles.button}>
-                <Image
-                  source={require('../assets/plus.png')}
-                  style={styles.Icon}
-                />
-                <Text style={styles.buttonText}>Post</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handlePress('Ranking')} style={styles.button}>
-                <Image
-                  source={require('../assets/ranking.png')}
-                  style={styles.Icon}
-                />
-                <Text style={styles.buttonText}>Ranking</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => handlePress('Profile')} style={styles.button}>
-                <Image
-                  source={require('../assets/user.png')}
-                  style={styles.Icon}
-                />
-                <Text style={styles.buttonText}>Profile</Text>
-            </TouchableOpacity>
-            {/*<TouchableOpacity onPress={() => handlePress('SignUp')} style={styles.button}>
-                <Text style={styles.buttonText}>SignUp</Text>
-            </TouchableOpacity>*/}
-        </View>
+      //changing the color of the navbar base on current routing
+      //if the current route is home, the color will be selectedColor
+      <View style={styles.container}>
+      {['Home', 'Discover', 'Post', 'Ranking', 'Profile'].map((dest) => (
+          <TouchableOpacity key={dest} onPress={() => handlePress(dest)} style={styles.button}>
+      <SvgIcon iconName={dest} color={isHomeRouteSelected() && dest === 'Home' ? selectedColor : route.name === dest ? selectedColor : unselectedColor} />
+      <Text style={[styles.buttonText, {color: isHomeRouteSelected() && dest === 'Home' ? selectedColor : route.name === dest ? selectedColor : unselectedColor }]}>{dest}</Text>
+          </TouchableOpacity>
+      ))}
+       </View>
     )
 }
 
@@ -77,14 +56,11 @@ const styles = StyleSheet.create({
   },
   button: {
       padding: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
   },
   buttonText: {
       color: 'black',
-  },
-  Icon: {
-      width: 25,
-      height: 25,
-      margin: 'auto' 
   },
     
 });
