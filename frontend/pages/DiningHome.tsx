@@ -78,8 +78,6 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                         </View>
                         <View style={styles.filterContainer}>
                             <Filter
-                                items={['Shellfish', 'fish', 'Sushi', 'Pasta', 'Salad', 'Sandwich', 'Soup', 'Dessert', 'Drink']}
-                                onFilter={(filteredItems) => console.log('Filtered Items:', filteredItems)}
                                 toggleBottomSheet={toggleBottomSheet}
                             />
                         </View>
