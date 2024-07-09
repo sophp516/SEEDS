@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/authContext.js';
 import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-dropdown';
 import Home from './pages/Home.tsx';
 import SelectedPost from './pages/SelectedPost.tsx';
+import OnTheMenu from './pages/OnTheMenu.tsx';
 import Post from './pages/Post.tsx';
 import Profile from './pages/Profile.tsx';
 import Discover from './pages/Discover.tsx';
@@ -12,6 +13,7 @@ import SignUp from './pages/SignUp.tsx';
 import LogIn from './pages/LogIn.tsx';
 import Toast from 'react-native-toast-message';
 import Ranking from './pages/Ranking.tsx';
+import SelectedMenu from './pages/SelectedMenu.tsx';
 
 const Stack = createStackNavigator();
 
@@ -30,6 +32,8 @@ export default function App() {
           <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
           <Stack.Screen name="LogIn" component={LogIn} options={{ headerShown: false }} />  
           <Stack.Screen name="Ranking" component={Ranking} options={{ headerShown: false }} />  
+          <Stack.Screen name="SelectedMenu" component={SelectedMenu} options={{ headerShown: false }} /> 
+          <Stack.Screen name="OnTheMenu" component={OnTheMenu} options={{ headerShown: false }} />   
         </Stack.Navigator>
       </NavigationContainer>
       <Toast />  

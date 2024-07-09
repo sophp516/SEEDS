@@ -4,7 +4,10 @@ const colors = {
     grayStroke: '#919191',
     orangeHighlight: '#e36609',
     navbarBackground: '#efe9df',
-    inputGray: '#e7e2db'
+    inputGray: '#e7e2db',
+    highRating: '#7FB676',
+    mediumRating: '#B3CC6C',
+    warningPink: '#FF7D84',
 };
 
 export default colors;

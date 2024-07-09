@@ -178,7 +178,7 @@ const SignUp = () => {
                             item && setInput({ ...input, schoolName: item.title });
                         }}
                         debounce={600}
-                        onClear={() => setSuggestionsList(null)}
+                       onClear={() => setSuggestionsList(null)}
                         loading={loading}
                         textInputProps={{
                             placeholder: 'Type 3+ letters (school...)',
@@ -189,8 +189,9 @@ const SignUp = () => {
                                 borderColor: 'black',
                                 borderWidth: 1,
                                 backgroundColor: colors.backgroundGra,
-                                color: '#fff',
-                                paddingLeft: 18,
+                                color: 'black',
+                                fontSize: 14,
+                                paddingLeft: 10,
                                 marginRight: 20,
                                 height: 40,
                                 width: '100%',

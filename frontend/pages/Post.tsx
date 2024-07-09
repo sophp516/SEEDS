@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import { useState, useEffect } from 'react';
 import React from 'react';
 import { Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
@@ -6,10 +6,11 @@ import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
 import CustomSlider from '../components/CustomSlider';
 import * as ImagePicker from 'expo-image-picker';
 import { db , storage } from '../services/firestore';
-import { collection, addDoc} from 'firebase/firestore';
+import { collection, addDoc, updateDoc, getDoc, doc, arrayUnion} from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import { ref, uploadBytes,getDownloadURL } from 'firebase/storage';
-// import dartmouthDining from '../data/dartmouthDining.json';
+import { useAuth } from '../context/authContext.js';
+import diningLocation from '../services/dininglocation.json';
 // import storage from '@react-native-firebase/storage';
 
 interface newPost{
@@ -17,6 +18,8 @@ interface newPost{
     comment: string;
 }
 interface newReview {
+    reviewId?: string;
+    userId: string;
     foodName: string;
     location: string;
     price: number| null;
@@ -25,19 +28,32 @@ interface newReview {
     image: string | null;
     tags:string[] | null,
     comment: string|null,
+    likes: number;
+    timestamp?: string;
+    subComments?: string[];
 }
+
+type RootStackParamList = {
+    Post: { toggle: boolean, foodName: string };
+};
 
 // when click send, passes a object to the firebase function
 const Post = () => {
+    const { user, setLoggedInUser } = useAuth();
+    const { loggedInUser, displayName } = user;
+    const userId = loggedInUser?.loggedInUser?.uid;
+
     const [tag, setTag] = useState<string>('');
+    // const route = useRoute<RouteProp<RootStackParamList, 'Post'>>();
     const [selectedImg, setSelectedImg] = useState<string | null>(null);
-    const navigation = useNavigation();
+    const navigation = useNavigation<NavigationProp<ParamListBase>>();
     const [toggle, setToggle] = useState<boolean>(true); // true = post, false = review 
     const [post, setPost] = useState<newPost>({
         comment: '',
         image: '',
     });
     const [review, setReview] = useState<newReview>({
+        userId: userId,
         foodName: '',
         location: '',
         price: null,
@@ -46,8 +62,10 @@ const Post = () => {
         image: '',
         tags: [],
         comment: '',
+        likes: 0,
+        timestamp: null,
     });
-    const diningLocation = []
+
     const handleCreatePost = async() => {
         try{
             let finalPost = {...post};
@@ -64,6 +82,8 @@ const Post = () => {
                 delete finalPost.image;
             }
             const postRef = await addDoc(collection(db, 'posts'), finalPost);
+            const postID = postRef.id;
+
             console.log("Post added to Firestore with ID:", postRef.id);
             setPost({ image: '',comment: '',}); // reset the post
         }catch{
@@ -71,11 +91,16 @@ const Post = () => {
         }
     }
 
+
     const handleCreateReview = async () =>{
         try{
             let finalReview = {...review};
-            console.log("Review added to Firestore with ID:");
-            // ERROR: Image upload doesn't work but else wise it does update on the database
+            let timestamp = new Date().getTime();
+            let date = new Date(timestamp);
+            // Parsed to get "YYYY-MM-DD HH:MM:SS" format
+            finalReview.timestamp = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
+
+            // upload image to storage
             if (review.image){
                 const response = await fetch(review.image);
                 const blob = await response.blob(); // convert 
@@ -88,24 +113,47 @@ const Post = () => {
             }else{  
                 delete finalReview.image;
             }
-
+            // add to review Collection
             const reviewRef = await addDoc(collection(db, 'reviews'), finalReview);
+            const reviewId = reviewRef.id;
+            await updateDoc(doc(db, 'reviews', reviewId), {reviewId: reviewId}); 
+            
+            // ISSUE: The user ID does not mathc the user path in firebase 
+            const userRef = doc(db, 'users', userId);
+            console.log("userID:" , userId);
+            const userSnapshot = await getDoc(userRef);
+            if (!userSnapshot.exists()){
+                console.error("User does not exist");
+                // return;
+            }
+            try{
+                await updateDoc(userRef, {reviews: arrayUnion(reviewId),
+                });
+            }catch{
+                console.error("Error updating user's review list");
+            }
+
             console.log("Review added to Firestore with ID:", reviewRef.id);
-            setReview({ foodName: '',
+
+            setReview({ 
+                userId: userId,
+                foodName: '',
                 location: '',
                 price: null,
                 taste: 0,
                 health: 0,
                 image: '',
                 tags: [],
-                comment: '',}); // reset the review
+                comment: '',
+                likes: 0,
+                timestamp: null,
+            }); // reset the review
             navigation.goBack();
         }catch{
-            console.error("Error adding review to Firestore");
+            console.error("Error adding review to Firestore, have you signed in yet?");
             alert("Error adding review to Firestore");
         }
     }
-
     /******* FUNCTIONS FOR UPLOAD IMAGES ******/
     // Read more about documentation here: https://docs.expo.dev/versions/latest/sdk/imagepicker/ 
     const getPermission = async() =>{
@@ -143,14 +191,19 @@ const Post = () => {
      */
     const handleExit = () => {
         navigation.goBack();
-        setReview({ foodName: '',
+        navigation.addListener
+        setReview({ 
+            userId: userId,
+            foodName: '',
             location: '',
             price: null,
             taste: 0,
             health: 0,
             image: '',
             tags: [],
-            comment: '',});
+            comment: '',
+            likes: 0,
+        });
     }
     /* Later we can do food reccomendation from API if time */
     const handleChangeFoodName = (text: string) => {
@@ -160,6 +213,12 @@ const Post = () => {
     const handleChangeLocation = (text: string) => {
         setReview(prevReview => ({...prevReview, location: text}));
     }
+    const handleSelectItem = (item) => {
+        if (item) {
+          setReview(prevReview => ({ ...prevReview, location: item.title })); // Adjust item.title to the correct property
+        }
+      };
+    
     const handleSubmitTag = () => {
         if (tag){
             review.tags.push(tag);
@@ -233,19 +292,40 @@ const Post = () => {
                                 placeholder='ex. Apple'
                             />
                         <Text style={styles.text}> Location </Text>
-                            <TextInput 
+                            {/* <TextInput 
                                 style={styles.textbox}
                                 value={review.location}
                                 onChangeText={handleChangeLocation}
                                 placeholder='ex. Collis Cafe'
-                            />
-                            {/* <AutocompleteDropdown 
-                                dataSet={diningLocation}
-                                value={review.location}
-                                onChangeText={handleChangeLocation}
-                                placeholder='Enter a dining location'
-            
                             /> */}
+                            <AutocompleteDropdown 
+                                dataSet={diningLocation}
+                                onChangeText={handleChangeLocation}
+                                onSelectItem={handleSelectItem}
+                                direction={Platform.select({ ios: 'down' })}
+                                onClear={() => handleChangeLocation('')}
+                                initialValue={review.location}
+                                textInputProps ={{
+                                    placeholder: 'Enter location',
+                                    value: review.location,
+                                    autoCorrect: false,
+                                     autoCapitalize: 'none',
+                                    style: { 
+                                        color: 'black',
+                                        backgroundColor: '#E7E2DB',
+                                        width: 325,
+                                        maxWidth: 325,
+                                        height: 30,
+                                        borderRadius: 10,
+                                        padding: 15,
+                                    }
+                                }}
+                                inputContainerStyle={{
+                                    backgroundColor: '#E7E2DB',
+                                    width: 350,
+                                }}
+                            />
+
                         <Text style={styles.text}> Price </Text>
                             <TextInput 
                                 style={styles.textbox}
