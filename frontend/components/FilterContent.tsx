@@ -1,20 +1,18 @@
 import React, { useRef, useState, useMemo, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
-import BottomSheet from '@gorhom/bottom-sheet'; // Importing BottomSheet component
+import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import BottomSheet from '@gorhom/bottom-sheet'; 
 import DropDownPicker from 'react-native-dropdown-picker';
+import colors from '../styles.js';
 
 interface FilterContentProps {
-  items: string[]; // List of items to filter
-  onFilter: (filteredItems: string[]) => void; // Function to handle filtered items
-  isVisible: boolean; // Boolean to control visibility of the bottom sheet
-  setIsVisible: (visible: boolean) => void; // Function to set visibility
+  onFilter: (filteredItems: string[]) => void; // Function to handle filtered items maybe for later for fire base
+  isVisible: boolean; // have two isVisible to control visibility from another component
+  setIsVisible: (visible: boolean) => void; 
 }
 
-const FilterContent: React.FC<FilterContentProps> = ({ items, onFilter, isVisible, setIsVisible }) => {
-  const bottomSheetRef = useRef(null); // Ref for the BottomSheet
-  const [filterText, setFilterText] = useState(''); // State for the filter text
+const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setIsVisible }) => {
+  const bottomSheetRef = useRef(null);
   
-  // State for the location dropdown
   const [locationOpen, setLocationOpen] = useState(false);
   const [locationValue, setLocationValue] = useState(['italy', 'spain', 'barcelona', 'finland']);
   const [locationItems, setLocationItems] = useState([
@@ -26,7 +24,6 @@ const FilterContent: React.FC<FilterContentProps> = ({ items, onFilter, isVisibl
     {label: 'Finland', value: 'finland'}
   ]);
 
-  // State for the food dropdown
   const [foodOpen, setFoodOpen] = useState(false);
   const [foodValue, setFoodValue] = useState([]);
   const [foodItems, setFoodItems] = useState([
@@ -36,7 +33,6 @@ const FilterContent: React.FC<FilterContentProps> = ({ items, onFilter, isVisibl
     {label: 'Pasta', value: 'pasta'}
   ]);
 
-  // State for the time dropdown
   const [timeOpen, setTimeOpen] = useState(false);
   const [timeValue, setTimeValue] = useState([]);
   const [timeItems, setTimeItems] = useState([
@@ -46,24 +42,26 @@ const FilterContent: React.FC<FilterContentProps> = ({ items, onFilter, isVisibl
     {label: 'Night', value: 'night'}
   ]);
 
-  // Function to handle applying the filter
   const handleApplyFilter = () => {
-    const filteredItems = items.filter(item =>
-      item.toLowerCase().includes(filterText.toLowerCase())
-    );
-    onFilter(filteredItems);
-    handleLogInput(filterText); // Log the input text
-    setIsVisible(false); // Close the bottom sheet
+    console.log('Location:', locationValue.join(', ') || 'none');
+    console.log('Food:', foodValue.join(', ') || 'none');
+    console.log('Time:', timeValue.join(', ') || 'none');
+    setIsVisible(false); // Close the bottom sheet for now after applying filter
   };
 
-  // Function to log user input
-  const handleLogInput = (input) => {
-    console.log('User Input:', input);
+  const handleReset = () => {
+    setLocationValue([]);
+    setFoodValue([]);
+    setTimeValue([]);
   };
 
-  const snapPoints = useMemo(() => ['25%', '50%', '75%'], []); // Snap points for the bottom sheet
+  //TODO!!!!
+  //Function to add my preferences from firebase and apply my preferences filter
+  //also automatically apply perfered filter when user open the bottom sheet
 
-  // Effect to control the visibility of the bottom sheet
+  const snapPoints = useMemo(() => ['25%', '50%', '75%', '78%'], []); 
+
+  //control the visibility of the bottom sheet
   useEffect(() => {
     if (isVisible) {
       bottomSheetRef.current?.expand();
@@ -74,22 +72,30 @@ const FilterContent: React.FC<FilterContentProps> = ({ items, onFilter, isVisibl
 
   return (
     <BottomSheet
-      backgroundStyle={{ backgroundColor: '#E7E2DB' }}
+      backgroundStyle={{ backgroundColor: colors.inputGray }}
       ref={bottomSheetRef}
       index={-1}
       snapPoints={snapPoints}
       onClose={() => setIsVisible(false)}
     >
-        <View style={styles.bottomSheetUpper}>
-          <Text style={styles.bottomSheetText}>Filter</Text>
-          <Button title="Apply Filter" onPress={handleApplyFilter} />
-          <Text>____________________________________________________</Text>
-        </View>
+      <View style={styles.bottomSheetUpper}>
+        <TouchableOpacity style={styles.bottomSheetButton} onPress={handleReset}>
+          <Text style={styles.buttonText}>Rest</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.bottomSheetButton} onPress={() => console.log("perform Preferences")}>
+          <Text style={[styles.buttonText, styles.fancy]}>My Preferences</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.bottomSheetButton} onPress={handleApplyFilter}>
+          <Text style={styles.buttonText}>Apply </Text>
+        </TouchableOpacity>
+      </View>
+
         
       <ScrollView>
         <View style={styles.content}>
+          <Text style={styles.contentText}>Location</Text>
           <DropDownPicker
-            style={styles.container}
+            style={styles.dropDownBox}
             open={locationOpen}
             value={locationValue}
             items={locationItems}
@@ -100,6 +106,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ items, onFilter, isVisibl
             multiple={true}
             mode="BADGE"
             listMode="SCROLLVIEW"
+            dropDownDirection = "BOTTOM"
             badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#8ac926"]}
             containerProps={{
               style: {
@@ -108,8 +115,10 @@ const FilterContent: React.FC<FilterContentProps> = ({ items, onFilter, isVisibl
             }}
           />
 
+          
+          <Text style={styles.contentText}>Food</Text>
           <DropDownPicker
-            style={styles.container}
+            style={styles.dropDownBox}
             open={foodOpen}
             value={foodValue}
             items={foodItems}
@@ -120,6 +129,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ items, onFilter, isVisibl
             multiple={true}
             mode="BADGE"
             listMode="SCROLLVIEW"
+            dropDownDirection = "BOTTOM"
             badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#8ac926"]}
             containerProps={{
               style: {
@@ -128,8 +138,9 @@ const FilterContent: React.FC<FilterContentProps> = ({ items, onFilter, isVisibl
             }}
           />
 
+          <Text style={styles.contentText}>Time</Text>
           <DropDownPicker
-            style={styles.container}
+            style={styles.dropDownBox}
             open={timeOpen}
             value={timeValue}
             items={timeItems}
@@ -139,6 +150,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ items, onFilter, isVisibl
             theme="LIGHT"
             multiple={true}
             mode="BADGE"
+            dropDownDirection = "BOTTOM"
             listMode="SCROLLVIEW"
             badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#8ac926"]}
             containerProps={{
@@ -148,15 +160,6 @@ const FilterContent: React.FC<FilterContentProps> = ({ items, onFilter, isVisibl
             }}
           />
 
-          <View style={styles.bottomSheetContainer}>
-            <Text style={styles.bottomSheetText}>Filtering...</Text>
-            <TextInput
-              style={styles.textInput}
-              placeholder="Enter text"
-              value={filterText}
-              onChangeText={setFilterText}
-            />
-          </View>
         </View>
       </ScrollView>
     </BottomSheet>
@@ -164,47 +167,59 @@ const FilterContent: React.FC<FilterContentProps> = ({ items, onFilter, isVisibl
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingVertical: 8,
-    paddingHorizontal: 26,
-    marginVertical: 20,
-    color: "#000",
-    fontSize: 14,
-    fontWeight: "600"
+  bottomSheetUpper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 10,
+    paddingRight: 20,
+    paddingLeft: 20,
+    marginBottom: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.grayStroke,
+
   },
+  bottomSheetButton: {
+    marginTop: 10,
+    paddingVertical: 0,
+    paddingHorizontal: 0,
+    borderRadius: 6,
+  },
+  buttonText: {
+    fontSize: 18,
+    color: 'black',
+    textAlign: 'center',
+    
+  },
+  fancy: {
+    fontWeight: 'bold',
+    
+  },
+
   content: {
     paddingBottom: 20,
     paddingHorizontal: 16,
     paddingVertical: 40,
   },
-  dropdownContainer: {
-    marginVertical: 30,
-    zIndex: 1000, // Ensures dropdowns don't overlap
+  contentText: {
+    fontSize: 20, 
+    fontWeight: 'bold', 
+    marginBottom: 0
   },
-  bottomSheetContainer: {
+  dropDownBox: {
     flex: 1,
-    padding: 16,
-    alignItems: 'center',
-  },
-  bottomSheetText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  bottomSheetUpper: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 0,
-    marginTop: 20,
-  },
-  textInput: {
-    width: '100%',
-    padding: 10,
+    backgroundColor: "#fff",
+    paddingVertical: 8,
+    paddingHorizontal: 26,
     marginVertical: 10,
-    backgroundColor: 'white',
-    borderRadius: 8,
+    color: "#000",
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 40,
+    borderColor: colors.grayStroke,
   },
+
+
 });
 
 export default FilterContent;

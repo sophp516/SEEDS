@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import Navbar from '../components/Navbar.jsx'; // Importing Navbar component
-import SearchBar from '../components/Searchbar.tsx'; // Importing SearchBar component
-import Filter from '../components/Filter.tsx'; // Importing Filter component
-import FilterContent from '../components/FilterContent.tsx'; // Importing FilterContent component
-import colors from '../styles.js'; // Importing colors from styles
+import Navbar from '../components/Navbar.jsx';
+import SearchBar from '../components/Searchbar.tsx'; 
+import Filter from '../components/Filter.tsx'; 
+import FilterContent from '../components/FilterContent.tsx'; 
+import colors from '../styles.js'; 
 
 const Discover = () => {
-  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false); // State to control the bottom sheet visibility
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [filteredItems, setFilteredItems] = useState([]); // State to store filtered items
 
   // Function to toggle the bottom sheet visibility
@@ -28,7 +28,6 @@ const Discover = () => {
       <Text style={styles.text}>Discover</Text>
       <Navbar />
       <FilterContent
-        items={['Shellfish', 'fish', 'Sushi', 'Pasta', 'Salad', 'Sandwich', 'Soup', 'Dessert', 'Drink']}
         onFilter={setFilteredItems}
         isVisible={isBottomSheetOpen}
         setIsVisible={setIsBottomSheetOpen}
