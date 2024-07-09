@@ -74,7 +74,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
         </View>
             <Navbar />
             <BottomSheet
-                backgroundStyle={{ backgroundColor: '#C7C7C7' }}
+                backgroundStyle={{ backgroundColor: '#E7E2DB' }}
                 ref={bottomSheetRef}
                 index={-1}
                 snapPoints={snapPoints}
