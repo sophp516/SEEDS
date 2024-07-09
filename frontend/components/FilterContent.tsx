@@ -1,5 +1,5 @@
 import React, { useRef, useState, useMemo, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, ScrollView } from 'react-native';
 import BottomSheet from '@gorhom/bottom-sheet'; // Importing BottomSheet component
 import DropDownPicker from 'react-native-dropdown-picker';
 
@@ -80,80 +80,85 @@ const FilterContent: React.FC<FilterContentProps> = ({ items, onFilter, isVisibl
       snapPoints={snapPoints}
       onClose={() => setIsVisible(false)}
     >
-      <View style={styles.bottomSheetUpper}>
-        <Text style={styles.bottomSheetText}>Filter</Text>
-        <Button title="Apply Filter" onPress={handleApplyFilter} />
-        <Text>____________________________________________________</Text>
-      </View>
-      
-      <View style={styles.content}>
-        <DropDownPicker
-          style={styles.container}
-          open={locationOpen}
-          value={locationValue}
-          items={locationItems}
-          setOpen={setLocationOpen}
-          setValue={setLocationValue}
-          setItems={setLocationItems}
-          theme="LIGHT"
-          multiple={true}
-          mode="BADGE"
-          badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#8ac926"]}
-          containerProps={{
-            style: {
-              zIndex: locationOpen ? 10 : 1
-            }
-          }}
-        />
-
-        <DropDownPicker
-          style={styles.container}
-          open={foodOpen}
-          value={foodValue}
-          items={foodItems}
-          setOpen={setFoodOpen}
-          setValue={setFoodValue}
-          setItems={setFoodItems}
-          theme="LIGHT"
-          multiple={true}
-          mode="BADGE"
-          badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#8ac926"]}
-          containerProps={{
-            style: {
-              zIndex: foodOpen ? 10 : 1
-            }
-          }}
-        />
-
-        <DropDownPicker
-          style={styles.container}
-          open={timeOpen}
-          value={timeValue}
-          items={timeItems}
-          setOpen={setTimeOpen}
-          setValue={setTimeValue}
-          setItems={setTimeItems}
-          theme="LIGHT"
-          multiple={true}
-          mode="BADGE"
-          badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#8ac926"]}
-          containerProps={{
-            style: {
-              zIndex: timeOpen ? 10 : 1
-            }
-          }}
-        />
-
-        <View style={styles.bottomSheetContainer}>
-          <Text style={styles.bottomSheetText}>Filtering...</Text>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Enter text"
-            value={filterText}
-            onChangeText={setFilterText}
-          />
+        <View style={styles.bottomSheetUpper}>
+          <Text style={styles.bottomSheetText}>Filter</Text>
+          <Button title="Apply Filter" onPress={handleApplyFilter} />
+          <Text>____________________________________________________</Text>
         </View>
-      </View>
+        
+      <ScrollView>
+        <View style={styles.content}>
+          <DropDownPicker
+            style={styles.container}
+            open={locationOpen}
+            value={locationValue}
+            items={locationItems}
+            setOpen={setLocationOpen}
+            setValue={setLocationValue}
+            setItems={setLocationItems}
+            theme="LIGHT"
+            multiple={true}
+            mode="BADGE"
+            listMode="SCROLLVIEW"
+            badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#8ac926"]}
+            containerProps={{
+              style: {
+                zIndex: locationOpen ? 10 : 1
+              }
+            }}
+          />
+
+          <DropDownPicker
+            style={styles.container}
+            open={foodOpen}
+            value={foodValue}
+            items={foodItems}
+            setOpen={setFoodOpen}
+            setValue={setFoodValue}
+            setItems={setFoodItems}
+            theme="LIGHT"
+            multiple={true}
+            mode="BADGE"
+            listMode="SCROLLVIEW"
+            badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#8ac926"]}
+            containerProps={{
+              style: {
+                zIndex: foodOpen ? 10 : 1
+              }
+            }}
+          />
+
+          <DropDownPicker
+            style={styles.container}
+            open={timeOpen}
+            value={timeValue}
+            items={timeItems}
+            setOpen={setTimeOpen}
+            setValue={setTimeValue}
+            setItems={setTimeItems}
+            theme="LIGHT"
+            multiple={true}
+            mode="BADGE"
+            listMode="SCROLLVIEW"
+            badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#8ac926"]}
+            containerProps={{
+              style: {
+                zIndex: timeOpen ? 10 : 1
+              }
+            }}
+          />
+
+          <View style={styles.bottomSheetContainer}>
+            <Text style={styles.bottomSheetText}>Filtering...</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Enter text"
+              value={filterText}
+              onChangeText={setFilterText}
+            />
+          </View>
+        </View>
+      </ScrollView>
     </BottomSheet>
   );
 };
@@ -162,7 +167,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-
     paddingVertical: 8,
     paddingHorizontal: 26,
     marginVertical: 20,
@@ -174,7 +178,6 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingHorizontal: 16,
     paddingVertical: 40,
-    
   },
   dropdownContainer: {
     marginVertical: 30,
