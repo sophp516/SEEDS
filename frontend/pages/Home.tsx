@@ -7,6 +7,7 @@ import Navbar from '../components/Navbar.jsx';
 import DiningPlaceHome from '../components/DiningPlaceHome.tsx';
 import DartmouthDining from '../services/DartmouthDining.json';
 import colors from '../styles.js';
+import fonts from '../fonts.js';
 
 const Home = () => {
 
@@ -84,8 +85,9 @@ const styles = StyleSheet.create({
         flexGrow: 1,
     },
     welcomeText: {
-        fontSize: 29,
-        fontWeight: '500',
+        fontSize: 28,
+        fontFamily: 'SpaceGrotesk-Bold',
+        fontWeight: 'bold',
         marginBottom: 5, 
     },
     placeComponentContainer: {
@@ -93,7 +95,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     guideText: {
-        fontSize: 18,
+        fontSize: 16,
+        fontFamily: 'SpaceGrotesk-Regular',
         marginBottom: 20,
     }
 });

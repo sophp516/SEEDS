@@ -1,30 +1,39 @@
 import { useState, useEffect } from 'react';
 import React from 'react';
 import { Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useNavigation, useRoute, RouteProp, NavigationProp, ParamListBase } from '@react-navigation/native';
-import Slider from '@react-native-community/slider';
+import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
+import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
 import CustomSlider from '../components/CustomSlider';
 import * as ImagePicker from 'expo-image-picker';
 import { db , storage } from '../services/firestore';
-import { collection, addDoc} from 'firebase/firestore';
+import { collection, addDoc, updateDoc, getDoc, doc, arrayUnion} from 'firebase/firestore';
 import Navbar from '../components/Navbar';
-import { ref, uploadBytes,getDownloadURL } from 'firebase/storage';
-
+import { ref, uploadBytes,getDownloadURL, uploadBytesResumable } from 'firebase/storage';
+import { useAuth } from '../context/authContext.js';
+import diningLocation from '../services/dininglocation.json';
 // import storage from '@react-native-firebase/storage';
 
 interface newPost{
-    image: string | null;
+    images: string[];
     comment: string;
+    timestamp?: string;
+    postId?: string;
+    userId: string;
 }
 interface newReview {
+    reviewId?: string;
+    userId: string;
     foodName: string;
     location: string;
     price: number| null;
     taste: number;
     health: number;
-    image: string | null;
+    images: string[];
     tags:string[] | null,
     comment: string|null,
+    likes: number;
+    timestamp?: string;
+    subComments?: string[];
 }
 
 type RootStackParamList = {
@@ -33,93 +42,166 @@ type RootStackParamList = {
 
 // when click send, passes a object to the firebase function
 const Post = () => {
+    const { user, setLoggedInUser } = useAuth();
+    const { loggedInUser, displayName } = user;
+    const userId = loggedInUser?.loggedInUser?.uid;
+
     const [tag, setTag] = useState<string>('');
-    const route = useRoute<RouteProp<RootStackParamList, 'Post'>>();
+    // const route = useRoute<RouteProp<RootStackParamList, 'Post'>>();
     const [selectedImg, setSelectedImg] = useState<string | null>(null);
     const navigation = useNavigation<NavigationProp<ParamListBase>>();
     const [toggle, setToggle] = useState<boolean>(true); // true = post, false = review 
     const [post, setPost] = useState<newPost>({
         comment: '',
-        image: '',
+        images: [],
+        userId: userId,
     });
     const [review, setReview] = useState<newReview>({
+        userId: userId,
         foodName: '',
         location: '',
         price: null,
         taste: 0,
         health: 0,
-        image: '',
+        images: [],
         tags: [],
         comment: '',
+        likes: 0,
+        timestamp: null,
     });
 
-    useEffect(() => {
-        if (route.params?.toggle !== undefined) {
-            setToggle(route.params.toggle);
-        }
-        if (route.params?.foodName !== undefined) {
-            setReview(prevReview => ({ ...prevReview, foodName: route.params.foodName }));
-        }
-    }, [route.params?.toggle, route.params?.foodName]);
 
+    // How multiple images upload will work:
+    // 1. User selects multiple images from gallery
+    // 2. Images are stored in an array
+    // 3. User clicks submit
+    // 4. Images are uploaded to Firebase Storage one by one, the images in the final array are the URLs
+    // 5. The URLs are stored in the Firestore document
+
+    const handleUploadImage = async (image: string) => {
+        try{
+            const response = await fetch(image);
+            const blob = await response.blob(); // convert 
+            const imgName = "img-" + new Date().getTime();
+            let refName;
+            if (toggle == true){
+                refName = 'posts';
+            }else{
+                refName = 'reviews';
+            }
+            const storageRef = ref(storage, `${refName}/${imgName}.jpg`)
+            const snapshop = await uploadBytesResumable(storageRef, blob);
+            const imageUrl = await getDownloadURL(storageRef);
+            return imageUrl
+        }
+        catch{
+            console.error("Error uploading image to Firestore");
+        }
+    }
     const handleCreatePost = async() => {
         try{
             let finalPost = {...post};
-            if (post.image){
+            const images = [];
+            let timestamp = new Date().getTime();
+            let date = new Date(timestamp);
+            finalPost.timestamp = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
+
+            if (post.images.length > 0 ){
                 /* Tried to write a upload function, however that resulted in app crashing unless we keep path name the same*/
-                const response = await fetch(post.image);
-                const blob = await response.blob(); // convert 
-                const imgName = "img-" + new Date().getTime();
-                const storageRef = ref(storage, `posts/${imgName}.jpg`)
-                const snapshop = await uploadBytes(storageRef, blob);
-                const imageUrl = await getDownloadURL(storageRef);
-                finalPost.image = imageUrl;
+                for (let i = 0; i < post.images.length; i++){
+                    // const response = await fetch(post.images[i]);
+                    // const blob = await response.blob(); // convert 
+                    // const imgName = "img-" + new Date().getTime();
+
+                    // const storageRef = ref(storage, `post/${imgName}.jpg`)
+                    // const snapshop = await uploadBytes(storageRef, blob);
+                    // const imageUrl = await getDownloadURL(storageRef);
+                    // setFinalPost((prevPost) => ({...prevPost, image: imageUrl}));
+                    const imageUrl = await handleUploadImage(post.images[i]);
+                    if (imageUrl) {
+                        images.push(imageUrl)
+                    };
+                }
+                finalPost.images = images
             }else{
-                delete finalPost.image;
+                delete finalPost.images;
             }
             const postRef = await addDoc(collection(db, 'posts'), finalPost);
+            const postID = postRef.id;
+            await updateDoc(doc(db, 'reviews', postID), {reviewId: postID}); 
+            
             console.log("Post added to Firestore with ID:", postRef.id);
-            setPost({ image: '',comment: '',}); // reset the post
+            setPost({ images: [],comment: '', userId: userId}); // reset the post
         }catch{
             console.error("Error adding post to Firestore");
         }
     }
 
+
     const handleCreateReview = async () =>{
         try{
             let finalReview = {...review};
-            console.log("Review added to Firestore with ID:");
-            // ERROR: Image upload doesn't work but else wise it does update on the database
-            if (review.image){
-                const response = await fetch(review.image);
-                const blob = await response.blob(); // convert 
-                const imgName = "img-" + new Date().getTime();
-                const storageRef = ref(storage, `reviews/${imgName}.jpg`)
-                const snapshop = await uploadBytes(storageRef, blob);
-                const imageUrl = await getDownloadURL(storageRef);
-                finalReview.image = imageUrl;
-                console.log("Review added to Firestore with ID:");
-            }else{  
-                delete finalReview.image;
-            }
+            const imageURls = [];
+            let timestamp = new Date().getTime();
+            let date = new Date(timestamp);
+            finalReview.timestamp = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
 
+            if (review.images.length + 1  > 0){
+                console.error(review.images);
+                for (let i = 0; i < review.images.length; i++){
+                    try{
+                        const url = await handleUploadImage(review.images[i]);
+                        if (url) {
+                            console.log("Image pushed:", url)
+                            imageURls.push(url)
+                        };
+                    }catch{
+                        console.error("Error uploading image to Firestore");
+                    } 
+                }
+                finalReview.images = imageURls;
+            }else{  
+                delete finalReview.images;
+            }
+            // add to review Collection
             const reviewRef = await addDoc(collection(db, 'reviews'), finalReview);
+            const reviewId = reviewRef.id;
+            await updateDoc(doc(db, 'reviews', reviewId), {reviewId: reviewId}); 
+            
+            // ISSUE: The user ID does not mathc the user path in firebase 
+            const userRef = doc(db, 'users', userId);
+            console.log("userID:" , userId);
+            const userSnapshot = await getDoc(userRef);
+            if (!userSnapshot.exists()){
+                console.error("User does not exist");
+                // return;
+            }
+            try{
+                await updateDoc(userRef, {reviews: arrayUnion(reviewId),
+                });
+            }catch{
+                console.error("Error updating user's review list");
+            }
             console.log("Review added to Firestore with ID:", reviewRef.id);
-            setReview({ foodName: '',
+            setReview({ 
+                userId: userId,
+                foodName: '',
                 location: '',
                 price: null,
                 taste: 0,
                 health: 0,
-                image: '',
+                images:[],
                 tags: [],
-                comment: '',}); // reset the review
+                comment: '',
+                likes: 0,
+                timestamp: null,
+            }); // reset the review
             navigation.goBack();
         }catch{
-            console.error("Error adding review to Firestore");
+            console.error("Error adding review to Firestore, have you signed in yet?");
             alert("Error adding review to Firestore");
         }
     }
-
     /******* FUNCTIONS FOR UPLOAD IMAGES ******/
     // Read more about documentation here: https://docs.expo.dev/versions/latest/sdk/imagepicker/ 
     const getPermission = async() =>{
@@ -140,31 +222,38 @@ const Post = () => {
             mediaTypes: ImagePicker.MediaTypeOptions.All,
             allowsEditing: true,
             aspect:[4,3],
+            // allowsMultipleSelection: true,
             quality:1, // we can edit later for more
         })
         // console.log("image:", result);        
         if (!result.canceled){ // if image is selected, then save the latest upload
+            let selected = result.assets.map((image) => image.uri);
             if (toggle == true){
-                setPost(prevPost => ({...prevPost, image: result.assets[0].uri}));
+                setPost(prevPost => ({...prevPost, images: [...(prevPost.images || []), ...selected]}));
             }else{
-                setReview(prevReview => ({...prevReview, image: result.assets[0].uri}))
+                setReview(prevReview => ({...prevReview, images: [...(prevReview.images || []), ...selected]}));
             }
         }
     }
-  
+   
     /* function handleExit(): Brings user back to the last visited page
     * Also resets the data stored in the use state
      */
     const handleExit = () => {
         navigation.goBack();
-        setReview({ foodName: '',
+        navigation.addListener
+        setReview({ 
+            userId: userId,
+            foodName: '',
             location: '',
             price: null,
             taste: 0,
             health: 0,
-            image: '',
+            images: [],
             tags: [],
-            comment: '',});
+            comment: '',
+            likes: 0,
+        });
     }
     /* Later we can do food reccomendation from API if time */
     const handleChangeFoodName = (text: string) => {
@@ -174,6 +263,12 @@ const Post = () => {
     const handleChangeLocation = (text: string) => {
         setReview(prevReview => ({...prevReview, location: text}));
     }
+    const handleSelectItem = (item) => {
+        if (item) {
+          setReview(prevReview => ({ ...prevReview, location: item.title })); // Adjust item.title to the correct property
+        }
+      };
+    
     const handleSubmitTag = () => {
         if (tag){
             review.tags.push(tag);
@@ -185,8 +280,8 @@ const Post = () => {
         setReview((prev => ({...prev, tags: newTags})));
     }
 
-    return (
 
+    return (
         <View style={styles.container}>
                
             {/* <TouchableOpacity onPress={handleExit}>
@@ -195,38 +290,41 @@ const Post = () => {
 
             <View style={styles.toggleContainer}>
                 <TouchableOpacity onPress={()=>setToggle(true)} style={toggle ? styles.activeToggle : styles.inactiveToggle}>
-                    <Text>Post</Text>
+                    <Text style={toggle ? styles.btnText1 : styles.btnText2}>Post</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={()=>setToggle(false)} style={toggle ?  styles.inactiveToggle : styles.activeToggle }>
-                    <Text>Review</Text>
+                    <Text style={!toggle ? styles.btnText1 : styles.btnText2}>Review</Text>
                 </TouchableOpacity>
             </View>
             
             {toggle ? 
                 <View>
                     
-                    <Text> Comment </Text>
+                    <Text style={styles.text}> Comments </Text>
                     <TextInput 
                         style={styles.commentBox}
                         value={post.comment}
+                        numberOfLines={100}
+                        multiline={true}
                         onChangeText={(text)=> setPost(prevPost => ({...prevPost, comment: text}))}
                         placeholder='enter comment'
                     />
                     <TouchableOpacity onPress={selectImage} >
-                        <Image source={require('../assets/camera.png')} style={styles.cameraIcon} />
+                        <Image source={require('../assets/postImg.png')} style={styles.postImgicon} />
                     </TouchableOpacity>
-
-                    <TouchableOpacity onPress={handleCreatePost}>
-                        <Text>Add post</Text>
-                    </TouchableOpacity>
+                    <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                        <TouchableOpacity style={styles.addPostBtn} onPress={handleCreatePost}>
+                            <Text style={styles.btnText1}>Add post</Text>
+                        </TouchableOpacity>
+                    </View>
     
                 </View>
                 : 
                 <ScrollView contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>   
                     <View style={styles.reviewContainer}>
-                    {review.image ?   
+                    {review.images.length > 0 ?   
                         <TouchableOpacity onPress={selectImage} >
-                            <Image source={{uri: review.image}} style={{width: 350, height: 179, borderRadius: 10, margin: 10,}} />
+                            <Image source={{uri: review.images[0] || null}} style={{width: 350, height: 179, borderRadius: 10, margin: 10,}} />
                         </TouchableOpacity>
                         :
                         <TouchableOpacity onPress={selectImage} style={styles.imagebox}>
@@ -244,12 +342,40 @@ const Post = () => {
                                 placeholder='ex. Apple'
                             />
                         <Text style={styles.text}> Location </Text>
-                            <TextInput 
+                            {/* <TextInput 
                                 style={styles.textbox}
                                 value={review.location}
                                 onChangeText={handleChangeLocation}
                                 placeholder='ex. Collis Cafe'
+                            /> */}
+                            <AutocompleteDropdown 
+                                dataSet={diningLocation}
+                                onChangeText={handleChangeLocation}
+                                onSelectItem={handleSelectItem}
+                                direction={Platform.select({ ios: 'down' })}
+                                onClear={() => handleChangeLocation('')}
+                                initialValue={review.location}
+                                textInputProps ={{
+                                    placeholder: 'Enter location',
+                                    value: review.location,
+                                    autoCorrect: false,
+                                     autoCapitalize: 'none',
+                                    style: { 
+                                        color: 'black',
+                                        backgroundColor: '#E7E2DB',
+                                        width: 325,
+                                        maxWidth: 325,
+                                        height: 30,
+                                        borderRadius: 10,
+                                        padding: 15,
+                                    }
+                                }}
+                                inputContainerStyle={{
+                                    backgroundColor: '#E7E2DB',
+                                    width: 350,
+                                }}
                             />
+
                         <Text style={styles.text}> Price </Text>
                             <TextInput 
                                 style={styles.textbox}
@@ -278,16 +404,6 @@ const Post = () => {
                                     sliderColor='#7FB676'
                                     trackColor='#E7E2DB'         
                             />
-                    
-                        <View style={styles.tagsContainer}> 
-                            {review.tags && review.tags.map((tag, index) =>
-                                <View key={index} style={styles.tags}>
-                                    <TouchableOpacity onPress={()=>handleDeleteTag(index)}>
-                                        <Text> x </Text>
-                                    </TouchableOpacity>
-                                    <Text >{tag}</Text>
-                                </View>)}   
-                        </View>
                         <Text style={styles.text}> Add Tags</Text>
                         <TextInput 
                                 style={styles.textbox}
@@ -296,16 +412,28 @@ const Post = () => {
                                 placeholder='enter a tag'
                                 onSubmitEditing={handleSubmitTag}
                                 returnKeyType='done'
-                            />
+                        />
+                        <View style={styles.tagsContainer} > 
+                            {review.tags && review.tags.map((tag, index) =>
+                                <View key={index} style={styles.tags}>
+                                    <Text >{tag}</Text>
+                                    <TouchableOpacity onPress={()=>handleDeleteTag(index)}>
+                                        <Text> x </Text>
+                                    </TouchableOpacity>
+                                </View>)}   
+                        </View>
+
                         <Text style={styles.text}> Comment </Text>
-                        <TextInput 
-                            style={styles.commentBox}
-                            value={review.comment}
-                            onChangeText={(text)=> setReview(prevReview => ({...prevReview, comment: text}))}
-                            placeholder='enter comment'/>
+                             <TextInput 
+                                style={styles.commentBox}
+                                value={review.comment}
+                                numberOfLines={100}
+                                multiline={true}
+                                onChangeText={(text)=> setReview(prevReview => ({...prevReview, comment: text}))}
+                                placeholder='enter comment'/>
                         </View>
                         <TouchableOpacity onPress={handleCreateReview} style={styles.addReviewBtn}>
-                            <Text style={{ color: 'white',}}>Add review</Text>
+                            <Text style={styles.btnText1}>Add review</Text>
                         </TouchableOpacity>
                     </View>   
                 </ScrollView>
@@ -342,7 +470,27 @@ const styles = StyleSheet.create({
         lineHeight: 18,
         letterSpacing: 0.1,
         textAlign: 'left',
-        paddingVertical: 5,
+        paddingVertical: 12,
+    },
+    btnText1:{ // white
+        color: 'white',
+        fontFamily: 'Satoshi',
+        fontSize: 16,
+        fontStyle: 'normal',
+        fontWeight: '500',
+        lineHeight: 18,
+        letterSpacing: 0.1,
+        textAlign: 'center',
+    },
+    btnText2:{ // white
+        color: '#000',
+        fontFamily: 'Satoshi',
+        fontSize: 16,
+        fontStyle: 'normal',
+        fontWeight: '500',
+        lineHeight: 18,
+        letterSpacing: 0.1,
+        textAlign: 'center',
     },
     slider:{
         width: 200, 
@@ -376,7 +524,7 @@ const styles = StyleSheet.create({
         width: '50%',
         justifyContent: 'center',
         alignContent: 'center',
-        backgroundColor: '#B7B7B7',
+        backgroundColor: '#E36609',
         borderRadius: 20,
         borderColor: '#B7B7B7',
         borderStyle: 'solid',
@@ -408,31 +556,59 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     commentBox:{
-        borderColor: 'black',
         backgroundColor: '#E7E2DB',
+        height: 200,
         width: 350,
-        height: 100,
+        borderColor: 'black',
         borderRadius: 10,
-        padding: 10,
+        padding: 20,
+        textAlign: 'left',
+        textAlignVertical: 'top',
+        flexWrap: 'wrap',
     },
     cameraIcon:{
         width: "30%",
         height: "50%",
         justifyContent: 'center',
     },
+    postImgicon:{
+        width: 45,
+        height: 31,
+        margin: 10,
+    },
     tagsContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        justifyContent: 'center'
+        borderRadius: 10,
+        borderColor: '#D1CABF',
+        borderStyle: 'solid',
+        borderWidth: 1,
+        alignItems: 'center',
+        width: 350,
+        paddingVertical: 5,
+        marginVertical: 10,
     },
     tags:{
-        backgroundColor: '#B7B7B7',
-        borderRadius: 20,
-        padding: 5,
-        margin: 5,
+        paddingHorizontal: 10,
+        paddingVertical: 3,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 15,
+        backgroundColor: '#D9D9D9',
         flexDirection: 'row',
+        marginHorizontal: 5,
+        marginVertical: 5,
     },
     addReviewBtn: {
+        borderRadius: 15,
+        backgroundColor: '#E36609',
+        width: 124,
+        height: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: 10,
+    },
+    addPostBtn:{ // incase there may be difference styles
         borderRadius: 15,
         backgroundColor: '#E36609',
         width: 124,
