@@ -5,9 +5,11 @@ import Navbar from '../components/Navbar.jsx';
 import SearchBar from '../components/Searchbar.tsx';
 import SmallMenu from '../components/SmallMenu.tsx';
 import Filter from '../components/Filter.tsx';
-import BottomSheet from '@gorhom/bottom-sheet';
+import FilterContent from '../components/FilterContent.tsx'; 
 import colors from '../styles.js';
 import ExampleMenu from '../services/ExampleMenu.json';
+
+
 
 type RootStackParamList = {
     Home: undefined,
@@ -38,24 +40,21 @@ type Props = {
 };
 
 const DiningHome: React.FC<Props> = ({ route }) => {
+    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+    const [filteredItems, setFilteredItems] = useState([]); // State to store filtered items
+
+
     const { placeName, closingHour } = route.params;
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const bottomSheetRef = useRef(null);
-    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
     const [onTheMenu, setOnTheMenu] = useState(ExampleMenu);
     const [topRated, setTopRated] = useState(ExampleMenu);
     const [recommended, setRecommended] = useState(ExampleMenu);
 
+    // Function to toggle the bottom sheet visibility
     const toggleBottomSheet = () => {
-        if (isBottomSheetOpen) {
-            bottomSheetRef.current?.close();
-        } else {
-            bottomSheetRef.current?.expand();
-        }
-        setIsBottomSheetOpen(!isBottomSheetOpen);
+      setIsBottomSheetOpen(!isBottomSheetOpen);
     };
-
-    const snapPoints = useMemo(() => ['25%', '50%', '70%'], []);
 
     return (
         <View style={styles.container}>
@@ -78,8 +77,6 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                         </View>
                         <View style={styles.filterContainer}>
                             <Filter
-                                items={['Shellfish', 'fish', 'Sushi', 'Pasta', 'Salad', 'Sandwich', 'Soup', 'Dessert', 'Drink']}
-                                onFilter={(filteredItems) => console.log('Filtered Items:', filteredItems)}
                                 toggleBottomSheet={toggleBottomSheet}
                             />
                         </View>
@@ -167,16 +164,11 @@ const DiningHome: React.FC<Props> = ({ route }) => {
             </View>
             <Navbar />
             
-            <BottomSheet
-                backgroundStyle={{ backgroundColor: '#C7C7C7' }}
-                ref={bottomSheetRef}
-                index={-1}
-                snapPoints={snapPoints}
-            >
-              <View>
-                <Text> Dinning Home filtering</Text>
-              </View>
-            </BottomSheet>
+            <FilterContent
+              onFilter={setFilteredItems}
+              isVisible={isBottomSheetOpen}
+              setIsVisible={setIsBottomSheetOpen}
+            />
         </View>
     )
 }
