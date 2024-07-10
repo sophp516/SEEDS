@@ -178,7 +178,7 @@ const SignUp = () => {
                             item && setInput({ ...input, schoolName: item.title });
                         }}
                         debounce={600}
-                        onClear={() => setSuggestionsList(null)}
+                       onClear={() => setSuggestionsList(null)}
                         loading={loading}
                         textInputProps={{
                             placeholder: 'Type 3+ letters (school...)',
