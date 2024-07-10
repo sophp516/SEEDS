@@ -70,7 +70,6 @@ const styles = StyleSheet.create({
   containerTop: {
     padding: 20,
     alignItems: 'center',
-    backgroundColor: 'white',
     marginTop: 40,
   },
   searchFilterRow: {
