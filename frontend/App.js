@@ -15,9 +15,33 @@ import Toast from 'react-native-toast-message';
 import Ranking from './pages/Ranking.tsx';
 import SelectedMenu from './pages/SelectedMenu.tsx';
 
+import React, { useEffect, useState } from 'react';
+import fonts from './fonts.js';
+import { ActivityIndicator, View } from 'react-native';
+
+
 const Stack = createStackNavigator();
 
 export default function App() {
+  const [fontsLoaded, setFontsLoaded] = useState(false);
+
+  useEffect(() => {
+    const loadFonts = async () => {
+      await fonts();
+      setFontsLoaded(true);
+    };
+
+    loadFonts();
+  }, []);
+
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
   return (
     <AuthProvider>
       <AutocompleteDropdownContextProvider>

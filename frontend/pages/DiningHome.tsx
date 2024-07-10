@@ -166,12 +166,17 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                 </ScrollView>
             </View>
             <Navbar />
+            
             <BottomSheet
                 backgroundStyle={{ backgroundColor: '#C7C7C7' }}
                 ref={bottomSheetRef}
                 index={-1}
                 snapPoints={snapPoints}
-            />
+            >
+              <View>
+                <Text> Dinning Home filtering</Text>
+              </View>
+            </BottomSheet>
         </View>
     )
 }

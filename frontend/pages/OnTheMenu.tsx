@@ -78,7 +78,10 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                 ref={bottomSheetRef}
                 index={-1}
                 snapPoints={snapPoints}
-            />
+            >
+              <Text>Filtering </Text>
+            </BottomSheet>
+
         </View>
     )
 }

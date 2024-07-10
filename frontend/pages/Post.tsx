@@ -8,14 +8,17 @@ import * as ImagePicker from 'expo-image-picker';
 import { db , storage } from '../services/firestore';
 import { collection, addDoc, updateDoc, getDoc, doc, arrayUnion} from 'firebase/firestore';
 import Navbar from '../components/Navbar';
-import { ref, uploadBytes,getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytes,getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import { useAuth } from '../context/authContext.js';
 import diningLocation from '../services/dininglocation.json';
 // import storage from '@react-native-firebase/storage';
 
 interface newPost{
-    image: string | null;
+    images: string[];
     comment: string;
+    timestamp?: string;
+    postId?: string;
+    userId: string;
 }
 interface newReview {
     reviewId?: string;
@@ -25,7 +28,7 @@ interface newReview {
     price: number| null;
     taste: number;
     health: number;
-    image: string | null;
+    images: string[];
     tags:string[] | null,
     comment: string|null,
     likes: number;
@@ -50,7 +53,8 @@ const Post = () => {
     const [toggle, setToggle] = useState<boolean>(true); // true = post, false = review 
     const [post, setPost] = useState<newPost>({
         comment: '',
-        image: '',
+        images: [],
+        userId: userId,
     });
     const [review, setReview] = useState<newReview>({
         userId: userId,
@@ -59,33 +63,75 @@ const Post = () => {
         price: null,
         taste: 0,
         health: 0,
-        image: '',
+        images: [],
         tags: [],
         comment: '',
         likes: 0,
         timestamp: null,
     });
 
+
+    // How multiple images upload will work:
+    // 1. User selects multiple images from gallery
+    // 2. Images are stored in an array
+    // 3. User clicks submit
+    // 4. Images are uploaded to Firebase Storage one by one, the images in the final array are the URLs
+    // 5. The URLs are stored in the Firestore document
+
+    const handleUploadImage = async (image: string) => {
+        try{
+            const response = await fetch(image);
+            const blob = await response.blob(); // convert 
+            const imgName = "img-" + new Date().getTime();
+            let refName;
+            if (toggle == true){
+                refName = 'posts';
+            }else{
+                refName = 'reviews';
+            }
+            const storageRef = ref(storage, `${refName}/${imgName}.jpg`)
+            const snapshop = await uploadBytesResumable(storageRef, blob);
+            const imageUrl = await getDownloadURL(storageRef);
+            return imageUrl
+        }
+        catch{
+            console.error("Error uploading image to Firestore");
+        }
+    }
     const handleCreatePost = async() => {
         try{
             let finalPost = {...post};
-            if (post.image){
+            const images = [];
+            let timestamp = new Date().getTime();
+            let date = new Date(timestamp);
+            finalPost.timestamp = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
+
+            if (post.images.length > 0 ){
                 /* Tried to write a upload function, however that resulted in app crashing unless we keep path name the same*/
-                const response = await fetch(post.image);
-                const blob = await response.blob(); // convert 
-                const imgName = "img-" + new Date().getTime();
-                const storageRef = ref(storage, `posts/${imgName}.jpg`)
-                const snapshop = await uploadBytes(storageRef, blob);
-                const imageUrl = await getDownloadURL(storageRef);
-                finalPost.image = imageUrl;
+                for (let i = 0; i < post.images.length; i++){
+                    // const response = await fetch(post.images[i]);
+                    // const blob = await response.blob(); // convert 
+                    // const imgName = "img-" + new Date().getTime();
+
+                    // const storageRef = ref(storage, `post/${imgName}.jpg`)
+                    // const snapshop = await uploadBytes(storageRef, blob);
+                    // const imageUrl = await getDownloadURL(storageRef);
+                    // setFinalPost((prevPost) => ({...prevPost, image: imageUrl}));
+                    const imageUrl = await handleUploadImage(post.images[i]);
+                    if (imageUrl) {
+                        images.push(imageUrl)
+                    };
+                }
+                finalPost.images = images
             }else{
-                delete finalPost.image;
+                delete finalPost.images;
             }
             const postRef = await addDoc(collection(db, 'posts'), finalPost);
             const postID = postRef.id;
-
+            await updateDoc(doc(db, 'reviews', postID), {reviewId: postID}); 
+            
             console.log("Post added to Firestore with ID:", postRef.id);
-            setPost({ image: '',comment: '',}); // reset the post
+            setPost({ images: [],comment: '', userId: userId}); // reset the post
         }catch{
             console.error("Error adding post to Firestore");
         }
@@ -95,23 +141,27 @@ const Post = () => {
     const handleCreateReview = async () =>{
         try{
             let finalReview = {...review};
+            const imageURls = [];
             let timestamp = new Date().getTime();
             let date = new Date(timestamp);
-            // Parsed to get "YYYY-MM-DD HH:MM:SS" format
             finalReview.timestamp = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
 
-            // upload image to storage
-            if (review.image){
-                const response = await fetch(review.image);
-                const blob = await response.blob(); // convert 
-                const imgName = "img-" + new Date().getTime();
-                const storageRef = ref(storage, `reviews/${imgName}.jpg`)
-                const snapshop = await uploadBytes(storageRef, blob);
-                const imageUrl = await getDownloadURL(storageRef);
-                finalReview.image = imageUrl;
-                console.log("Review added to Firestore with ID:");
+            if (review.images.length + 1  > 0){
+                console.error(review.images);
+                for (let i = 0; i < review.images.length; i++){
+                    try{
+                        const url = await handleUploadImage(review.images[i]);
+                        if (url) {
+                            console.log("Image pushed:", url)
+                            imageURls.push(url)
+                        };
+                    }catch{
+                        console.error("Error uploading image to Firestore");
+                    } 
+                }
+                finalReview.images = imageURls;
             }else{  
-                delete finalReview.image;
+                delete finalReview.images;
             }
             // add to review Collection
             const reviewRef = await addDoc(collection(db, 'reviews'), finalReview);
@@ -132,9 +182,7 @@ const Post = () => {
             }catch{
                 console.error("Error updating user's review list");
             }
-
             console.log("Review added to Firestore with ID:", reviewRef.id);
-
             setReview({ 
                 userId: userId,
                 foodName: '',
@@ -142,7 +190,7 @@ const Post = () => {
                 price: null,
                 taste: 0,
                 health: 0,
-                image: '',
+                images:[],
                 tags: [],
                 comment: '',
                 likes: 0,
@@ -174,18 +222,20 @@ const Post = () => {
             mediaTypes: ImagePicker.MediaTypeOptions.All,
             allowsEditing: true,
             aspect:[4,3],
+            // allowsMultipleSelection: true,
             quality:1, // we can edit later for more
         })
         // console.log("image:", result);        
         if (!result.canceled){ // if image is selected, then save the latest upload
+            let selected = result.assets.map((image) => image.uri);
             if (toggle == true){
-                setPost(prevPost => ({...prevPost, image: result.assets[0].uri}));
+                setPost(prevPost => ({...prevPost, images: [...(prevPost.images || []), ...selected]}));
             }else{
-                setReview(prevReview => ({...prevReview, image: result.assets[0].uri}))
+                setReview(prevReview => ({...prevReview, images: [...(prevReview.images || []), ...selected]}));
             }
         }
     }
-  
+   
     /* function handleExit(): Brings user back to the last visited page
     * Also resets the data stored in the use state
      */
@@ -199,7 +249,7 @@ const Post = () => {
             price: null,
             taste: 0,
             health: 0,
-            image: '',
+            images: [],
             tags: [],
             comment: '',
             likes: 0,
@@ -272,9 +322,9 @@ const Post = () => {
                 : 
                 <ScrollView contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>   
                     <View style={styles.reviewContainer}>
-                    {review.image ?   
+                    {review.images.length > 0 ?   
                         <TouchableOpacity onPress={selectImage} >
-                            <Image source={{uri: review.image}} style={{width: 350, height: 179, borderRadius: 10, margin: 10,}} />
+                            <Image source={{uri: review.images[0] || null}} style={{width: 350, height: 179, borderRadius: 10, margin: 10,}} />
                         </TouchableOpacity>
                         :
                         <TouchableOpacity onPress={selectImage} style={styles.imagebox}>
