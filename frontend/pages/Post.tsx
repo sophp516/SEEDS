@@ -371,7 +371,7 @@ const Post = () => {
                            {review.images.map((image, index) =>(
                                 <Image source={{uri: review.images[index] || null}} style={styles.uploadedImageContainer} />
                             ))}
-                            <TouchableOpacity onPress={selectImage} style={{width: 100, height: 50}} >
+                            <TouchableOpacity onPress={selectImage} style={styles.imagebox} >
                                 <Image source={require('../assets/image.png')} style={styles.cameraIcon}/>
                             </TouchableOpacity>
                        </ScrollView>
