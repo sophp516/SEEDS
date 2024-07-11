@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import React from 'react';
-import { Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Modal } from 'react-native';
 import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
 import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
 import CustomSlider from '../components/CustomSlider';
@@ -69,6 +69,7 @@ const Post = () => {
         likes: 0,
         timestamp: null,
     });
+    const [modalVisible, setModalVisible] = useState(false);
 
 
     // How multiple images upload will work:
@@ -109,14 +110,7 @@ const Post = () => {
             if (post.images.length > 0 ){
                 /* Tried to write a upload function, however that resulted in app crashing unless we keep path name the same*/
                 for (let i = 0; i < post.images.length; i++){
-                    // const response = await fetch(post.images[i]);
-                    // const blob = await response.blob(); // convert 
-                    // const imgName = "img-" + new Date().getTime();
-
-                    // const storageRef = ref(storage, `post/${imgName}.jpg`)
-                    // const snapshop = await uploadBytes(storageRef, blob);
-                    // const imageUrl = await getDownloadURL(storageRef);
-                    // setFinalPost((prevPost) => ({...prevPost, image: imageUrl}));
+                    console.log(post.images);
                     const imageUrl = await handleUploadImage(post.images[i]);
                     if (imageUrl) {
                         images.push(imageUrl)
@@ -128,12 +122,12 @@ const Post = () => {
             }
             const postRef = await addDoc(collection(db, 'posts'), finalPost);
             const postID = postRef.id;
-            await updateDoc(doc(db, 'reviews', postID), {reviewId: postID}); 
+            await updateDoc(doc(db, 'posts', postID), {postId: postID}); 
             
             console.log("Post added to Firestore with ID:", postRef.id);
             setPost({ images: [],comment: '', userId: userId}); // reset the post
         }catch{
-            console.error("Error adding post to Firestore");
+            console.error("Error adding post to Firestore, have you signed in yet");
         }
     }
 
@@ -169,6 +163,7 @@ const Post = () => {
             await updateDoc(doc(db, 'reviews', reviewId), {reviewId: reviewId}); 
             
             // ISSUE: The user ID does not mathc the user path in firebase 
+            // When adding review, add check case for if review array exist 
             const userRef = doc(db, 'users', userId);
             console.log("userID:" , userId);
             const userSnapshot = await getDoc(userRef);
@@ -182,6 +177,7 @@ const Post = () => {
             }catch{
                 console.error("Error updating user's review list");
             }
+            
             console.log("Review added to Firestore with ID:", reviewRef.id);
             setReview({ 
                 userId: userId,
@@ -220,9 +216,9 @@ const Post = () => {
 
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
-            allowsEditing: true,
+            // allowsEditing: true,
             aspect:[4,3],
-            // allowsMultipleSelection: true,
+            allowsMultipleSelection: true,
             quality:1, // we can edit later for more
         })
         // console.log("image:", result);        
@@ -298,9 +294,11 @@ const Post = () => {
             </View>
             
             {toggle ? 
-                <View>
-                    
-                    <Text style={styles.text}> Comments </Text>
+                // Post Section
+                <View style={{justifyContent: 'center'}}>
+
+                    <Text style={[styles.text, {flexDirection:'row', alignItems:'flex-start'}]}> Comments </Text>
+
                     <TextInput 
                         style={styles.commentBox}
                         value={post.comment}
@@ -309,23 +307,75 @@ const Post = () => {
                         onChangeText={(text)=> setPost(prevPost => ({...prevPost, comment: text}))}
                         placeholder='enter comment'
                     />
-                    <TouchableOpacity onPress={selectImage} >
-                        <Image source={require('../assets/postImg.png')} style={styles.postImgicon} />
-                    </TouchableOpacity>
-                    <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                        <TouchableOpacity style={styles.addPostBtn} onPress={handleCreatePost}>
-                            <Text style={styles.btnText1}>Add post</Text>
+                    <View >
+                        {post.images.length > 0 ? 
+                            <View style={styles.postUploadedImages}>
+                                <ScrollView horizontal showsHorizontalScrollIndicator={true} style={{}}>
+                                    {post.images.map((image, index) =>(
+                                        <View>
+                                        {modalVisible ? 
+                                        <Modal
+                                            animationType="slide"
+                                            transparent={true}
+                                            visible={modalVisible}
+                                            onRequestClose={() => {
+                                                setModalVisible(!modalVisible);
+                                            }}
+                                        >
+                                        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)'}}>
+                                                <Image source={{uri: post.images[index] || null}} style={{width: 400, height: 400, margin: 10}} />
+                                                <TouchableOpacity onPress={()=>setModalVisible(false)}>
+                                                    <Text>Close</Text>
+                                                </TouchableOpacity>
+                                            </View>
+
+                                        </Modal>
+                                        :
+                                         <TouchableOpacity onPress={()=>setModalVisible(true)}>
+                                         <Image key={index} source={{uri: post.images[index] || null}} style={{width: 100, height: 100, margin: 10}} />
+                                     
+                                         </TouchableOpacity>
+                                        }
+                                       
+                                        </View>
+                                      
+
+                                    ))}
+                                </ScrollView>
+                                <TouchableOpacity onPress={selectImage} >
+                                    <Image source={require('../assets/postImg.png')} style={styles.postImgicon} />
+                                </TouchableOpacity>
+                        </View>
+                    :
+                        <TouchableOpacity onPress={selectImage} >
+                            <Image source={require('../assets/postImg.png')} style={styles.postImgicon} />
                         </TouchableOpacity>
+                    }
+                   
+                        <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                            <TouchableOpacity style={styles.addPostBtn} onPress={handleCreatePost}>
+                                <Text style={styles.btnText1}>Add post</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
     
                 </View>
                 : 
+
+                // Review Section
                 <ScrollView contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>   
                     <View style={styles.reviewContainer}>
+                
                     {review.images.length > 0 ?   
-                        <TouchableOpacity onPress={selectImage} >
-                            <Image source={{uri: review.images[0] || null}} style={{width: 350, height: 179, borderRadius: 10, margin: 10,}} />
-                        </TouchableOpacity>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={true} style={{}}>
+                           {review.images.map((image, index) =>(
+                                <Image source={{uri: review.images[index] || null}} style={styles.uploadedImageContainer} />
+                            ))}
+                            <TouchableOpacity onPress={selectImage} style={{width: 100, height: 50}} >
+                                <Image source={require('../assets/image.png')} style={styles.cameraIcon}/>
+                            </TouchableOpacity>
+                       </ScrollView>
+                        
                         :
                         <TouchableOpacity onPress={selectImage} style={styles.imagebox}>
                           <Image source={require('../assets/image.png')} style={styles.cameraIcon} />
@@ -342,12 +392,6 @@ const Post = () => {
                                 placeholder='ex. Apple'
                             />
                         <Text style={styles.text}> Location </Text>
-                            {/* <TextInput 
-                                style={styles.textbox}
-                                value={review.location}
-                                onChangeText={handleChangeLocation}
-                                placeholder='ex. Collis Cafe'
-                            /> */}
                             <AutocompleteDropdown 
                                 dataSet={diningLocation}
                                 onChangeText={handleChangeLocation}
@@ -545,7 +589,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         width: 350,
-        height: 179,
+        height: 180,
+        margin: 10,
     },
     textbox: {
         borderColor: 'black',
@@ -565,12 +610,27 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         textAlignVertical: 'top',
         flexWrap: 'wrap',
+        
     },
     cameraIcon:{
         width: "30%",
         height: "50%",
         justifyContent: 'center',
     },
+    uploadedImageContainer : {
+        width: 350, 
+        height: 180, 
+        borderRadius: 10, 
+        margin: 10,
+    },
+    postUploadedImages:{
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        margin: 10,
+        width: 350,
+    },
+
     postImgicon:{
         width: 45,
         height: 31,
