@@ -3,6 +3,8 @@ import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity } from 
 import BottomSheet from '@gorhom/bottom-sheet'; 
 import DropDownPicker from 'react-native-dropdown-picker';
 import colors from '../styles.js';
+import Preferences from '../services/Preferences.json';
+import Toast from 'react-native-toast-message';
 
 interface FilterContentProps {
   onFilter: (filteredItems: string[]) => void; // Function to handle filtered items maybe for later for fire base
@@ -12,25 +14,16 @@ interface FilterContentProps {
 
 const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setIsVisible }) => {
   const bottomSheetRef = useRef(null);
+  const [ preferences, setPreferences ] = useState(Preferences);
   
   const [preferredOpen, setPreferredOpen] = useState(false);
-  const [preferredValue, setPreferredValue] = useState(['italy', 'spain', 'barcelona', 'finland']);
+  const [preferredValue, setPreferredValue] = useState([]);
   const [preferredItems, setPreferredItems] = useState([
-    {label: 'Spain', value: 'spain'},
-    {label: 'Madrid', value: 'madrid', parent: 'spain'},
-    {label: 'Barcelona', value: 'barcelona', parent: 'spain'},
-    {label: 'Italy', value: 'italy'},
-    {label: 'Rome', value: 'rome', parent: 'italy'},
-    {label: 'Finland', value: 'finland'}
   ]);
 
   const [avoidOpen, setAvoidOpen] = useState(false);
   const [avoidValue, setAvoidValue] = useState([]);
   const [avoidItems, setAvoidItems] = useState([
-    {label: 'Pizza', value: 'pizza'},
-    {label: 'Burger', value: 'burger'},
-    {label: 'Sushi', value: 'sushi'},
-    {label: 'Pasta', value: 'pasta'}
   ]);
 
   const [timeOpen, setTimeOpen] = useState(false);
@@ -41,12 +34,39 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
     {label: 'Dinner', value: 'dinner'},
   ]);
 
+  // Set the preferred and avoid items from the preferences.json
+  // this library have to use useEffect to set the items
+  useEffect(() => {
+    const items = preferences.id.map(item => ({
+      label: item,
+      value: item.toLowerCase()
+    }));
+    setPreferredItems(items);
+    setAvoidItems(items);
+  }, [preferences]);
+
+
+  // Function to handle the filter application 
+  // if the user select the same item in both preferred and avoid, it will show an error message
   const handleApplyFilter = () => {
-    console.log('Preferred:', preferredValue.join(', ') || 'none');
-    console.log('Avoid:', avoidValue.join(', ') || 'none');
-    console.log('Time:', timeValue.join(', ') || 'none');
-    setIsVisible(false); // Close the bottom sheet for now after applying filter
+    const overlappingValues = preferredValue.filter(value => avoidValue.includes(value));
+    
+    if (overlappingValues.length > 0) {
+      const errorMessage = `Duplicates in Preferred & Avoid: ${overlappingValues.join(', ')}`;
+      Toast.show({
+        type: 'error',
+        text1: 'Error: Overlapping Selections',
+        text2: errorMessage, 
+      });
+    } else {
+      console.log('Preferred:', preferredValue.join(', ') || 'none');
+      console.log('Avoid:', avoidValue.join(', ') || 'none');
+      console.log('Time:', timeValue.join(', ') || 'none');
+      setIsVisible(false); // Close the bottom sheet after applying the filter
+    }
   };
+  
+  
 
   const handleReset = () => {
     setPreferredValue([]);
