@@ -127,7 +127,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
             mode="BADGE"
             listMode="SCROLLVIEW"
             dropDownDirection = "BOTTOM"
-            badgeDotColors={["#8ac926"]}
+            badgeDotColors={[colors.highRating]}
             containerProps={{
               style: {
                 zIndex: preferredOpen ? 10 : 1
@@ -150,7 +150,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
             mode="BADGE"
             listMode="SCROLLVIEW"
             dropDownDirection = "BOTTOM"
-            badgeDotColors={["#e76f51"]}
+            badgeDotColors={[colors.warningPink]}
             containerProps={{
               style: {
                 zIndex: avoidOpen ? 10 : 1
