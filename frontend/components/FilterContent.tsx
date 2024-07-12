@@ -13,9 +13,9 @@ interface FilterContentProps {
 const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setIsVisible }) => {
   const bottomSheetRef = useRef(null);
   
-  const [locationOpen, setLocationOpen] = useState(false);
-  const [locationValue, setLocationValue] = useState(['italy', 'spain', 'barcelona', 'finland']);
-  const [locationItems, setLocationItems] = useState([
+  const [preferredOpen, setPreferredOpen] = useState(false);
+  const [preferredValue, setPreferredValue] = useState(['italy', 'spain', 'barcelona', 'finland']);
+  const [preferredItems, setPreferredItems] = useState([
     {label: 'Spain', value: 'spain'},
     {label: 'Madrid', value: 'madrid', parent: 'spain'},
     {label: 'Barcelona', value: 'barcelona', parent: 'spain'},
@@ -24,9 +24,9 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
     {label: 'Finland', value: 'finland'}
   ]);
 
-  const [foodOpen, setFoodOpen] = useState(false);
-  const [foodValue, setFoodValue] = useState([]);
-  const [foodItems, setFoodItems] = useState([
+  const [avoidOpen, setAvoidOpen] = useState(false);
+  const [avoidValue, setAvoidValue] = useState([]);
+  const [avoidItems, setAvoidItems] = useState([
     {label: 'Pizza', value: 'pizza'},
     {label: 'Burger', value: 'burger'},
     {label: 'Sushi', value: 'sushi'},
@@ -36,22 +36,21 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
   const [timeOpen, setTimeOpen] = useState(false);
   const [timeValue, setTimeValue] = useState([]);
   const [timeItems, setTimeItems] = useState([
-    {label: 'Morning', value: 'morning'},
-    {label: 'Afternoon', value: 'afternoon'},
-    {label: 'Evening', value: 'evening'},
-    {label: 'Night', value: 'night'}
+    {label: 'Breakfast', value: 'breakfast'},
+    {label: 'Lunch', value: 'lunch'},
+    {label: 'Dinner', value: 'dinner'},
   ]);
 
   const handleApplyFilter = () => {
-    console.log('Location:', locationValue.join(', ') || 'none');
-    console.log('Food:', foodValue.join(', ') || 'none');
+    console.log('Preferred:', preferredValue.join(', ') || 'none');
+    console.log('Avoid:', avoidValue.join(', ') || 'none');
     console.log('Time:', timeValue.join(', ') || 'none');
     setIsVisible(false); // Close the bottom sheet for now after applying filter
   };
 
   const handleReset = () => {
-    setLocationValue([]);
-    setFoodValue([]);
+    setPreferredValue([]);
+    setAvoidValue([]);
     setTimeValue([]);
   };
 
@@ -94,47 +93,47 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
         
       <ScrollView>
         <View style={styles.content}>
-          <Text style={styles.contentText}>Location</Text>
+          <Text style={styles.contentText}>Preferred</Text>
           <DropDownPicker
             style={styles.dropDownBox}
-            open={locationOpen}
-            value={locationValue}
-            items={locationItems}
-            setOpen={setLocationOpen}
-            setValue={setLocationValue}
-            setItems={setLocationItems}
+            open={preferredOpen}
+            value={preferredValue}
+            items={preferredItems}
+            setOpen={setPreferredOpen}
+            setValue={setPreferredValue}
+            setItems={setPreferredItems}
             theme="LIGHT"
             multiple={true}
             mode="BADGE"
             listMode="SCROLLVIEW"
             dropDownDirection = "BOTTOM"
-            badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#8ac926"]}
+            badgeDotColors={["#8ac926"]}
             containerProps={{
               style: {
-                zIndex: locationOpen ? 10 : 1
+                zIndex: preferredOpen ? 10 : 1
               }
             }}
           />
 
           
-          <Text style={styles.contentText}>Food</Text>
+          <Text style={styles.contentText}>Avoid</Text>
           <DropDownPicker
             style={styles.dropDownBox}
-            open={foodOpen}
-            value={foodValue}
-            items={foodItems}
-            setOpen={setFoodOpen}
-            setValue={setFoodValue}
-            setItems={setFoodItems}
+            open={avoidOpen}
+            value={avoidValue}
+            items={avoidItems}
+            setOpen={setAvoidOpen}
+            setValue={setAvoidValue}
+            setItems={setAvoidItems}
             theme="LIGHT"
             multiple={true}
             mode="BADGE"
             listMode="SCROLLVIEW"
             dropDownDirection = "BOTTOM"
-            badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#8ac926"]}
+            badgeDotColors={["#e76f51"]}
             containerProps={{
               style: {
-                zIndex: foodOpen ? 10 : 1
+                zIndex: avoidOpen ? 10 : 1
               }
             }}
           />
@@ -153,7 +152,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
             mode="BADGE"
             dropDownDirection = "BOTTOM"
             listMode="SCROLLVIEW"
-            badgeDotColors={["#e76f51", "#00b4d8", "#e9c46a", "#8ac926"]}
+            badgeDotColors={["#e9c46a"]}
             containerProps={{
               style: {
                 zIndex: timeOpen ? 10 : 1
@@ -209,9 +208,7 @@ const styles = StyleSheet.create({
   },
   dropDownBox: {
     flex: 1,
-    backgroundColor: "#fff",
-    paddingVertical: 8,
-    paddingHorizontal: 26,
+    backgroundColor: "white",
     marginVertical: 10,
     color: "#000",
     fontSize: 14,
