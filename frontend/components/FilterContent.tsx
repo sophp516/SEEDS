@@ -77,6 +77,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
       index={-1}
       snapPoints={snapPoints}
       onClose={() => setIsVisible(false)}
+      enablePanDownToClose={true}
     >
       <View style={styles.bottomSheetUpper}>
         <TouchableOpacity style={styles.bottomSheetButton} onPress={handleReset}>
