@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect , useCallback} from 'react';
 import React from 'react';
 import { Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Modal } from 'react-native';
 import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
@@ -6,11 +6,12 @@ import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
 import CustomSlider from '../components/CustomSlider';
 import * as ImagePicker from 'expo-image-picker';
 import { db , storage } from '../services/firestore';
-import { collection, addDoc, updateDoc, getDoc, doc, arrayUnion} from 'firebase/firestore';
+import { collection, addDoc, updateDoc, getDoc, doc, arrayUnion, query, limit} from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import { ref, uploadBytes,getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import { useAuth } from '../context/authContext.js';
 import diningLocation from '../services/dininglocation.json';
+import {debounce} from 'lodash';
 // import storage from '@react-native-firebase/storage';
 
 interface newPost{
@@ -45,7 +46,7 @@ const Post = () => {
     const { user, setLoggedInUser } = useAuth();
     const { loggedInUser, displayName } = user;
     const userId = loggedInUser?.loggedInUser?.uid;
-
+    const userSchool = loggedInUser?.loggedInUser?.schoolName;
     const [tag, setTag] = useState<string>('');
     // const route = useRoute<RouteProp<RootStackParamList, 'Post'>>();
     const [selectedImg, setSelectedImg] = useState<string | null>(null);
@@ -71,34 +72,6 @@ const Post = () => {
     });
     const [modalVisible, setModalVisible] = useState(false);
 
-
-    // How multiple images upload will work:
-    // 1. User selects multiple images from gallery
-    // 2. Images are stored in an array
-    // 3. User clicks submit
-    // 4. Images are uploaded to Firebase Storage one by one, the images in the final array are the URLs
-    // 5. The URLs are stored in the Firestore document
-
-    const handleUploadImage = async (image: string) => {
-        try{
-            const response = await fetch(image);
-            const blob = await response.blob(); // convert 
-            const imgName = "img-" + new Date().getTime();
-            let refName;
-            if (toggle == true){
-                refName = 'posts';
-            }else{
-                refName = 'reviews';
-            }
-            const storageRef = ref(storage, `${refName}/${imgName}.jpg`)
-            const snapshop = await uploadBytesResumable(storageRef, blob);
-            const imageUrl = await getDownloadURL(storageRef);
-            return imageUrl
-        }
-        catch{
-            console.error("Error uploading image to Firestore");
-        }
-    }
     const handleCreatePost = async() => {
         try{
             let finalPost = {...post};
@@ -134,6 +107,22 @@ const Post = () => {
 
     const handleCreateReview = async () =>{
         try{
+            // ISSUE: The user ID does not mathc the user path in firebase 
+            // When adding review, add check case for if review array exist 
+            const userRef = doc(db, 'users', userId);
+            console.log("userID:" , userId);
+            const userSnapshot = await getDoc(userRef);
+            if (!userSnapshot.exists()){
+                console.error("User does not exist");
+                // return;
+            }
+
+            // current I can't get access to user's school without the full pathname
+            const locationExist = await verifyLocation('Dartmouth College', review.location);
+            if (!locationExist){
+                console.error("Location does not exist");
+                return;
+            }
             let finalReview = {...review};
             const imageURls = [];
             let timestamp = new Date().getTime();
@@ -161,16 +150,8 @@ const Post = () => {
             const reviewRef = await addDoc(collection(db, 'reviews'), finalReview);
             const reviewId = reviewRef.id;
             await updateDoc(doc(db, 'reviews', reviewId), {reviewId: reviewId}); 
-            
-            // ISSUE: The user ID does not mathc the user path in firebase 
-            // When adding review, add check case for if review array exist 
-            const userRef = doc(db, 'users', userId);
-            console.log("userID:" , userId);
-            const userSnapshot = await getDoc(userRef);
-            if (!userSnapshot.exists()){
-                console.error("User does not exist");
-                // return;
-            }
+            await addDoc(collection(db, 'colleges', 'Dartmouth College', review.location, 'collections', 'reviews'), {reviewId});
+            // update user doc
             try{
                 await updateDoc(userRef, {reviews: arrayUnion(reviewId),
                 });
@@ -196,6 +177,24 @@ const Post = () => {
         }catch{
             console.error("Error adding review to Firestore, have you signed in yet?");
             alert("Error adding review to Firestore");
+        }
+    }
+
+    // Full path: Colleges/CollegeName/Location/Collection/
+    const verifyLocation = async(college, location: string) => {
+        try{
+            const locationRef = doc(db, 'colleges', `${college}`,`${location}`, 'collections'); // post and review must exist
+            console.log("Location path:", locationRef);
+            const snapshop = await getDoc(locationRef);
+            if (snapshop.exists()){
+                console.log("Location exists");
+                return true;
+            }else{
+                console.error("Location does not exist");
+                return false;
+            }
+        }catch{
+            console.log("Error verifying location");
         }
     }
     /******* FUNCTIONS FOR UPLOAD IMAGES ******/
@@ -231,6 +230,34 @@ const Post = () => {
             }
         }
     }
+
+    // How multiple images upload will work:
+    // 1. User selects multiple images from gallery
+    // 2. Images are stored in an array
+    // 3. User clicks submit
+    // 4. Images are uploaded to Firebase Storage one by one, the images in the final array are the URLs
+    // 5. The URLs are stored in the Firestore document
+
+    const handleUploadImage = async (image: string) => {
+        try{
+            const response = await fetch(image);
+            const blob = await response.blob(); // convert 
+            const imgName = "img-" + new Date().getTime();
+            let refName;
+            if (toggle == true){
+                refName = 'posts';
+            }else{
+                refName = 'reviews';
+            }
+            const storageRef = ref(storage, `${refName}/${imgName}.jpg`)
+            const snapshop = await uploadBytesResumable(storageRef, blob);
+            const imageUrl = await getDownloadURL(storageRef);
+            return imageUrl
+        }
+        catch{
+            console.error("Error uploading image to Firestore");
+        }
+    }
    
     /* function handleExit(): Brings user back to the last visited page
     * Also resets the data stored in the use state
@@ -256,14 +283,23 @@ const Post = () => {
         setReview(prevReview => ({ ...prevReview, foodName: text }));
     };
     /* Later we can implement dropdown and auto complete text based off locations within the campus*/
-    const handleChangeLocation = (text: string) => {
-        setReview(prevReview => ({...prevReview, location: text}));
-    }
+    const handleChangeLocation = useCallback(debounce((text: string) => {
+        setReview(prevReview => ({ ...prevReview, location: text }));
+    }, 1000), []);
+
+    const [locationInput, setLocationInput] = useState<string>('');
+    // Using useeffect to reduce re render, but still slow
+
+    useEffect(()=>{
+        const timeout = setTimeout(() => (handleChangeLocation(locationInput)), 1000);
+        return () => clearTimeout(timeout);
+    }, [locationInput]);
+
+
     const handleSelectItem = (item) => {
         if (item) {
-          setReview(prevReview => ({ ...prevReview, location: item.title })); // Adjust item.title to the correct property
-        }
-      };
+        //   setReview(prevReview => ({ ...prevReview, location: item.title })); // Adjust item.title to the correct property
+            setLocationInput(item.title);} };
     
     const handleSubmitTag = () => {
         if (tag){
@@ -392,26 +428,28 @@ const Post = () => {
                                 placeholder='ex. Apple'
                             />
                         <Text style={styles.text}> Location </Text>
+                           
                             <AutocompleteDropdown 
                                 dataSet={diningLocation}
-                                onChangeText={handleChangeLocation}
+                                onChangeText={(text)=> {setLocationInput (text)}}
                                 onSelectItem={handleSelectItem}
                                 direction={Platform.select({ ios: 'down' })}
-                                onClear={() => handleChangeLocation('')}
-                                initialValue={review.location}
+                                onClear={() => setLocationInput('')}
+                                initialValue={locationInput}
                                 textInputProps ={{
                                     placeholder: 'Enter location',
-                                    value: review.location,
+                                    value: locationInput,
                                     autoCorrect: false,
-                                     autoCapitalize: 'none',
+                                    autoCapitalize: 'none',
                                     style: { 
                                         color: 'black',
                                         backgroundColor: '#E7E2DB',
                                         width: 325,
                                         maxWidth: 325,
-                                        height: 30,
+                                        height: 40,
+                                        alignItems: 'center',
                                         borderRadius: 10,
-                                        padding: 15,
+                                        padding: 5,
                                     }
                                 }}
                                 inputContainerStyle={{
