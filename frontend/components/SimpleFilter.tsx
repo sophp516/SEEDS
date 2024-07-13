@@ -5,7 +5,7 @@ import Preferences from '../services/Preferences.json';
 
 interface SimpleFilterProps {
   disable: boolean; // Prop to disable buttons
-  reset: () => void; // rest the filter if needed (for when disabling the SimpleFilter when Filter is click)
+  reset: () => void; // Reset the filter if needed
 }
 
 const SimpleFilter: React.FC<SimpleFilterProps> = ({ disable, reset }) => {
@@ -14,24 +14,38 @@ const SimpleFilter: React.FC<SimpleFilterProps> = ({ disable, reset }) => {
   const handlePress = (item: string) => {
     if (disable) return;
 
-    if (selectedFilter === item) {
-      setSelectedFilter(null); // Deselect the item
-    } else {
-      setSelectedFilter(item); // Select the item and log it
-      console.log(item);
+    setSelectedFilter(prev => (prev === item ? null : item));
+    if (selectedFilter !== item) {
+      console.log(item); // Log the selected item
     }
   };
 
-  // Effect to reset the selected filter when filter is clicked
+  // Effect to reset the selected filter when the filter is clicked
   useEffect(() => {
     if (disable) {
-      setSelectedFilter(null); 
+      setSelectedFilter(null);
     }
   }, [disable]);
 
   return (
     <ScrollView horizontal={true} style={styles.scrollContainer}>
       <View style={styles.container}>
+        {/* Meal Options */}
+        {['Breakfast', 'Lunch', 'Dinner'].map((meal, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[
+              styles.button,
+              selectedFilter === meal && styles.selectedButton
+            ]}
+            onPress={() => handlePress(meal)}
+            disabled={disable}
+          >
+            <Text style={styles.buttonText}>{meal}</Text>
+          </TouchableOpacity>
+        ))}
+
+        {/* Preferences Options */}
         {Preferences.id.map((item, index) => (
           <TouchableOpacity
             key={index}
@@ -40,7 +54,7 @@ const SimpleFilter: React.FC<SimpleFilterProps> = ({ disable, reset }) => {
               selectedFilter === item && styles.selectedButton
             ]}
             onPress={() => handlePress(item)}
-            disabled={disable} // Disable button based on prop
+            disabled={disable}
           >
             <Text style={styles.buttonText}>{item}</Text>
           </TouchableOpacity>
