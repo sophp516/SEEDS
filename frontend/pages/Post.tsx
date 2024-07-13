@@ -20,6 +20,7 @@ interface newPost{
     timestamp?: string;
     postId?: string;
     userId: string;
+    likes?:string[];
 }
 interface newReview {
     reviewId?: string;
@@ -32,7 +33,7 @@ interface newReview {
     images: string[];
     tags:string[] | null,
     comment: string|null,
-    likes: number;
+    likes?:string[];
     timestamp?: string;
     subComments?: string[];
 }
@@ -56,6 +57,7 @@ const Post = () => {
         comment: '',
         images: [],
         userId: userId,
+        likes: [],
     });
     const [review, setReview] = useState<newReview>({
         userId: userId,
@@ -67,7 +69,7 @@ const Post = () => {
         images: [],
         tags: [],
         comment: '',
-        likes: 0,
+        likes: [],
         timestamp: null,
     });
     const [modalVisible, setModalVisible] = useState(false);
@@ -107,7 +109,7 @@ const Post = () => {
 
     const handleCreateReview = async () =>{
         try{
-            // ISSUE: The user ID does not mathc the user path in firebase 
+            // ISSUE: The user ID does not match the user path in firebase 
             // When adding review, add check case for if review array exist 
             const userRef = doc(db, 'users', userId);
             console.log("userID:" , userId);
@@ -123,6 +125,7 @@ const Post = () => {
                 console.error("Location does not exist");
                 return;
             }
+
             let finalReview = {...review};
             const imageURls = [];
             let timestamp = new Date().getTime();
@@ -149,8 +152,10 @@ const Post = () => {
             // add to review Collection
             const reviewRef = await addDoc(collection(db, 'reviews'), finalReview);
             const reviewId = reviewRef.id;
+
             await updateDoc(doc(db, 'reviews', reviewId), {reviewId: reviewId}); 
             await addDoc(collection(db, 'colleges', 'Dartmouth College', review.location, 'collections', 'reviews'), {reviewId});
+           
             // update user doc
             try{
                 await updateDoc(userRef, {reviews: arrayUnion(reviewId),
@@ -170,7 +175,7 @@ const Post = () => {
                 images:[],
                 tags: [],
                 comment: '',
-                likes: 0,
+                likes: [],
                 timestamp: null,
             }); // reset the review
             navigation.goBack();
@@ -197,6 +202,7 @@ const Post = () => {
             console.log("Error verifying location");
         }
     }
+
     /******* FUNCTIONS FOR UPLOAD IMAGES ******/
     // Read more about documentation here: https://docs.expo.dev/versions/latest/sdk/imagepicker/ 
     const getPermission = async() =>{
@@ -275,7 +281,7 @@ const Post = () => {
             images: [],
             tags: [],
             comment: '',
-            likes: 0,
+            likes: [],
         });
     }
     /* Later we can do food reccomendation from API if time */
