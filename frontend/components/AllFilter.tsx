@@ -34,7 +34,6 @@ const AllFilter: React.FC = () => {
           <SimpleFilter disable={isDisabled} reset={() => setIsDisabled(false)} />
         </View>
       </View>
-      <Text style={styles.text}>Discover</Text> 
       <FilterContent
         onFilter={setFilteredItems}
         isVisible={isBottomSheetOpen}
