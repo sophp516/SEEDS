@@ -73,7 +73,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                 </View>
             </View>
 
-            <View style={styles.containerTop}>
+            <View style={styles.filter}>
             <AllFilter 
               isDisabled={isDisabled}
               toggleBottomSheet={toggleBottomSheet}
@@ -179,14 +179,9 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.backgroundGray,
     },
-    containerTop: {
+    filter: {
         alignItems: 'center',
         marginTop: -60,
-    },
-    searchFilterRow: {
-        justifyContent: 'flex-start',
-        flexDirection: 'row',
-        paddingBottom: 20,
     },
     diningHomeBody: {
         width: '100%',
@@ -194,11 +189,6 @@ const styles = StyleSheet.create({
     backButton: {
         paddingTop: 10,
         paddingBottom: 20,
-    },
-    searchAndFilterContainer: {
-        width: '100%',
-        flexDirection: 'row',
-        alignItems: 'center'
     },
     closingText: {
         fontSize: 12,
@@ -230,9 +220,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         paddingTop: 10,
         paddingBottom: 20,
-    },
-    searchBarContainer: {
-        flex: 1,
     },
     recHeaderText: {
         fontSize: 20,
