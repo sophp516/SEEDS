@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import colors from '../styles';
 import Filter from './Filter.tsx';
 import SimpleFilter from './SimpleFilter';
@@ -8,11 +8,17 @@ import FilterContent from './FilterContent';
 
 const AllFilter: React.FC = () => {
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  const [filteredItems, setFilteredItems] = useState([]); // State to store filtered items
+  const [filteredItems, setFilteredItems] = useState([]); 
+  const [isDisabled, setIsDisabled] = useState(false); 
 
   // Function to toggle the bottom sheet visibility
   const toggleBottomSheet = () => {
     setIsBottomSheetOpen(!isBottomSheetOpen);
+  };
+
+  // Function to handle filter click
+  const handleFilterClick = () => {
+    setIsDisabled((prev) => !prev); // Toggle the disabled state
   };
 
   return (
@@ -20,15 +26,15 @@ const AllFilter: React.FC = () => {
       <View style={styles.containerTop}>
         <View style={styles.searchFilterRow}>
           <View style={styles.searchBarContainer}>
-            <SearchBar />
+            <SearchBar disabled={isDisabled} /> 
           </View>
-          <Filter toggleBottomSheet={toggleBottomSheet} />
+          <Filter toggleBottomSheet={toggleBottomSheet} onFilterClick={handleFilterClick} />
         </View>
         <View style={styles.simpleFilterContainer}>
-          <SimpleFilter />
+          <SimpleFilter disable={isDisabled} reset={() => setIsDisabled(false)} />
         </View>
       </View>
-      <Text style={styles.text}>Discover</Text>
+      <Text style={styles.text}>Discover</Text> 
       <FilterContent
         onFilter={setFilteredItems}
         isVisible={isBottomSheetOpen}
