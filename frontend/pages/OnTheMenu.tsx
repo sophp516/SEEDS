@@ -2,10 +2,9 @@ import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import Navbar from '../components/Navbar.jsx';
-import SearchBar from '../components/Searchbar.tsx';
 import SmallMenu from '../components/SmallMenu.tsx';
-import Filter from '../components/Filter.tsx';
-import BottomSheet from '@gorhom/bottom-sheet'
+import AllFilter from '../components/AllFilter.tsx';
+import FilterContent from '../components/FilterContent.tsx';
 import colors from '../styles.js';
 import ExampleMenu from '../services/ExampleMenu.json';
 
@@ -24,63 +23,59 @@ type Props = {
 };
 
 const DiningHome: React.FC<Props> = ({ route }) => {
+  //for the filter
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [filteredItems, setFilteredItems] = useState([]); 
+  const [isDisabled, setIsDisabled] = useState(false); 
+
+  // Function to toggle the bottom sheet visibility
+  const toggleBottomSheet = () => {
+    setIsBottomSheetOpen(!isBottomSheetOpen);
+  };
+
+  // Function to handle filter click and toggle the disabled state
+  const handleFilterClick = () => {
+    setIsDisabled((prev) => !prev); 
+  };
 
     const { placeName } = route.params;
+    
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-    const bottomSheetRef = useRef(null);
-    const [ isBottomSheetOpen, setIsBottomSheetOpen ] = useState(false);
     const [onTheMenu, setOnTheMenu] = useState(ExampleMenu);
-
-    const toggleBottomSheet = () => {
-        if (isBottomSheetOpen) {
-          bottomSheetRef.current?.close();
-        } else {
-          bottomSheetRef.current?.expand();
-        }
-        setIsBottomSheetOpen(!isBottomSheetOpen);
-      };
-      const snapPoints = useMemo(() => ['25%', '50%', '70%'], []);
 
     return (
         <View style={styles.container}>
-            <View style={styles.diningHomeHeader}>
-                <View style={styles.diningHomeHeaderTop}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Text>Back</Text>
-                    </TouchableOpacity>
-                </View>
-                <View style={styles.diningHomeHeaderBottom}>
-                    <Text style={styles.placeNameText}>{placeName}</Text>
-                </View>
-            </View>
-            <View style={styles.contentContainer}>
-                <View style={styles.containerTop}>
-                    <View style={styles.searchFilterRow}>
-                    <View style={styles.searchBarContainer}>
-                        <SearchBar />
-                    </View>
-                    <View>
-                        <Filter
-                        items={['Shellfish', 'fish', 'Sushi', 'Pasta', 'Salad', 'Sandwich', 'Soup', 'Dessert', 'Drink']}
-                        onFilter={(filteredItems) => console.log('Filtered Items:', filteredItems)}
-                        toggleBottomSheet={toggleBottomSheet}
-                        />
-                    </View>
-                </View>
-            </View>
-            <ScrollView style={styles.contentScrollContainer} contentContainerStyle={{ paddingBottom: 100 }}>
-            
-            </ScrollView>
-        </View>
-            <Navbar />
-            <BottomSheet
-                backgroundStyle={{ backgroundColor: '#E7E2DB' }}
-                ref={bottomSheetRef}
-                index={-1}
-                snapPoints={snapPoints}
-            >
-              <Text>Filtering </Text>
-            </BottomSheet>
+          <View style={styles.diningHomeHeader}>
+              <View style={styles.diningHomeHeaderTop}>
+                  <TouchableOpacity onPress={() => navigation.goBack()}>
+                      <Text>Back</Text>
+                  </TouchableOpacity>
+              </View>
+              <View style={styles.diningHomeHeaderBottom}>
+                  <Text style={styles.placeNameText}>{placeName}</Text>
+              </View>
+          </View>
+
+
+          <View style={styles.filter}>
+            <AllFilter 
+                isDisabled={isDisabled}
+                toggleBottomSheet={toggleBottomSheet}
+                handleFilterClick={handleFilterClick}
+                resetSimpleFilter={() => setIsDisabled(false)}/>
+
+          </View>
+
+
+
+          <View style={styles.contentContainer}>
+              <ScrollView style={styles.contentScrollContainer} contentContainerStyle={{ paddingBottom: 100 }}>
+              
+              </ScrollView>
+          </View>
+
+
+          <Navbar />
 
         </View>
     )
@@ -95,11 +90,10 @@ const styles = StyleSheet.create({
     containerTop: {
         alignItems: 'center',
     },
-    searchFilterRow: {
-        justifyContent: 'flex-start',
-        flex: 0,
-        flexDirection: 'row',
-        width: '100%',
+    filter:{
+      alignItems: 'center',
+      marginTop: -60,
+
     },
     diningHomeBody: {
         width: '100%',
@@ -107,11 +101,6 @@ const styles = StyleSheet.create({
     backButton: {
         paddingTop: 10,
         paddingBottom: 20,
-    },
-    searchAndFilterContainer: {
-        width: '100%',
-        flexDirection: 'row',
-        alignItems: 'center'
     },
     closingText: {
         fontSize: 12,
@@ -143,9 +132,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         paddingTop: 10,
         paddingBottom: 20,
-    },
-    searchBarContainer: {
-        flex: 1,
     },
     recHeaderText: {
         fontSize: 20,
