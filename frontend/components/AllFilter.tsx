@@ -1,54 +1,32 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import colors from '../styles';
-import Filter from './Filter.tsx';
+// components/AllFilter.tsx
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
+import Filter from './Filter';
 import SimpleFilter from './SimpleFilter';
-import SearchBar from './Searchbar.tsx';
-import FilterContent from './FilterContent';
+import SearchBar from './Searchbar';
 
-const AllFilter: React.FC = () => {
-  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  const [filteredItems, setFilteredItems] = useState([]); 
-  const [isDisabled, setIsDisabled] = useState(false); 
-
-  // Function to toggle the bottom sheet visibility
-  const toggleBottomSheet = () => {
-    setIsBottomSheetOpen(!isBottomSheetOpen);
-  };
-
-  // Function to handle filter click
-  const handleFilterClick = () => {
-    setIsDisabled((prev) => !prev); // Toggle the disabled state
-  };
-
+const AllFilter: React.FC<{ 
+  isDisabled: boolean; 
+  toggleBottomSheet: () => void; 
+  handleFilterClick: () => void; 
+  resetSimpleFilter: () => void; 
+}> = ({ isDisabled, toggleBottomSheet, handleFilterClick, resetSimpleFilter }) => {
   return (
-    <View style={styles.outerContainer}>
-      <View style={styles.containerTop}>
-        <View style={styles.searchFilterRow}>
-          <View style={styles.searchBarContainer}>
-            <SearchBar disabled={isDisabled} /> 
-          </View>
-          <Filter toggleBottomSheet={toggleBottomSheet} onFilterClick={handleFilterClick} />
+    <View style={styles.containerTop}>
+      <View style={styles.searchFilterRow}>
+        <View style={styles.searchBarContainer}>
+          <SearchBar disabled={isDisabled} />
         </View>
-        <View style={styles.simpleFilterContainer}>
-          <SimpleFilter disable={isDisabled} reset={() => setIsDisabled(false)} />
-        </View>
+        <Filter toggleBottomSheet={toggleBottomSheet} onFilterClick={handleFilterClick} />
       </View>
-      <FilterContent
-        onFilter={setFilteredItems}
-        isVisible={isBottomSheetOpen}
-        setIsVisible={setIsBottomSheetOpen}
-      />
+      <View style={styles.simpleFilterContainer}>
+        <SimpleFilter disable={isDisabled} reset={resetSimpleFilter} />
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  outerContainer: {
-    flex: 1,
-    alignItems: 'center',
-    backgroundColor: colors.backgroundGray,
-  },
   containerTop: {
     padding: 20,
     alignItems: 'center',
@@ -65,11 +43,6 @@ const styles = StyleSheet.create({
   simpleFilterContainer: {
     marginTop: 10,
     width: '100%',
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginTop: 20,
   },
 });
 
