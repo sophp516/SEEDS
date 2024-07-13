@@ -97,6 +97,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
       snapPoints={snapPoints}
       onClose={() => setIsVisible(false)}
       enablePanDownToClose={true}
+      style={styles.BottomSheetStyle}
     >
       <View style={styles.bottomSheetUpper}>
         <TouchableOpacity style={styles.bottomSheetButton} onPress={handleReset}>
@@ -235,6 +236,23 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginBottom: 40,
     borderColor: colors.grayStroke,
+    shadowColor: '#000', // Shadow color
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.3, 
+    shadowRadius: 4, 
+
+  },
+  BottomSheetStyle: {
+    shadowColor: '#000', 
+    shadowOffset: {
+      width: 0,
+      height: 2, 
+    },
+    shadowOpacity: 0.8, 
+    shadowRadius: 40, 
   },
 
 
