@@ -109,6 +109,7 @@ const SignUp = () => {
                 displayName: input.displayName,
                 schoolName: input.schoolName,
                 password: input.password,
+                submissions: [],
             });
 
             
