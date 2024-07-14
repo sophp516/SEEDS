@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { StyleSheet, Text, View, TextInput, Button, TouchableOpacity } from 'react-native';
-import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, addDoc, doc ,setDoc} from 'firebase/firestore';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -93,14 +93,24 @@ const SignUp = () => {
                 schoolName: input.schoolName,
             });
 
-            const usersRef = collection(db, 'users');
-            await addDoc(usersRef, {
+            // const usersRef = collection(db, 'users');
+            // await addDoc(usersRef, {
+            //     id: userCredential.user.uid,
+            //     email: input.email,
+            //     displayName: input.displayName,
+            //     schoolName: input.schoolName,
+            //     password: input.password,
+            // });
+            
+            const userRef = doc(db, 'users', userCredential.user.uid);
+            await setDoc(userRef, {
                 id: userCredential.user.uid,
                 email: input.email,
                 displayName: input.displayName,
                 schoolName: input.schoolName,
                 password: input.password,
             });
+
             
 
             Toast.show({
