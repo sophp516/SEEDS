@@ -6,7 +6,7 @@ import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
 import CustomSlider from '../components/CustomSlider';
 import * as ImagePicker from 'expo-image-picker';
 import { db , storage } from '../services/firestore';
-import { collection, addDoc, updateDoc, getDoc, doc, arrayUnion, query, limit} from 'firebase/firestore';
+import { collection, addDoc, updateDoc, getDoc, doc, arrayUnion, query, limit , getDocs, setDoc} from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import { ref, uploadBytes,getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import { useAuth } from '../context/authContext.js';
@@ -21,6 +21,7 @@ interface newPost{
     postId?: string;
     userId: string;
     likes?:string[];
+    isReview: boolean;
 }
 interface newReview {
     reviewId?: string;
@@ -36,6 +37,7 @@ interface newReview {
     likes?:string[];
     timestamp?: string;
     subComments?: string[];
+    isReview: boolean;
 }
 
 type RootStackParamList = {
@@ -58,6 +60,7 @@ const Post = () => {
         images: [],
         userId: userId,
         likes: [],
+        isReview: false,
     });
     const [review, setReview] = useState<newReview>({
         userId: userId,
@@ -71,8 +74,10 @@ const Post = () => {
         comment: '',
         likes: [],
         timestamp: null,
+        isReview: true
     });
     const [modalVisible, setModalVisible] = useState(false);
+
 
     const handleCreatePost = async() => {
         try{
@@ -98,9 +103,24 @@ const Post = () => {
             const postRef = await addDoc(collection(db, 'posts'), finalPost);
             const postID = postRef.id;
             await updateDoc(doc(db, 'posts', postID), {postId: postID}); 
+
+            // Adding reviewID to food collection for destined college and discover  
+            try{
+                const discoveryRef = doc(db,'colleges', 'Dartmouth College', 'discover', 'postId');
+                const discoverExistent = await checkDocExist(discoveryRef);
+                console.log("Discover exist?:", discoverExistent);
+                if (discoverExistent === false) {
+                   await setDoc(discoveryRef,{postIds: [postID]});
+                }else{
+                   updateDoc(discoveryRef,{postIds: arrayUnion(postID)});
+                }
+           }catch{
+               console.error("Error adding post to discover collection");
+               return;
+           }
             
             console.log("Post added to Firestore with ID:", postRef.id);
-            setPost({ images: [],comment: '', userId: userId}); // reset the post
+            setPost({ images: [],comment: '', userId: userId, isReview: true}); // reset the post
         }catch{
             console.error("Error adding post to Firestore, have you signed in yet");
         }
@@ -120,11 +140,11 @@ const Post = () => {
             }
 
             // current I can't get access to user's school without the full pathname
-            const locationExist = await verifyLocation('Dartmouth College', review.location);
-            if (!locationExist){
-                console.error("Location does not exist");
-                return;
-            }
+            // const locationExist = await verifyLocation('Dartmouth College', review.location);
+            // if (!locationExist){
+            //     console.error("Location does not exist");
+            //     return;
+            // }
 
             let finalReview = {...review};
             const imageURls = [];
@@ -132,8 +152,8 @@ const Post = () => {
             let date = new Date(timestamp);
             finalReview.timestamp = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
 
-            if (review.images.length + 1  > 0){
-                console.error(review.images);
+            if (review.images.length > 0){
+                console.log("images in the array:", review.images);
                 for (let i = 0; i < review.images.length; i++){
                     try{
                         const url = await handleUploadImage(review.images[i]);
@@ -149,14 +169,43 @@ const Post = () => {
             }else{  
                 delete finalReview.images;
             }
-            // add to review Collection
+            // Adding to review collection
             const reviewRef = await addDoc(collection(db, 'reviews'), finalReview);
             const reviewId = reviewRef.id;
+            await updateDoc(doc(db, 'reviews', reviewId), {reviewId: reviewId});
 
-            await updateDoc(doc(db, 'reviews', reviewId), {reviewId: reviewId}); 
-            await addDoc(collection(db, 'colleges', 'Dartmouth College', review.location, 'collections', 'reviews'), {reviewId});
-           
-            // update user doc
+            // UPDATES FOOD COLLECTION
+            try{
+                const foodCollectionRef= collection(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName);
+                const exist = await checkCollectionExist(foodCollectionRef);
+                if (exist === false){
+                    console.log('exist??:', exist)
+                    const foodDocRef = doc(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName, 'reviews');
+                    await setDoc(foodDocRef,{reviewIds: [reviewId]});
+                }
+                await updateDoc(doc(db,'colleges', 'Dartmouth College','diningLocations',review.location, review.foodName, 'reviews'),{reviewIds: arrayUnion(reviewId)})
+               
+            }catch{
+                console.error("Error adding review to food collection");
+                return;
+            }
+
+            // UPDATES DISOCVER COLLECTION
+            try{
+                 const discoveryRef = doc(db,'colleges', 'Dartmouth College', 'discover', 'reviewId');
+                 const discoverExistent = await checkDocExist(discoveryRef);
+                 console.log("Discover exist?:", discoverExistent);
+                 if (discoverExistent === false) {
+                    await setDoc(discoveryRef,{reviewIds: [reviewId]});
+                 }else{
+                    updateDoc(discoveryRef,{reviewIds: arrayUnion(reviewId)});
+                 }
+            }catch{
+                console.error("Error adding review to discover collection");
+                return;
+            }
+
+            // Add ID to user 
             try{
                 await updateDoc(userRef, {reviews: arrayUnion(reviewId),
                 });
@@ -165,18 +214,8 @@ const Post = () => {
             }
             
             console.log("Review added to Firestore with ID:", reviewRef.id);
-            setReview({ 
-                userId: userId,
-                foodName: '',
-                location: '',
-                price: null,
-                taste: 0,
-                health: 0,
-                images:[],
-                tags: [],
-                comment: '',
-                likes: [],
-                timestamp: null,
+            setReview({ userId: userId, foodName: '',location: '',price: null, taste: 0,health: 0,
+                images:[],tags: [],comment: '',likes: [],timestamp: null,isReview: true,
             }); // reset the review
             navigation.goBack();
         }catch{
@@ -201,6 +240,22 @@ const Post = () => {
         }catch{
             console.log("Error verifying location");
         }
+    }
+
+    const checkCollectionExist = async(ref) => {
+        try{
+            const querySnapshot = await getDocs(ref)
+            return querySnapshot.size > 0;
+        }catch(e){
+            console.log("There is error with checking the existence of the collection");
+            return false;
+        }
+    };
+    const checkDocExist = async(ref) => {
+        try{
+            const docSnap = await getDoc(ref);
+            return docSnap.exists();
+        }catch(e){console.log("There is error with checking the existence of the document"); return}
     }
 
     /******* FUNCTIONS FOR UPLOAD IMAGES ******/
@@ -282,6 +337,7 @@ const Post = () => {
             tags: [],
             comment: '',
             likes: [],
+            isReview: true
         });
     }
     /* Later we can do food reccomendation from API if time */
@@ -452,10 +508,12 @@ const Post = () => {
                                         backgroundColor: '#E7E2DB',
                                         width: 325,
                                         maxWidth: 325,
-                                        height: 40,
+                                        height: 30,
                                         alignItems: 'center',
+                                        justifyContent: 'center',
                                         borderRadius: 10,
-                                        padding: 5,
+                                        paddingHorizontal: 10,
+                                        paddingTop: 5,
                                     }
                                 }}
                                 inputContainerStyle={{
@@ -640,9 +698,9 @@ const styles = StyleSheet.create({
         borderColor: 'black',
         backgroundColor: '#E7E2DB',
         width: 350,
-        height: 30,
+        height: 32,
         borderRadius: 10,
-        padding: 10,
+        paddingHorizontal: 10,
     },
     commentBox:{
         backgroundColor: '#E7E2DB',
