@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import { View, TextInput, Image, StyleSheet } from 'react-native';
 import colors from '../styles';
 
-// SearchBar component: (functional component)
-const SearchBar: React.FC = () => {
+interface SearchBarProps {
+  disabled: boolean; // Prop to control if the search bar is disabled
+}
+
+const SearchBar: React.FC<SearchBarProps> = ({ disabled }) => {
   const [searchText, setSearchText] = useState('');
 
   const handleSearch = () => {
     // !!To-Do: connect with firebase and Perform search logic here
     console.log('Searching for:', searchText);
   };
-
 
   return (
     <View style={styles.container}>
@@ -25,11 +27,9 @@ const SearchBar: React.FC = () => {
           value={searchText}
           onChangeText={setSearchText}
           onSubmitEditing={handleSearch}
+          editable={!disabled} // Disable input based on the prop
         />
       </View>
-
-
-
     </View>
   );
 };

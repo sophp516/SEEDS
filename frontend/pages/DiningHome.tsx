@@ -2,13 +2,11 @@ import React, { useState, useRef, useMemo } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import Navbar from '../components/Navbar.jsx';
-import SearchBar from '../components/Searchbar.tsx';
 import SmallMenu from '../components/SmallMenu.tsx';
-import Filter from '../components/Filter.tsx';
+import AllFilter from '../components/AllFilter.tsx';
 import FilterContent from '../components/FilterContent.tsx'; 
 import colors from '../styles.js';
 import ExampleMenu from '../services/ExampleMenu.json';
-
 
 
 type RootStackParamList = {
@@ -40,10 +38,19 @@ type Props = {
 };
 
 const DiningHome: React.FC<Props> = ({ route }) => {
-    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-    const [filteredItems, setFilteredItems] = useState([]); // State to store filtered items
+  // For the filter
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [filteredItems, setFilteredItems] = useState([]); 
+  const [isDisabled, setIsDisabled] = useState(false); 
 
+  const toggleBottomSheet = () => {
+    setIsBottomSheetOpen(!isBottomSheetOpen);
+  };
+  const handleFilterClick = () => {
+    setIsDisabled((prev) => !prev); 
+  };
 
+  // For the content
     const { placeName, closingHour } = route.params;
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const bottomSheetRef = useRef(null);
@@ -51,10 +58,6 @@ const DiningHome: React.FC<Props> = ({ route }) => {
     const [topRated, setTopRated] = useState(ExampleMenu);
     const [recommended, setRecommended] = useState(ExampleMenu);
 
-    // Function to toggle the bottom sheet visibility
-    const toggleBottomSheet = () => {
-      setIsBottomSheetOpen(!isBottomSheetOpen);
-    };
 
     return (
         <View style={styles.container}>
@@ -69,19 +72,16 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                     <Text style={styles.placeNameText}>{placeName}</Text>
                 </View>
             </View>
+
+            <View style={styles.filter}>
+            <AllFilter 
+              isDisabled={isDisabled}
+              toggleBottomSheet={toggleBottomSheet}
+              handleFilterClick={handleFilterClick}
+              resetSimpleFilter={() => setIsDisabled(false)}/>
+            </View>
+
             <View style={styles.contentContainer}>
-                <View style={styles.containerTop}>
-                    <View style={styles.searchFilterRow}>
-                        <View style={styles.searchBarContainer}>
-                            <SearchBar />
-                        </View>
-                        <View style={styles.filterContainer}>
-                            <Filter
-                                toggleBottomSheet={toggleBottomSheet}
-                            />
-                        </View>
-                    </View>
-                </View>
                 <ScrollView style={styles.contentScrollContainer} contentContainerStyle={{ paddingBottom: 100 }}>
                     <View style={styles.recHolder}>
                         <View>
@@ -162,13 +162,14 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                     </View>
                 </ScrollView>
             </View>
-            <Navbar />
-            
             <FilterContent
               onFilter={setFilteredItems}
               isVisible={isBottomSheetOpen}
               setIsVisible={setIsBottomSheetOpen}
-            />
+              />
+            <Navbar />
+            
+            
         </View>
     )
 }
@@ -178,13 +179,9 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.backgroundGray,
     },
-    containerTop: {
+    filter: {
         alignItems: 'center',
-    },
-    searchFilterRow: {
-        justifyContent: 'flex-start',
-        flexDirection: 'row',
-        paddingBottom: 20,
+        marginTop: -60,
     },
     diningHomeBody: {
         width: '100%',
@@ -192,11 +189,6 @@ const styles = StyleSheet.create({
     backButton: {
         paddingTop: 10,
         paddingBottom: 20,
-    },
-    searchAndFilterContainer: {
-        width: '100%',
-        flexDirection: 'row',
-        alignItems: 'center'
     },
     closingText: {
         fontSize: 12,
@@ -229,9 +221,6 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         paddingBottom: 20,
     },
-    searchBarContainer: {
-        flex: 1,
-    },
     recHeaderText: {
         fontSize: 20,
     },
@@ -260,7 +249,7 @@ const styles = StyleSheet.create({
     },
     filterContainer: {
         marginRight: 20,
-    }
+    },
 })
 
 export default DiningHome;
