@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { db } from '../services/firestore.js';
-import { collection, getDocs, doc, getDoc, listCollections } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import Navbar from '../components/Navbar.jsx';
 import SearchBar from '../components/Searchbar.tsx';
 import SmallMenu from '../components/SmallMenu.tsx';
@@ -32,13 +32,13 @@ const DiningHome: React.FC<Props> = ({ route }) => {
     const { placeName } = route.params;
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const bottomSheetRef = useRef(null);
-    const [ isBottomSheetOpen, setIsBottomSheetOpen ] = useState(false);
     const [ onTheMenu, setOnTheMenu ] = useState([]);
+    const [ loading, setLoading ] = useState(true);
 
     const fetchReviews = async (location) => {
         try {
             const foodItems = [];
-            const locationDocRef = collection(db, 'colleges', 'Dartmouth College', 'diningLocations', location);
+            const locationDocRef = collection(db, 'colleges', 'Dartmouth College', 'diningLocations', location, 'foodList');
             const collectionsSnapshot = await getDocs(locationDocRef);
 
             for (const subCollectionDoc of collectionsSnapshot.docs) {
@@ -52,7 +52,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                     const foodItem = {
                         foodName,
                         reviewIds,
-                        image: reviewsData?.image ?? 'default-image-url', // Default image URL if image is missing
+                        image: reviewsData?.image ?? '', 
                         location,
                         price: reviewsData?.price ?? 'N/A', // Default value if price is missing
                         taste: reviewsData?.taste ?? 'N/A', // Default value if taste is missing
@@ -67,6 +67,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
         } catch (error) {
             console.error("Error fetching reviews: ", error);
             return [];
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -79,16 +81,6 @@ const DiningHome: React.FC<Props> = ({ route }) => {
         console.log(onTheMenu);
     }, [placeName])
 
-    const toggleBottomSheet = () => {
-        if (isBottomSheetOpen) {
-          bottomSheetRef.current?.close();
-        } else {
-          bottomSheetRef.current?.expand();
-        }
-        setIsBottomSheetOpen(!isBottomSheetOpen);
-      };
-      const snapPoints = useMemo(() => ['25%', '50%', '70%'], []);
-
     return (
         <View style={styles.container}>
             <View style={styles.diningHomeHeader}>
@@ -98,29 +90,28 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                     </TouchableOpacity>
                 </View>
                 <View style={styles.diningHomeHeaderBottom}>
-                    <Text style={styles.placeNameText}>{placeName}</Text>
+                    <Text style={styles.placeNameText}>On the menu: {placeName}</Text>
                 </View>
             </View>
             <View style={styles.contentContainer}>
-                <View style={styles.containerTop}>
-                    <View style={styles.searchFilterRow}>
-                    <View style={styles.searchBarContainer}>
-                        <SearchBar />
-                    </View>
-                    <View>
-                        <Filter
-                        items={['Shellfish', 'fish', 'Sushi', 'Pasta', 'Salad', 'Sandwich', 'Soup', 'Dessert', 'Drink']}
-                        onFilter={(filteredItems) => console.log('Filtered Items:', filteredItems)}
-                        toggleBottomSheet={toggleBottomSheet}
-                        />
-                    </View>
-                </View>
+            <View style={styles.filter}>
+            <AllFilter 
+                isDisabled={isDisabled}
+                toggleBottomSheet={toggleBottomSheet}
+                handleFilterClick={handleFilterClick}
+                resetSimpleFilter={() => setIsDisabled(false)}/>
+
+          </View>
+            {loading ?
+            <View style={styles.loadingScreen}>
+                <Text>loading...</Text>
             </View>
-            <ScrollView style={styles.contentScrollContainer} contentContainerStyle={{ paddingBottom: 100 }}>
+            : <ScrollView style={styles.contentScrollContainer}>
                 {onTheMenu.length > 0 ? (
                     onTheMenu.map((review, i) => {
                         // return <Review key={review.id} reviewId={review} />
                         return <FoodItem 
+                                    key={i}
                                     foodName={review.foodName} 
                                     reviewIds={review.reviewIds}
                                     image={review.image} 
@@ -135,17 +126,9 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                 ) : (
                     <Text>No reviews found</Text>
                 )}
-            </ScrollView>
+            </ScrollView>}
         </View>
-            <Navbar />
-            <BottomSheet
-                backgroundStyle={{ backgroundColor: '#E7E2DB' }}
-                ref={bottomSheetRef}
-                index={-1}
-                snapPoints={snapPoints}
-            >
-              <Text>Filtering </Text>
-            </BottomSheet>
+        <Navbar />
 
         </View>
     )
@@ -159,6 +142,8 @@ const styles = StyleSheet.create({
     },
     containerTop: {
         alignItems: 'center',
+        marginLeft: 20,
+        marginRight: 20,
     },
     searchFilterRow: {
         justifyContent: 'flex-start',
@@ -216,15 +201,14 @@ const styles = StyleSheet.create({
         fontSize: 20,
     },
     contentContainer: {
-        flexDirection: 'column',
         flexGrow: 1,
-        marginLeft: 20,
-        marginRight: 20,
+        paddingBottom: 80,
     },
     contentScrollContainer: {
         flexDirection: 'column',
         width: '100%',
         marginTop: 30,
+        flex: 1,
     },
     recHolder: {
         flexDirection: 'column',
@@ -233,6 +217,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginBottom: 10,
     },
+    loadingScreen: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
 })
 
 export default DiningHome;
