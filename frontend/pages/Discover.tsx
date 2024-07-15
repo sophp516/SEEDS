@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { db } from '../services/firestore.js';
-import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import Navbar from '../components/Navbar.jsx';
-import SearchBar from '../components/Searchbar.tsx'; 
-import Filter from '../components/Filter.tsx'; 
-import FilterContent from '../components/FilterContent.tsx'; 
-import colors from '../styles.js'; 
+import colors from '../styles.js';
 import Review from '../components/Review.tsx';
 import Post from '../components/Post.tsx';
+import AllFilter from '../components/AllFilter';
+import FilterContent from '../components/FilterContent';
+import SearchBar from '../components/Searchbar.tsx';
+import Filter from '../components/Filter.tsx';
 
 const Discover = () => {
   const [submissions, setSubmissions] = useState([]);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  const [filteredItems, setFilteredItems] = useState([]); // State to store filtered items
+  const [filteredItems, setFilteredItems] = useState([]);
+  const [isDisabled, setIsDisabled] = useState(false);
 
   // Function to toggle the bottom sheet visibility
   const toggleBottomSheet = () => {
@@ -30,62 +32,71 @@ const Discover = () => {
       console.error("Error fetching submissions: ", error);
       return [];
     }
-  }
+  };
 
   useEffect(() => {
     const loadSubmissions = async () => {
       const submissionData = await fetchSubmissions();
       setSubmissions(submissionData);
+    };
+    loadSubmissions();
+  }, []);
+
+  // Function to handle filter click and toggle the disabled state
+  const handleFilterClick = () => {
+    setIsDisabled((prev) => !prev);
   };
-  loadSubmissions();
-  }, [])
 
   return (
     <View style={styles.outerContainer}>
-      <View style={styles.containerTop}>
-        <View style={styles.searchFilterRow}>
-          <View style={styles.searchBarContainer}>
-            <SearchBar />
-          </View>
-          <Filter toggleBottomSheet={toggleBottomSheet} />
-        </View>
-      </View>
-      <ScrollView style={styles.scrollContainer}>
-      {submissions.length > 0 &&
-      submissions.map((submission) => {
-        if (submission.isReview) {
-          return <Review 
-                reviewId={submission.reviewId}
-                foodName={submission.foodName} 
-                comment={submission.comment}
-                health={submission.health}
-                taste={submission.taste}
-                likes={submission.likes}
-                location={submission.location}
-                price={submission.price}
-                tags={submission.tags}
-                timestamp={submission.timestamp}
-                userId={submission.userId}
-                image={submission.image}
-                subcomment={submission.subComment}
-                />
-        } else {
-          return <Post 
-                postId={submission.postId}
-                comment={submission.comment}
-                timestamp={submission.timestamp}
-                uploadCount={submission.uploadCount}
-                userId={submission.userId}
-                />
-        }
-      })}
-      </ScrollView>
-      <Navbar />
+      <AllFilter 
+        isDisabled={isDisabled}
+        toggleBottomSheet={toggleBottomSheet}
+        handleFilterClick={handleFilterClick}
+        resetSimpleFilter={() => setIsDisabled(false)}
+      />
       <FilterContent
         onFilter={setFilteredItems}
         isVisible={isBottomSheetOpen}
         setIsVisible={setIsBottomSheetOpen}
       />
+      <ScrollView style={styles.scrollContainer}>
+        {submissions.length > 0 &&
+          submissions.map((submission, index) => {
+            if (submission.isReview) {
+              return (
+                <Review
+                  key={index}
+                  reviewId={submission.reviewId}
+                  foodName={submission.foodName}
+                  comment={submission.comment}
+                  health={submission.health}
+                  taste={submission.taste}
+                  likes={submission.likes}
+                  location={submission.location}
+                  price={submission.price}
+                  tags={submission.tags}
+                  timestamp={submission.timestamp}
+                  userId={submission.userId}
+                  image={submission.image}
+                  subcomment={submission.subComment}
+                />
+              );
+            } else {
+              return (
+                <Post
+                  key={index}
+                  postId={submission.postId}
+                  comment={submission.comment}
+                  timestamp={submission.timestamp}
+                  uploadCount={submission.uploadCount}
+                  userId={submission.userId}
+                />
+              );
+            }
+          })}
+      </ScrollView>
+      <Navbar />
     </View>
   );
 };
@@ -94,7 +105,7 @@ const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: 'colors.backgroundGray',
+    backgroundColor: colors.backgroundGray,
   },
   containerTop: {
     padding: 20,
@@ -116,9 +127,8 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     width: '100%',
-    marginTop: 20,
     paddingHorizontal: 20,
-  }
+  },
 });
 
 export default Discover;

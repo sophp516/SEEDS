@@ -142,6 +142,7 @@ const styles =  StyleSheet.create({
         paddingVertical: 2,
         borderRadius: 15,
         backgroundColor: colors.warningPink,
+        marginRight: 5,
     },
     reviewContent: {
         marginTop: 10,

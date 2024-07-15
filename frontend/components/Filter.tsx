@@ -4,12 +4,19 @@ import colors from '../styles';
 
 interface FilterProps {
   toggleBottomSheet: () => void;
+  onFilterClick: () => void; // New prop for the filter click handler
 }
 
-const Filter: React.FC<FilterProps> = ({ toggleBottomSheet }) => {
+const Filter: React.FC<FilterProps> = ({ toggleBottomSheet, onFilterClick }) => {
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={toggleBottomSheet} style={styles.button}>
+      <TouchableOpacity
+        onPress={() => {
+          toggleBottomSheet();
+          onFilterClick(); // Call the onFilterClick function
+        }}
+        style={styles.button}
+      >
         <Image source={require('../assets/filter.png')} style={styles.filterIcon} />
       </TouchableOpacity>
     </View>
@@ -21,7 +28,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'flex-end',
-    borderRadius: 10, 
+    borderRadius: 10,
   },
   filterIcon: {
     margin: 5,

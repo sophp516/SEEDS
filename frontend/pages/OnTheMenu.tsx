@@ -4,10 +4,9 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { db } from '../services/firestore.js';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import Navbar from '../components/Navbar.jsx';
-import SearchBar from '../components/Searchbar.tsx';
 import SmallMenu from '../components/SmallMenu.tsx';
-import Filter from '../components/Filter.tsx';
-import BottomSheet from '@gorhom/bottom-sheet'
+import AllFilter from '../components/AllFilter.tsx';
+import FilterContent from '../components/FilterContent.tsx';
 import colors from '../styles.js';
 import ExampleMenu from '../services/ExampleMenu.json';
 import Review from '../components/Review.tsx';
@@ -28,11 +27,25 @@ type Props = {
 };
 
 const DiningHome: React.FC<Props> = ({ route }) => {
+  //for the filter
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [filteredItems, setFilteredItems] = useState([]); 
+  const [isDisabled, setIsDisabled] = useState(false); 
+
+  // Function to toggle the bottom sheet visibility
+  const toggleBottomSheet = () => {
+    setIsBottomSheetOpen(!isBottomSheetOpen);
+  };
+
+  // Function to handle filter click and toggle the disabled state
+  const handleFilterClick = () => {
+    setIsDisabled((prev) => !prev); 
+  };
 
     const { placeName } = route.params;
+    
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const bottomSheetRef = useRef(null);
-    const [ isBottomSheetOpen, setIsBottomSheetOpen ] = useState(false);
     const [ onTheMenu, setOnTheMenu ] = useState([]);
     const [ loading, setLoading ] = useState(true);
 
@@ -82,16 +95,6 @@ const DiningHome: React.FC<Props> = ({ route }) => {
         console.log(onTheMenu);
     }, [placeName])
 
-    const toggleBottomSheet = () => {
-        if (isBottomSheetOpen) {
-          bottomSheetRef.current?.close();
-        } else {
-          bottomSheetRef.current?.expand();
-        }
-        setIsBottomSheetOpen(!isBottomSheetOpen);
-      };
-      const snapPoints = useMemo(() => ['25%', '50%', '70%'], []);
-
     return (
         <View style={styles.container}>
             <View style={styles.diningHomeHeader}>
@@ -105,20 +108,14 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                 </View>
             </View>
             <View style={styles.contentContainer}>
-                <View style={styles.containerTop}>
-                    <View style={styles.searchFilterRow}>
-                    <View style={styles.searchBarContainer}>
-                        <SearchBar />
-                    </View>
-                    <View>
-                        <Filter
-                        items={['Shellfish', 'fish', 'Sushi', 'Pasta', 'Salad', 'Sandwich', 'Soup', 'Dessert', 'Drink']}
-                        onFilter={(filteredItems) => console.log('Filtered Items:', filteredItems)}
-                        toggleBottomSheet={toggleBottomSheet}
-                        />
-                    </View>
-                </View>
-            </View>
+            <View style={styles.filter}>
+            <AllFilter 
+                isDisabled={isDisabled}
+                toggleBottomSheet={toggleBottomSheet}
+                handleFilterClick={handleFilterClick}
+                resetSimpleFilter={() => setIsDisabled(false)}/>
+
+          </View>
             {loading ?
             <View style={styles.loadingScreen}>
                 <Text>loading...</Text>
@@ -145,15 +142,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                 )}
             </ScrollView>}
         </View>
-            <Navbar />
-            <BottomSheet
-                backgroundStyle={{ backgroundColor: '#E7E2DB' }}
-                ref={bottomSheetRef}
-                index={-1}
-                snapPoints={snapPoints}
-            >
-              <Text>Filtering </Text>
-            </BottomSheet>
+        <Navbar />
 
         </View>
     )
@@ -170,11 +159,10 @@ const styles = StyleSheet.create({
         marginLeft: 20,
         marginRight: 20,
     },
-    searchFilterRow: {
-        justifyContent: 'flex-start',
-        flex: 0,
-        flexDirection: 'row',
-        width: '100%',
+    filter:{
+      alignItems: 'center',
+      marginTop: -60,
+
     },
     diningHomeBody: {
         width: '100%',
@@ -182,11 +170,6 @@ const styles = StyleSheet.create({
     backButton: {
         paddingTop: 10,
         paddingBottom: 20,
-    },
-    searchAndFilterContainer: {
-        width: '100%',
-        flexDirection: 'row',
-        alignItems: 'center'
     },
     closingText: {
         fontSize: 12,
@@ -218,9 +201,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         paddingTop: 10,
         paddingBottom: 20,
-    },
-    searchBarContainer: {
-        flex: 1,
     },
     recHeaderText: {
         fontSize: 20,

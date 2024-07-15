@@ -406,7 +406,7 @@ const Profile = () => {
                 </TouchableOpacity>
             </View>
             <ScrollView style={styles.postHistoryScroll}>
-    {loading ? (
+    {loggedInUser && (loading ? (
         <Text>Loading...</Text>
     ) : (
         postList.length > 0 &&
@@ -443,7 +443,7 @@ const Profile = () => {
                 );
             }
         })
-    )}
+    ))}
             </ScrollView>
             <TouchableOpacity onPress={asyncSignOut}>
                 <Text>Sign Out</Text>
