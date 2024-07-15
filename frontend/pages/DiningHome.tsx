@@ -94,6 +94,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
     const topRated = useMemo(() => applyFilters(ExampleMenu), [filters]); 
     const onTheMenu = useMemo(() => applyFilters(ExampleMenu), [filters]); 
     const recommended = useMemo(() => applyFilters(ExampleMenu), [filters]); 
+    const noMealsMessage = topRated.length === 0 && onTheMenu.length === 0 && recommended.length === 0;
 
     return (
         <View style={styles.container}>
@@ -127,6 +128,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     <Text style={styles.seeAllText}>See all</Text>
                                 </TouchableOpacity>
                             </View>
+                            {noMealsMessage ? ( <Text style={styles.placeNameText}>No meals match your filter...</Text>) 
+                            : (
                             <ScrollView horizontal={true} style={styles.horizontalScrollView}>
                                 <View style={styles.smallMenuContainer}>
                                     {topRated.map((item) => (
@@ -144,6 +147,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     ))}
                                 </View>
                             </ScrollView>
+
+                            )}
                         </View>
                         <View>
                             <View style={styles.recHeader}>
@@ -152,6 +157,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     <Text style={styles.seeAllText}>See all</Text>
                                 </TouchableOpacity>
                             </View>
+                            {noMealsMessage ? ( <Text style={styles.placeNameText}>No meals match your filter...</Text>) 
+                            : (
                             <ScrollView horizontal={true} style={styles.horizontalScrollView}>
                                 <View style={styles.smallMenuContainer}>
                                     {onTheMenu.map((item) => (
@@ -169,6 +176,9 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     ))}
                                 </View>
                             </ScrollView>
+
+                            )}
+
                         </View>
                         <View>
                             <View style={styles.recHeader}>
@@ -177,6 +187,9 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     <Text style={styles.seeAllText}>See all</Text>
                                 </TouchableOpacity>
                             </View>
+
+                            {noMealsMessage ? ( <Text style={styles.placeNameText}>No meals match your filter...</Text>) 
+                            : (
                             <ScrollView horizontal={true} style={styles.horizontalScrollView}>
                                 <View style={styles.smallMenuContainer}>
                                     {recommended.map((item) => (
@@ -194,6 +207,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     ))}
                                 </View>
                             </ScrollView>
+
+                            )}
                         </View>
                     </View>
                 </ScrollView>
