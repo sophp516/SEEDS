@@ -8,14 +8,16 @@ import Review from '../components/Review.tsx';
 import Post from '../components/Post.tsx';
 import AllFilter from '../components/AllFilter';
 import FilterContent from '../components/FilterContent';
-import SearchBar from '../components/Searchbar.tsx';
-import Filter from '../components/Filter.tsx';
 
 const Discover = () => {
   const [submissions, setSubmissions] = useState([]);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  const [filteredItems, setFilteredItems] = useState([]);
   const [isDisabled, setIsDisabled] = useState(false);
+  const [filters, setFilters] = useState<{ preferred: string[]; allergens: string[]; time: string[] }>({
+    preferred: [],
+    allergens: [],
+    time: [],
+  });
 
   // Function to toggle the bottom sheet visibility
   const toggleBottomSheet = () => {
@@ -55,48 +57,48 @@ const Discover = () => {
         handleFilterClick={handleFilterClick}
         resetSimpleFilter={() => setIsDisabled(false)}
       />
-      <FilterContent
-        onFilter={setFilteredItems}
-        isVisible={isBottomSheetOpen}
-        setIsVisible={setIsBottomSheetOpen}
-      />
       <ScrollView style={styles.scrollContainer}>
         {submissions.length > 0 &&
           submissions.map((submission, index) => {
             if (submission.isReview) {
               return (
                 <Review
-                  key={index}
-                  reviewId={submission.reviewId}
-                  foodName={submission.foodName}
-                  comment={submission.comment}
-                  health={submission.health}
-                  taste={submission.taste}
-                  likes={submission.likes}
-                  location={submission.location}
-                  price={submission.price}
-                  tags={submission.tags}
-                  timestamp={submission.timestamp}
-                  userId={submission.userId}
-                  image={submission.image}
-                  subcomment={submission.subComment}
+                key={index}
+                reviewId={submission.reviewId}
+                foodName={submission.foodName}
+                comment={submission.comment}
+                health={submission.health}
+                taste={submission.taste}
+                likes={submission.likes}
+                location={submission.location}
+                price={submission.price}
+                tags={submission.tags}
+                timestamp={submission.timestamp}
+                userId={submission.userId}
+                image={submission.image}
+                subcomment={submission.subComment}
                 />
               );
             } else {
               return (
                 <Post
-                  key={index}
-                  postId={submission.postId}
-                  comment={submission.comment}
-                  timestamp={submission.timestamp}
-                  uploadCount={submission.uploadCount}
-                  userId={submission.userId}
+                key={index}
+                postId={submission.postId}
+                comment={submission.comment}
+                timestamp={submission.timestamp}
+                uploadCount={submission.uploadCount}
+                userId={submission.userId}
                 />
               );
             }
           })}
       </ScrollView>
       <Navbar />
+      <FilterContent
+        onFilter={setFilters}
+        isVisible={isBottomSheetOpen}
+        setIsVisible={setIsBottomSheetOpen}
+      />
     </View>
   );
 };
