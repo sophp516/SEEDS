@@ -181,14 +181,28 @@ const Post = () => {
             const count = await getCount();
             if (count === -1) return;
             await updateDoc(doc(db, 'globalSubmissions', reviewId), {reviewId: reviewId, uploadCount: count});
-            // UPDATES FOOD COLLECTION
+            // UPDATES FOOD COLLECTION and FOODLIST 
             try{
-                const foodCollectionRef= collection(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName);
-                const exist = await checkCollectionExist(foodCollectionRef);
+                //paths
+                const foodCollectionRef= collection(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName); // checks if food collection exist in location
+                const localFoodlistRef = collection(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, 'foodList'); // path for local foodlist within the dining hall
+                const localFoodListDoc = doc(localFoodlistRef, review.foodName); // local foodlist doc, for ex. is smoothie in collis yet?
+                const collegeFoodListDoc = doc(db, 'colleges', 'Dartmouth College', 'foodList', review.foodName); // used for checking if food already in global list
+                // check for edge cases for if the food collection/doc exist or not
+                const exist = await checkCollectionExist(foodCollectionRef); // if food collection exist
+                const collegeFoodlistDocExist = await checkDocExist(collegeFoodListDoc); // if food already in global list
+                const foodlistExist = await checkDocExist(collegeFoodListDoc); // add if not there
+                
+                // if food is not already in the global list, then we will add it there
+                if (collegeFoodlistDocExist === false){
+                    await setDoc(collegeFoodListDoc, {foodName: review.foodName, location: review.location,likes: [], tags: []});
+                }
+
                 if (exist === false){
                     console.log('exist??:', exist)
                     const foodDocRef = doc(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName, 'reviews');
                     await setDoc(foodDocRef,{reviewIds: [reviewId]});
+                    await setDoc(localFoodListDoc, {foodName: review.foodName});
                 }
                 await updateDoc(doc(db,'colleges', 'Dartmouth College','diningLocations',review.location, review.foodName, 'reviews'),{reviewIds: arrayUnion(reviewId)})
                
@@ -279,6 +293,44 @@ const Post = () => {
         }
     }
 
+    
+
+    const fetchReviews = async (location) => {
+        try {
+            const foodItems = [];
+            const locationDocRef = collection(db, 'colleges', 'Dartmouth College', 'diningLocations', location);
+            const collectionsSnapshot = await getDocs(locationDocRef);
+    
+            for (const subCollectionDoc of collectionsSnapshot.docs) {
+                const foodName = subCollectionDoc.id;
+                const reviewsDocRef = doc(db, 'colleges', 'Dartmouth College', 'diningLocations', location, foodName, 'reviews');
+                const reviewsDocSnapshot = await getDoc(reviewsDocRef);
+    
+                if (reviewsDocSnapshot.exists()) {
+                    const reviewsData = reviewsDocSnapshot.data();
+                    const reviewIds = reviewsData.reviewIds || [];
+                    const foodItem = {
+                        foodName,
+                        reviewIds,
+                        image: reviewsData.image ?? 'default-image-url', // Default image URL if image is missing
+                        location,
+                        price: reviewsData.price ?? 'N/A', // Default value if price is missing
+                        taste: reviewsData.taste ?? 'N/A', // Default value if taste is missing
+                        health: reviewsData.health ?? 'N/A', // Default value if health is missing
+                        allergens: reviewsData.allergens ?? [], // Default to an empty array if allergens are missing
+                        tags: reviewsData.tags ?? [] // Default to an empty array if tags are missing
+                    };
+                    foodItems.push(foodItem);
+                }
+            }
+            return foodItems;
+        } catch (error) {
+            console.error("Error fetching reviews: ", error);
+            return [];
+        }
+    };
+
+
     /******* FUNCTIONS FOR UPLOAD IMAGES ******/
     // Read more about documentation here: https://docs.expo.dev/versions/latest/sdk/imagepicker/ 
     const getPermission = async() =>{
@@ -292,6 +344,8 @@ const Post = () => {
         return true;
     }
     const selectImage = async() => {
+        const foodItem = fetchReviews(review.location);
+        console.log("foodItem:", foodItem);
         const permissionStatus = await getPermission();
         if (!permissionStatus) return; 
 
