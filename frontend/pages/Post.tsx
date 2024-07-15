@@ -1,6 +1,6 @@
 import { useState, useEffect , useCallback} from 'react';
 import React from 'react';
-import { Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Modal } from 'react-native';
+import { Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Modal , KeyboardAvoidingView} from 'react-native';
 import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
 import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
 import CustomSlider from '../components/CustomSlider';
@@ -30,7 +30,7 @@ interface newReview {
     userId: string;
     foodName: string;
     location: string;
-    price: number| null;
+    price?: number| null;
     taste: number;
     health: number;
     images: string[];
@@ -144,6 +144,7 @@ const Post = () => {
 
     const handleCreateReview = async () =>{
         try{
+          
             const userData = await verifyUser();
             if (!userData) return; 
 
@@ -179,12 +180,15 @@ const Post = () => {
                 delete finalReview.images;
             }
             // Adding to review collection
+          
             const reviewRef = await addDoc(collection(db, 'globalSubmissions'), finalReview);
             const reviewId = reviewRef.id;
+            console.log("userID:", reviewId);
             const count = await getCount();
             if (count === -1) return;
             await updateDoc(doc(db, 'globalSubmissions', reviewId), {reviewId: reviewId, uploadCount: count});
             // UPDATES FOOD COLLECTION and FOODLIST 
+           
             try{
                 //paths
                 const foodCollectionRef= collection(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName); // checks if food collection exist in location
@@ -347,8 +351,8 @@ const Post = () => {
         return true;
     }
     const selectImage = async() => {
-        const foodItem = fetchReviews(review.location);
-        console.log("foodItem:", foodItem);
+        // const foodItem = fetchReviews(review.location);
+        // console.log("foodItem:", foodItem);
         const permissionStatus = await getPermission();
         if (!permissionStatus) return; 
 
@@ -540,6 +544,12 @@ const Post = () => {
                 : 
 
                 // Review Section
+                <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                style={ {flex: 1,
+                    width: '100%'}}
+                keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 10}
+               >
                 <ScrollView contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>   
                     <View style={styles.reviewContainer}>
                 
@@ -651,19 +661,24 @@ const Post = () => {
                         </View>
 
                         <Text style={styles.text}> Comment </Text>
+                        
                              <TextInput 
                                 style={styles.commentBox}
                                 value={review.comment}
                                 numberOfLines={100}
                                 multiline={true}
                                 onChangeText={(text)=> setReview(prevReview => ({...prevReview, comment: text}))}
-                                placeholder='enter comment'/>
+                                placeholder='enter comment'
+                               
+                                />
+                           
                         </View>
                         <TouchableOpacity onPress={handleCreateReview} style={styles.addReviewBtn}>
                             <Text style={styles.btnText1}>Add review</Text>
                         </TouchableOpacity>
                     </View>   
                 </ScrollView>
+                </KeyboardAvoidingView>
              }
 
             <Navbar />
@@ -765,6 +780,8 @@ const styles = StyleSheet.create({
     },
     reviewContentContainer:{
         justifyContent: 'flex-start',
+         flexGrow: 1,
+        // justifyContent: 'space-between'
     },
     imagebox:{
         backgroundColor: '#E7E2DB',
@@ -782,6 +799,10 @@ const styles = StyleSheet.create({
         height: 32,
         borderRadius: 10,
         paddingHorizontal: 10,
+    },
+    commentContainer:{
+        justifyContent: 'center',  // Centers children vertically
+        width: '100%',
     },
     commentBox:{
         backgroundColor: '#E7E2DB',

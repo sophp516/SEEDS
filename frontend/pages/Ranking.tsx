@@ -1,11 +1,12 @@
 import Navbar from "../components/Navbar";
 import { StyleSheet, Text, View } from 'react-native';
+import colors from "../styles.js";
 
 
 const Ranking = () => {
     return (
       <View style={styles.container}>
-        <Text>Ranking</Text>
+        <Text style={styles.leaderboardText}>Leaderboard</Text>
         <Navbar />
       </View>
 
@@ -15,9 +16,14 @@ const Ranking = () => {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#fff',
+      backgroundColor: colors.backgroundGray,
       alignItems: 'center',
-      justifyContent: 'center',
+      flexDirection: 'column',
+      width: '100%',
     },
+    leaderboardText: {
+      marginTop: 60,
+      fontSize: 20,
+    }
   });
 export default Ranking;

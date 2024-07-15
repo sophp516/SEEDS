@@ -82,13 +82,13 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                             </View>
                         )}
                         <View style={styles.priceContainer}>
-                            <Text style={styles.priceText}>$ {price}</Text>
+                            <Text>$ {price}</Text>
                         </View>
                         <View style={styles.bottomContainer}>
                             <View style={styles.tagContainer}>
                                 <View style={styles.tagHeader}>
                                     <Text style={styles.tagText}>Tags</Text>
-                                    <Text>inputted by reviewers</Text>
+                                    <Text style={styles.smallGrayText}>inputted by reviewers</Text>
                                 </View>
                                 <View style={styles.tagContent}> 
                                     {tags.map((item, i) => {
@@ -101,7 +101,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                                 </View>
                                 <View style={styles.tagHeader}>
                                     <Text style={styles.tagText}>Allergens</Text>
-                                    <Text>inputted by reviewers</Text>
+                                    <Text style={styles.smallGrayText}>inputted by reviewers</Text>
                                 </View>
                                 <View style={styles.allergenContent}> 
                                     {allergens.map((item, i) => {
@@ -135,8 +135,9 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 50,
+        paddingTop: 30,
         height: '100%',
+        backgroundColor: colors.backgroundGray,
     },
     selectedHeader: {
         paddingHorizontal: 20,
@@ -168,6 +169,10 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginTop: 5,
         alignSelf: 'flex-start',
+    },
+    smallGrayText: {
+        color: colors.grayStroke,
+        fontSize: 12,
     },
     starText: {
         fontSize: 12,
@@ -205,6 +210,7 @@ const styles = StyleSheet.create({
         marginVertical: 20,
         marginHorizontal: 30,
         alignItems: 'center',
+        paddingBottom: 100,
     },
     locationText: {
         color: colors.grayStroke,
