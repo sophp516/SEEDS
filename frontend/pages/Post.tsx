@@ -127,7 +127,7 @@ const Post = () => {
             await submitDiscover(userData.data().schoolName, postID);
             
             console.log("Post added to Firestore with ID:", postRef.id);
-            setPost({ images: [],comment: '', userId: userId, isReview: true, subComments: {};}); // reset the post
+            setPost({ images: [],comment: '', userId: userId, isReview: true, subComments: {}}); // reset the post
         }catch{
             console.error("Error adding post to Firestore, have you signed in yet");
         }
