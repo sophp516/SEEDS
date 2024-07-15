@@ -1,6 +1,8 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { db } from '../services/firestore.js';
+import { collection, getDocs, doc, getDoc, listCollections } from 'firebase/firestore';
 import Navbar from '../components/Navbar.jsx';
 import SearchBar from '../components/Searchbar.tsx';
 import SmallMenu from '../components/SmallMenu.tsx';
@@ -8,6 +10,8 @@ import Filter from '../components/Filter.tsx';
 import BottomSheet from '@gorhom/bottom-sheet'
 import colors from '../styles.js';
 import ExampleMenu from '../services/ExampleMenu.json';
+import Review from '../components/Review.tsx';
+import FoodItem from '../components/FoodItem.tsx';
 
 
 type RootStackParamList = {
@@ -29,7 +33,51 @@ const DiningHome: React.FC<Props> = ({ route }) => {
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const bottomSheetRef = useRef(null);
     const [ isBottomSheetOpen, setIsBottomSheetOpen ] = useState(false);
-    const [onTheMenu, setOnTheMenu] = useState(ExampleMenu);
+    const [ onTheMenu, setOnTheMenu ] = useState([]);
+
+    const fetchReviews = async (location) => {
+        try {
+            const foodItems = [];
+            const locationDocRef = collection(db, 'colleges', 'Dartmouth College', 'diningLocations', location);
+            const collectionsSnapshot = await getDocs(locationDocRef);
+
+            for (const subCollectionDoc of collectionsSnapshot.docs) {
+                const foodName = subCollectionDoc.id;
+                const reviewsDocRef = doc(db, 'colleges', 'Dartmouth College', 'diningLocations', location, foodName, 'reviews');
+                const reviewsDocSnapshot = await getDoc(reviewsDocRef);
+
+                if (reviewsDocSnapshot.exists()) {
+                    const reviewsData = reviewsDocSnapshot.data();
+                    const reviewIds = reviewsData.reviewIds || [];
+                    const foodItem = {
+                        foodName,
+                        reviewIds,
+                        image: reviewsData?.image ?? 'default-image-url', // Default image URL if image is missing
+                        location,
+                        price: reviewsData?.price ?? 'N/A', // Default value if price is missing
+                        taste: reviewsData?.taste ?? 'N/A', // Default value if taste is missing
+                        health: reviewsData?.health ?? 'N/A', // Default value if health is missing
+                        allergens: reviewsData?.allergens ?? [], // Default to an empty array if allergens are missing
+                        tags: reviewsData?.tags ?? [] // Default to an empty array if tags are missing
+                    };
+                    foodItems.push(foodItem);
+                }
+            }
+            return foodItems;
+        } catch (error) {
+            console.error("Error fetching reviews: ", error);
+            return [];
+        }
+    };
+
+    useEffect(() => {
+        const getReviews = async () => {
+            const reviewsData = await fetchReviews(placeName);
+            setOnTheMenu(reviewsData);
+        };
+        getReviews();
+        console.log(onTheMenu);
+    }, [placeName])
 
     const toggleBottomSheet = () => {
         if (isBottomSheetOpen) {
@@ -69,7 +117,24 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                 </View>
             </View>
             <ScrollView style={styles.contentScrollContainer} contentContainerStyle={{ paddingBottom: 100 }}>
-            
+                {onTheMenu.length > 0 ? (
+                    onTheMenu.map((review, i) => {
+                        // return <Review key={review.id} reviewId={review} />
+                        return <FoodItem 
+                                    foodName={review.foodName} 
+                                    reviewIds={review.reviewIds}
+                                    image={review.image} 
+                                    location={review.location} 
+                                    price={review.price}
+                                    taste={review.taste}
+                                    health={review.health}
+                                    tags={review.tags}
+                                    allergens={review.allergens}
+                                    />
+                    })
+                ) : (
+                    <Text>No reviews found</Text>
+                )}
             </ScrollView>
         </View>
             <Navbar />
@@ -159,6 +224,7 @@ const styles = StyleSheet.create({
     contentScrollContainer: {
         flexDirection: 'column',
         width: '100%',
+        marginTop: 30,
     },
     recHolder: {
         flexDirection: 'column',

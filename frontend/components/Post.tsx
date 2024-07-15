@@ -6,9 +6,9 @@ import { View, Text, Image, StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import colors from "../styles.js";
 
-const Review = ({ reviewId }) => {
+const Post = ({ postId, comment, userId, timestamp, uploadCount }) => {
 
-    const [review, setReview] = useState(null);
+    const [post, setPost] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
     const [commentToggle, setCommentToggle] = useState(false);
     const [likeStatus, setLikeStatus] = useState(false);
@@ -17,58 +17,28 @@ const Review = ({ reviewId }) => {
     const { loggedInUser } = user;
 
     useEffect(() => {
-        const fetchReviewById = async (id) => {
-            try {
-                const reviewDocRef = doc(db, 'reviews', id);
-                const reviewDoc = await getDoc(reviewDocRef);
-                if (reviewDoc.exists()) {
-                    return { id: reviewDoc.id, ...reviewDoc.data() };
-                } else {
-                    console.log("No such document!");
-                    return null;
-                }
-            } catch (error) {
-                console.error("Error fetching review: ", error);
-                return null;
-            }
-        };
-
-        const getReview = async () => {
-            setLoading(true);
-            const reviewData = await fetchReviewById(reviewId);
-            setReview(reviewData);
-
-            if (reviewData && loggedInUser && reviewData.likes.includes(loggedInUser?.loggedInUser.uid)) {
-                setLikeStatus(true);
-            }
-
-            setLoading(false);
-        };
-
-        getReview();
-    }, []);
-
-    useEffect(() => {
-        if (!review) return;
 
         const fetchUserData = async () => {
             try {
-                const usersRef = collection(db, 'users');
-                const q = query(usersRef, where('id', '==', review.userId));
-                const querySnapshot = await getDocs(q);
+                const userDocRef = doc(db, 'users', userId);
+                const userDocSnapshot = await getDoc(userDocRef);
 
-                if (!querySnapshot.empty) {
-                    const userDoc = querySnapshot.docs[0];
-                    const userData = userDoc.data();
+                if (userDocSnapshot.exists()) {
+                    const userData = userDocSnapshot.data();
                     setUserInfo(userData);
+                    console.log(userInfo)
+                } else {
+                    console.log("No such document!");
                 }
             } catch (err) {
                 console.log(err);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchUserData();
-    }, [review]);
+    }, [post]);
 
     const handleLike = async () => {
         if (!loggedInUser) return;
@@ -79,37 +49,6 @@ const Review = ({ reviewId }) => {
             const userQuery = query(usersRef, where('id', '==', loggedInUser?.loggedInUser.uid));
             const userSnapshot = await getDocs(userQuery);
 
-            if (!userSnapshot.empty) {
-                const userDoc = userSnapshot.docs[0];
-                const userDocRef = doc(db, 'users', userDoc.id);
-
-                // Fetch the review document
-                const reviewDocRef = doc(db, 'reviews', review.id);
-
-                if (likeStatus) {
-                    // Remove postId from user's likes array and loggedInUser.uid from review's likes array
-                    await updateDoc(userDocRef, {
-                        likes: arrayRemove(review.id)
-                    });
-
-                    await updateDoc(reviewDocRef, {
-                        likes: arrayRemove(loggedInUser?.loggedInUser.uid)
-                    });
-
-                    setLikeStatus(false);
-                } else {
-                    // Add postId to user's likes array and loggedInUser.uid to review's likes array
-                    await updateDoc(userDocRef, {
-                        likes: arrayUnion(review.id)
-                    });
-
-                    await updateDoc(reviewDocRef, {
-                        likes: arrayUnion(loggedInUser?.loggedInUser.uid)
-                    });
-
-                    setLikeStatus(true);
-                }
-            }
         } catch (err) {
             console.error('Error updating like status:', err);
         }
@@ -132,36 +71,24 @@ const Review = ({ reviewId }) => {
                         <Text style={styles.userInfoText}>{userInfo.displayName}</Text>
                     </View>
                 )}
-                <View style={styles.reviewHeader}>
-                    <Text style={styles.reviewFoodName}>{review?.foodName}</Text>
-                </View>
-                <View style={styles.tagContainer}>
-                {review?.tags?.map((tag, i) => (
-                    <View style={styles.tagBox} key={i}>
-                        <Text style={styles.tagText}>{tag}</Text>
-                    </View>
-                ))}
-                </View>
                 <View style={styles.reviewContent}>
-                    <Text style={styles.reviewComment}>{review?.comment}</Text>
-                    <Text style={styles.taste}>Taste: {review?.taste}/5</Text>
-                    <Text style={styles.health}>Health: {review?.health}/5</Text>
+                    <Text style={styles.reviewComment}>{comment}</Text>
                 </View>
                 <View style={styles.imageContainer}>
-                    {review?.image?.map((item, i) => (
+                    {post?.image?.map((item, i) => (
                         <View key={i}>
                             <Image source={{ uri: item }} style={{ width: 100, height: 100 }} />
                         </View>
                     ))}
                 </View>
                 <View style={styles.reviewBottom}>
-                    <TouchableOpacity onPress={() => setCommentToggle(!commentToggle)}>
+                    <TouchableOpacity style={styles.commentRow} onPress={() => setCommentToggle(!commentToggle)}>
                         <Text>comment</Text>
-                        <Text>{review?.subComment?.length}</Text>
+                        <Text>{post?.subComment?.length}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={handleLike} style={styles.likeRow}>
                         {likeStatus ? <Text>liked</Text> : <Text>like</Text>}
-                        <Text>{review?.likes?.length}</Text>
+                        <Text>{post?.likes?.length}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -183,7 +110,9 @@ const styles =  StyleSheet.create({
     },
     reviewContainer: {
         borderBottomWidth: 1,
+        width: '100%',
         borderColor: colors.grayStroke,
+        marginBottom: 10,
     },
     userInfoText: {
         fontSize: 13,
@@ -227,10 +156,14 @@ const styles =  StyleSheet.create({
     },
     likeRow: {
         flexDirection: 'row',
+        marginLeft: 10,
+    },
+    commentRow: {
+        paddingLeft: 20,
     },
     imageContainer: {
         flexDirection: 'row',
     }
 })
 
-export default Review;
+export default Post;
