@@ -93,12 +93,12 @@ const Discover = () => {
             }
           })}
       </ScrollView>
-      <Navbar />
       <FilterContent
         onFilter={setFilters}
         isVisible={isBottomSheetOpen}
         setIsVisible={setIsBottomSheetOpen}
       />
+      <Navbar />
     </View>
   );
 };
