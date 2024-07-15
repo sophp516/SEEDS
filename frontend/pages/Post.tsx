@@ -6,7 +6,7 @@ import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
 import CustomSlider from '../components/CustomSlider';
 import * as ImagePicker from 'expo-image-picker';
 import { db , storage } from '../services/firestore';
-import { collection, addDoc, updateDoc, getDoc, doc, arrayUnion, query, limit} from 'firebase/firestore';
+import { collection, addDoc, updateDoc, getDoc, doc, arrayUnion, query, limit , getDocs, setDoc, count} from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import { ref, uploadBytes,getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import { useAuth } from '../context/authContext.js';
@@ -20,6 +20,9 @@ interface newPost{
     timestamp?: string;
     postId?: string;
     userId: string;
+    likes?:string[];
+    isReview: boolean;
+    uploadCount?: number;
 }
 interface newReview {
     reviewId?: string;
@@ -32,9 +35,11 @@ interface newReview {
     images: string[];
     tags:string[] | null,
     comment: string|null,
-    likes: number;
+    likes?:string[];
     timestamp?: string;
     subComments?: string[];
+    isReview: boolean;
+    uploadCount?: number;
 }
 
 type RootStackParamList = {
@@ -47,6 +52,7 @@ const Post = () => {
     const { loggedInUser, displayName } = user;
     const userId = loggedInUser?.loggedInUser?.uid;
     const userSchool = loggedInUser?.loggedInUser?.schoolName;
+    // const userRef = doc(db, 'users', userId);
     const [tag, setTag] = useState<string>('');
     // const route = useRoute<RouteProp<RootStackParamList, 'Post'>>();
     const [selectedImg, setSelectedImg] = useState<string | null>(null);
@@ -56,6 +62,8 @@ const Post = () => {
         comment: '',
         images: [],
         userId: userId,
+        likes: [],
+        isReview: false,
     });
     const [review, setReview] = useState<newReview>({
         userId: userId,
@@ -67,13 +75,18 @@ const Post = () => {
         images: [],
         tags: [],
         comment: '',
-        likes: 0,
+        likes: [],
         timestamp: null,
+        isReview: true,
     });
     const [modalVisible, setModalVisible] = useState(false);
 
+
     const handleCreatePost = async() => {
         try{
+            const userData = await verifyUser();
+            if (!userData) return; 
+
             let finalPost = {...post};
             const images = [];
             let timestamp = new Date().getTime();
@@ -93,44 +106,60 @@ const Post = () => {
             }else{
                 delete finalPost.images;
             }
-            const postRef = await addDoc(collection(db, 'posts'), finalPost);
+
+            const postRef = await addDoc(collection(db, 'globalSubmissions'), finalPost);
             const postID = postRef.id;
-            await updateDoc(doc(db, 'posts', postID), {postId: postID}); 
+            const count = await getCount(); 
+            if (count === -1) return;
+            await updateDoc(doc(db, 'globalSubmissions', postID), {postId: postID, uploadCount: count});
+            try{
+                const userRef = doc(db, 'users', userId);
+                await updateDoc(userRef, {submissions: arrayUnion(postID),
+                });
+            }catch{
+                console.error("Error updating user's review list");
+            }
+
+            // Adding reviewID to food collection for destined college and discover  
+            await submitDiscover(userData.data().schoolName, postID);
             
             console.log("Post added to Firestore with ID:", postRef.id);
-            setPost({ images: [],comment: '', userId: userId}); // reset the post
+            setPost({ images: [],comment: '', userId: userId, isReview: true}); // reset the post
         }catch{
             console.error("Error adding post to Firestore, have you signed in yet");
         }
     }
-
+    const verifyUser = async() => {
+        const userRef = doc(db, 'users', userId);
+        const userSnapshot = await getDoc(userRef);
+        if (userSnapshot.exists()){
+            return userSnapshot;
+        }else {
+            console.error("User does not exist");
+            return null;
+    };}
 
     const handleCreateReview = async () =>{
         try{
-            // ISSUE: The user ID does not mathc the user path in firebase 
-            // When adding review, add check case for if review array exist 
-            const userRef = doc(db, 'users', userId);
-            console.log("userID:" , userId);
-            const userSnapshot = await getDoc(userRef);
-            if (!userSnapshot.exists()){
-                console.error("User does not exist");
-                // return;
-            }
+            const userData = await verifyUser();
+            if (!userData) return; 
 
             // current I can't get access to user's school without the full pathname
-            const locationExist = await verifyLocation('Dartmouth College', review.location);
-            if (!locationExist){
-                console.error("Location does not exist");
-                return;
-            }
+            // const locationExist = await verifyLocation("Dartmouth College", review.location);
+            // if (!locationExist){
+            //     console.log(userSnapshot.data().schoolName)
+            //     console.error("Location does not exist");
+            //     return;
+            // }
+
             let finalReview = {...review};
             const imageURls = [];
             let timestamp = new Date().getTime();
             let date = new Date(timestamp);
             finalReview.timestamp = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
 
-            if (review.images.length + 1  > 0){
-                console.error(review.images);
+            if (review.images.length > 0){
+                console.log("images in the array:", review.images);
                 for (let i = 0; i < review.images.length; i++){
                     try{
                         const url = await handleUploadImage(review.images[i]);
@@ -146,32 +175,42 @@ const Post = () => {
             }else{  
                 delete finalReview.images;
             }
-            // add to review Collection
-            const reviewRef = await addDoc(collection(db, 'reviews'), finalReview);
+            // Adding to review collection
+            const reviewRef = await addDoc(collection(db, 'globalSubmissions'), finalReview);
             const reviewId = reviewRef.id;
-            await updateDoc(doc(db, 'reviews', reviewId), {reviewId: reviewId}); 
-            await addDoc(collection(db, 'colleges', 'Dartmouth College', review.location, 'collections', 'reviews'), {reviewId});
-            // update user doc
+            const count = await getCount();
+            if (count === -1) return;
+            await updateDoc(doc(db, 'globalSubmissions', reviewId), {reviewId: reviewId, uploadCount: count});
+            // UPDATES FOOD COLLECTION
             try{
-                await updateDoc(userRef, {reviews: arrayUnion(reviewId),
+                const foodCollectionRef= collection(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName);
+                const exist = await checkCollectionExist(foodCollectionRef);
+                if (exist === false){
+                    console.log('exist??:', exist)
+                    const foodDocRef = doc(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName, 'reviews');
+                    await setDoc(foodDocRef,{reviewIds: [reviewId]});
+                }
+                await updateDoc(doc(db,'colleges', 'Dartmouth College','diningLocations',review.location, review.foodName, 'reviews'),{reviewIds: arrayUnion(reviewId)})
+               
+            }catch{
+                console.error("Error adding review to food collection");
+                return;
+            }
+
+            // UPDATES DISOCVER COLLECTION
+            await submitDiscover(review.location, reviewId);
+            // Add ID to user 
+            try{
+                const userRef = doc(db, 'users', userId);
+                await updateDoc(userRef, {submissions: arrayUnion(reviewId),
                 });
             }catch{
                 console.error("Error updating user's review list");
             }
             
             console.log("Review added to Firestore with ID:", reviewRef.id);
-            setReview({ 
-                userId: userId,
-                foodName: '',
-                location: '',
-                price: null,
-                taste: 0,
-                health: 0,
-                images:[],
-                tags: [],
-                comment: '',
-                likes: 0,
-                timestamp: null,
+            setReview({ userId: userId, foodName: '',location: '',price: null, taste: 0,health: 0,
+                images:[],tags: [],comment: '',likes: [],timestamp: null,isReview: false,
             }); // reset the review
             navigation.goBack();
         }catch{
@@ -183,7 +222,7 @@ const Post = () => {
     // Full path: Colleges/CollegeName/Location/Collection/
     const verifyLocation = async(college, location: string) => {
         try{
-            const locationRef = doc(db, 'colleges', `${college}`,`${location}`, 'collections'); // post and review must exist
+            const locationRef = doc(db, 'colleges', `${college}`,'diningLocations', `${location}`); // post and review must exist
             console.log("Location path:", locationRef);
             const snapshop = await getDoc(locationRef);
             if (snapshop.exists()){
@@ -197,6 +236,49 @@ const Post = () => {
             console.log("Error verifying location");
         }
     }
+
+    const checkCollectionExist = async(ref) => {
+        try{
+            const querySnapshot = await getDocs(ref)
+            return querySnapshot.size > 0;
+        }catch(e){
+            console.log("There is error with checking the existence of the collection");
+            return false;
+        }
+    };
+    const checkDocExist = async(ref) => {
+        try{
+            const docSnap = await getDoc(ref);
+            return docSnap.exists();
+        }catch(e){console.log("There is error with checking the existence of the document"); return}
+    }
+
+    const submitDiscover = async(location, id) => {
+        try{
+            const discoveryRef = doc(db,'colleges', 'Dartmouth College', 'discover', 'submissions');
+            const discoverExistent = await checkDocExist(discoveryRef);
+            console.log("Discover exist?:", discoverExistent);
+            if (discoverExistent === false) {
+               await setDoc(discoveryRef,{submissions: [id]});
+            }else{
+               updateDoc(discoveryRef,{submissions: arrayUnion(id)});
+            }
+       }catch{
+           console.error("Error adding review to discover collection");
+           return;
+       }
+    }
+    const getCount = async() => {
+        try{
+            const getCount = await getDoc(doc(db, 'globalData', 'uploadCount'));
+            updateDoc(doc(db, 'globalData', 'uploadCount'), {count: getCount.data().count + 1});
+            return getCount.data().count;
+        }catch{
+            console.error("Error getting count");
+            return -1;
+        }
+    }
+
     /******* FUNCTIONS FOR UPLOAD IMAGES ******/
     // Read more about documentation here: https://docs.expo.dev/versions/latest/sdk/imagepicker/ 
     const getPermission = async() =>{
@@ -275,7 +357,8 @@ const Post = () => {
             images: [],
             tags: [],
             comment: '',
-            likes: 0,
+            likes: [],
+            isReview: true
         });
     }
     /* Later we can do food reccomendation from API if time */
@@ -446,10 +529,12 @@ const Post = () => {
                                         backgroundColor: '#E7E2DB',
                                         width: 325,
                                         maxWidth: 325,
-                                        height: 40,
+                                        height: 30,
                                         alignItems: 'center',
+                                        justifyContent: 'center',
                                         borderRadius: 10,
-                                        padding: 5,
+                                        paddingHorizontal: 10,
+                                        paddingTop: 5,
                                     }
                                 }}
                                 inputContainerStyle={{
@@ -486,6 +571,8 @@ const Post = () => {
                                     sliderColor='#7FB676'
                                     trackColor='#E7E2DB'         
                             />
+
+
                         <Text style={styles.text}> Add Tags</Text>
                         <TextInput 
                                 style={styles.textbox}
@@ -634,9 +721,9 @@ const styles = StyleSheet.create({
         borderColor: 'black',
         backgroundColor: '#E7E2DB',
         width: 350,
-        height: 30,
+        height: 32,
         borderRadius: 10,
-        padding: 10,
+        paddingHorizontal: 10,
     },
     commentBox:{
         backgroundColor: '#E7E2DB',
