@@ -1,12 +1,16 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { db } from '../services/firestore.js';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import Navbar from '../components/Navbar.jsx';
 import SmallMenu from '../components/SmallMenu.tsx';
 import AllFilter from '../components/AllFilter.tsx';
 import FilterContent from '../components/FilterContent.tsx';
 import colors from '../styles.js';
 import ExampleMenu from '../services/ExampleMenu.json';
+import Review from '../components/Review.tsx';
+import FoodItem from '../components/FoodItem.tsx';
 
 
 type RootStackParamList = {
@@ -41,23 +45,70 @@ const DiningHome: React.FC<Props> = ({ route }) => {
     const { placeName } = route.params;
     
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-    const [onTheMenu, setOnTheMenu] = useState(ExampleMenu);
+    const bottomSheetRef = useRef(null);
+    const [ onTheMenu, setOnTheMenu ] = useState([]);
+    const [ loading, setLoading ] = useState(true);
+
+    const fetchReviews = async (location) => {
+        try {
+            const foodItems = [];
+            const locationDocRef = collection(db, 'colleges', 'Dartmouth College', 'diningLocations', location, 'foodList');
+            const collectionsSnapshot = await getDocs(locationDocRef);
+
+            for (const subCollectionDoc of collectionsSnapshot.docs) {
+                const foodName = subCollectionDoc.id;
+                const reviewsDocRef = doc(db, 'colleges', 'Dartmouth College', 'diningLocations', location, foodName, 'reviews');
+                const reviewsDocSnapshot = await getDoc(reviewsDocRef);
+
+                if (reviewsDocSnapshot.exists()) {
+                    const reviewsData = reviewsDocSnapshot.data();
+                    const reviewIds = reviewsData.reviewIds || [];
+                    const foodItem = {
+                        foodName,
+                        reviewIds,
+                        image: reviewsData?.image ?? '', 
+                        location,
+                        price: reviewsData?.price ?? 'N/A', // Default value if price is missing
+                        taste: reviewsData?.taste ?? 'N/A', // Default value if taste is missing
+                        health: reviewsData?.health ?? 'N/A', // Default value if health is missing
+                        allergens: reviewsData?.allergens ?? [], // Default to an empty array if allergens are missing
+                        tags: reviewsData?.tags ?? [] // Default to an empty array if tags are missing
+                    };
+                    foodItems.push(foodItem);
+                }
+            }
+            return foodItems;
+        } catch (error) {
+            console.error("Error fetching reviews: ", error);
+            return [];
+        } finally {
+            setLoading(false)
+        }
+    };
+
+    useEffect(() => {
+        const getReviews = async () => {
+            const reviewsData = await fetchReviews(placeName);
+            setOnTheMenu(reviewsData);
+        };
+        getReviews();
+        console.log(onTheMenu);
+    }, [placeName])
 
     return (
         <View style={styles.container}>
-          <View style={styles.diningHomeHeader}>
-              <View style={styles.diningHomeHeaderTop}>
-                  <TouchableOpacity onPress={() => navigation.goBack()}>
-                      <Text>Back</Text>
-                  </TouchableOpacity>
-              </View>
-              <View style={styles.diningHomeHeaderBottom}>
-                  <Text style={styles.placeNameText}>{placeName}</Text>
-              </View>
-          </View>
-
-
-          <View style={styles.filter}>
+            <View style={styles.diningHomeHeader}>
+                <View style={styles.diningHomeHeaderTop}>
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <Text>Back</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.diningHomeHeaderBottom}>
+                    <Text style={styles.placeNameText}>On the menu: {placeName}</Text>
+                </View>
+            </View>
+            <View style={styles.contentContainer}>
+            <View style={styles.filter}>
             <AllFilter 
                 isDisabled={isDisabled}
                 toggleBottomSheet={toggleBottomSheet}
@@ -65,17 +116,33 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                 resetSimpleFilter={() => setIsDisabled(false)}/>
 
           </View>
-
-
-
-          <View style={styles.contentContainer}>
-              <ScrollView style={styles.contentScrollContainer} contentContainerStyle={{ paddingBottom: 100 }}>
-              
-              </ScrollView>
-          </View>
-
-
-          <Navbar />
+            {loading ?
+            <View style={styles.loadingScreen}>
+                <Text>loading...</Text>
+            </View>
+            : <ScrollView style={styles.contentScrollContainer}>
+                {onTheMenu.length > 0 ? (
+                    onTheMenu.map((review, i) => {
+                        // return <Review key={review.id} reviewId={review} />
+                        return <FoodItem 
+                                    key={i}
+                                    foodName={review.foodName} 
+                                    reviewIds={review.reviewIds}
+                                    image={review.image} 
+                                    location={review.location} 
+                                    price={review.price}
+                                    taste={review.taste}
+                                    health={review.health}
+                                    tags={review.tags}
+                                    allergens={review.allergens}
+                                    />
+                    })
+                ) : (
+                    <Text>No reviews found</Text>
+                )}
+            </ScrollView>}
+        </View>
+        <Navbar />
 
         </View>
     )
@@ -89,6 +156,8 @@ const styles = StyleSheet.create({
     },
     containerTop: {
         alignItems: 'center',
+        marginLeft: 20,
+        marginRight: 20,
     },
     filter:{
       alignItems: 'center',
@@ -137,14 +206,14 @@ const styles = StyleSheet.create({
         fontSize: 20,
     },
     contentContainer: {
-        flexDirection: 'column',
         flexGrow: 1,
-        marginLeft: 20,
-        marginRight: 20,
+        paddingBottom: 80,
     },
     contentScrollContainer: {
         flexDirection: 'column',
         width: '100%',
+        marginTop: 30,
+        flex: 1,
     },
     recHolder: {
         flexDirection: 'column',
@@ -153,6 +222,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginBottom: 10,
     },
+    loadingScreen: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
 })
 
 export default DiningHome;

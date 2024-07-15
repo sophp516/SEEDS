@@ -1,10 +1,12 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import Navbar from '../components/Navbar.jsx';
 import SmallMenu from '../components/SmallMenu.tsx';
 import AllFilter from '../components/AllFilter.tsx';
 import FilterContent from '../components/FilterContent.tsx'; 
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { db } from '../services/firestore.js';
 import colors from '../styles.js';
 import ExampleMenu from '../services/ExampleMenu.json';
 import ExampleTopRated from '../services/ExampleTopRated.json';
@@ -41,12 +43,65 @@ type Props = {
 const DiningHome: React.FC<Props> = ({ route }) => {
   // For the filter
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  // For the content
+  const { placeName, closingHour } = route.params;
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const bottomSheetRef = useRef(null);
   const [filters, setFilters] = useState<{ preferred: string[]; allergens: string[]; time: string[] }>({
     preferred: [],
     allergens: [],
     time: [],
   });
   const [isDisabled, setIsDisabled] = useState(false); 
+  const [allMenus, setAllMenus] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchReviews = async (placeName) => {
+    try {
+        const foodItems = [];
+        const locationDocRef = collection(db, 'colleges', 'Dartmouth College', 'diningLocations', placeName, 'foodList');
+        const collectionsSnapshot = await getDocs(locationDocRef);
+
+        for (const subCollectionDoc of collectionsSnapshot.docs) {
+            const foodName = subCollectionDoc.id;
+            const reviewsDocRef = doc(db, 'colleges', 'Dartmouth College', 'diningLocations', placeName, foodName, 'reviews');
+            const reviewsDocSnapshot = await getDoc(reviewsDocRef);
+
+            if (reviewsDocSnapshot.exists()) {
+                const reviewsData = reviewsDocSnapshot.data();
+                const reviewIds = reviewsData.reviewIds || [];
+                const foodItem = {
+                    foodName,
+                    reviewIds,
+                    image: reviewsData?.image ?? '', 
+                    location: placeName,
+                    price: reviewsData?.price ?? 'N/A', // Default value if price is missing
+                    taste: reviewsData?.taste ?? 'N/A', // Default value if taste is missing
+                    health: reviewsData?.health ?? 'N/A', // Default value if health is missing
+                    allergens: reviewsData?.allergens ?? [], // Default to an empty array if allergens are missing
+                    tags: reviewsData?.tags ?? [] // Default to an empty array if tags are missing
+                };
+                foodItems.push(foodItem);
+            }
+        }
+        return foodItems;
+    } catch (error) {
+        console.error("Error fetching reviews: ", error);
+        return [];
+    } finally {
+        setLoading(false)
+    }
+};
+
+    useEffect(() => {
+        const retrieveReviews = async () => {
+            const reviewsData = await fetchReviews(placeName);
+            setAllMenus(reviewsData);
+        }
+        retrieveReviews();
+    }, [])
+
+
 
   const applyFilters = (menu) => {
     return menu.filter(item => {
@@ -86,12 +141,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
     setIsDisabled((prev) => !prev); 
   };
 
-  // For the content
-    const { placeName, closingHour } = route.params;
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-    const bottomSheetRef = useRef(null);
-
     // putting in the menu data and change data here: 
+    //!!! important: topRated, onTheMenu, recommended are the data should be put in here
     const topRated = useMemo(() => applyFilters(ExampleTopRated), [filters]); 
     const onTheMenu = useMemo(() => applyFilters(ExampleMenu), [filters]); 
     const recommended = useMemo(() => applyFilters(ExampleMenu), [filters]); 
@@ -128,27 +179,32 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     <Text style={styles.seeAllText}>See all</Text>
                                 </TouchableOpacity>
                             </View>
-                            {topRated.length===0 ? ( <Text style={styles.placeNameText}>No meals match your filter...</Text>) 
-                            : (
+                            {loading ? (
+                            <View style={styles.loadingScreen}>
+                              <Text>Loading...</Text>
+                            </View>
+                          ) : topRated.length === 0 ? (
+                            <Text style={styles.placeNameText}>No meals match your filter...</Text>
+                          ) : (
                             <ScrollView horizontal={true} style={styles.horizontalScrollView}>
-                                <View style={styles.smallMenuContainer}>
-                                    {topRated.map((item) => (
-                                        <SmallMenu
-                                            key={item.id}
-                                            id={item.id}
-                                            foodName={item.foodName}
-                                            image={item.image}
-                                            location={item.location}
-                                            price={item.price}
-                                            taste={item.taste}
-                                            tags={item.tags}
-                                            allergens={item.allergens}
-                                        />
-                                    ))}
-                                </View>
+                              <View style={styles.smallMenuContainer}>
+                                {topRated.map((item) => (
+                                  <SmallMenu
+                                    reviewIds={item.reviewIds}
+                                    key={item.id}
+                                    id={item.id}
+                                    foodName={item.foodName}
+                                    image={item.image}
+                                    location={item.location}
+                                    price={item.price}
+                                    taste={item.taste}
+                                    tags={item.tags}
+                                    allergens={item.allergens}
+                                  />
+                                ))}
+                              </View>
                             </ScrollView>
-
-                            )}
+                          )}
                         </View>
                         <View>
                             <View style={styles.recHeader}>
@@ -157,26 +213,31 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     <Text style={styles.seeAllText}>See all</Text>
                                 </TouchableOpacity>
                             </View>
-                            {onTheMenu===0 ? ( <Text style={styles.placeNameText}>No meals match your filter...</Text>) 
-                            : (
-                            <ScrollView horizontal={true} style={styles.horizontalScrollView}>
+                            {loading ? (
+                              <View style={styles.loadingScreen}>
+                                <Text>Loading...</Text>
+                              </View>
+                            ) : onTheMenu.length === 0 ? (
+                              <Text style={styles.placeNameText}>No meals match your filter...</Text>
+                            ) : (
+                              <ScrollView horizontal={true} style={styles.horizontalScrollView}>
                                 <View style={styles.smallMenuContainer}>
-                                    {onTheMenu.map((item) => (
-                                        <SmallMenu
-                                            key={item.id}
-                                            id={item.id}
-                                            foodName={item.foodName}
-                                            image={item.image}
-                                            location={item.location}
-                                            price={item.price}
-                                            taste={item.taste}
-                                            tags={item.tags}
-                                            allergens={item.allergens}
-                                        />
-                                    ))}
+                                  {allMenus.map((item) => (
+                                    <SmallMenu
+                                      reviewIds={item.reviewIds}
+                                      key={item.id}
+                                      id={item.id}
+                                      foodName={item.foodName}
+                                      image={item.image}
+                                      location={item.location}
+                                      price={item.price}
+                                      taste={item.taste}
+                                      tags={item.tags}
+                                      allergens={item.allergens}
+                                    />
+                                  ))}
                                 </View>
-                            </ScrollView>
-
+                              </ScrollView>
                             )}
 
                         </View>
@@ -187,28 +248,33 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     <Text style={styles.seeAllText}>See all</Text>
                                 </TouchableOpacity>
                             </View>
-
-                            {recommended===0 ? ( <Text style={styles.placeNameText}>No meals match your filter...</Text>) 
-                            : (
-                            <ScrollView horizontal={true} style={styles.horizontalScrollView}>
+                            {loading ? (
+                              <View style={styles.loadingScreen}>
+                                <Text>Loading...</Text>
+                              </View>
+                            ) : recommended.length === 0 ? (
+                              <Text style={styles.placeNameText}>No meals match your filter...</Text>
+                            ) : (
+                              <ScrollView horizontal={true} style={styles.horizontalScrollView}>
                                 <View style={styles.smallMenuContainer}>
-                                    {recommended.map((item) => (
-                                        <SmallMenu
-                                            key={item.id}
-                                            id={item.id}
-                                            foodName={item.foodName}
-                                            image={item.image}
-                                            location={item.location}
-                                            price={item.price}
-                                            taste={item.taste}
-                                            tags={item.tags}
-                                            allergens={item.allergens}
-                                        />
-                                    ))}
+                                  {allMenus.map((item) => (
+                                    <SmallMenu
+                                      reviewIds={item.reviewIds}
+                                      key={item.id}
+                                      id={item.id}
+                                      foodName={item.foodName}
+                                      image={item.image}
+                                      location={item.location}
+                                      price={item.price}
+                                      taste={item.taste}
+                                      tags={item.tags}
+                                      allergens={item.allergens}
+                                    />
+                                  ))}
                                 </View>
-                            </ScrollView>
-
+                              </ScrollView>
                             )}
+
                         </View>
                     </View>
                 </ScrollView>
@@ -244,6 +310,12 @@ const styles = StyleSheet.create({
     closingText: {
         fontSize: 12,
         color: '#7C7C7C'
+    },
+    loadingScreen: {
+        width: '100%',
+        height: 150,
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     recHeader: {
         paddingBottom: 13,

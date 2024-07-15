@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, ScrollView } from "react-native";
 import { useNavigation, RouteProp, NavigationProp, ParamListBase } from '@react-navigation/native';
+import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { db } from '../services/firestore.js';
 import Navbar from '../components/Navbar.jsx';
+import Review from '../components/Review.tsx';
 import colors from '../styles.js';
 
 export type RootStackParamList = {
     SelectedMenu: {
         id: string;
+        reviewIds: string[],
         foodName: string;
         image?: string;
         location: string;
@@ -25,9 +29,10 @@ interface SelectedMenuProps {
 }
 
 const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
-    const { id, foodName, image, location, price, taste, tags, allergens } = route.params;
+    const { reviewIds, foodName, image, location, price, taste, tags, allergens } = route.params;
     const navigation = useNavigation<NavigationProp<ParamListBase>>();
     const [toggleOverview, setToggleOverview] = useState(true);
+    const [reviews, setReviews] = useState([])
 
     const getRatingBackgroundColor = (taste: number) => {
         if (taste >= 4) {
@@ -38,10 +43,33 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
             return colors.grayStroke;
         }
     };
-
+    console.log(reviews);
     const navigateToReview = () => {
         navigation.navigate('Post', { toggle: false, foodName: foodName });
     }
+
+    const fetchReviews = async () => {
+        try {
+            const fetchedReviews = []; // Temporary array to store fetched reviews
+            for (const id of reviewIds) {
+                const submissionRef = doc(db, 'globalSubmissions', id); // Use 'doc' instead of 'collection'
+                const submissionSnapshot = await getDoc(submissionRef); // Use 'getDoc' to fetch a single document
+    
+                if (submissionSnapshot.exists()) {
+                    console.log('yay')
+                    const submissionData = submissionSnapshot.data();
+                    fetchedReviews.push(submissionData); // Collect each review data
+                }
+            }
+            setReviews(fetchedReviews); // Update state once after the loop
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    useEffect(() => {
+        fetchReviews();
+    }, [reviewIds])
 
     return (
         <View style={styles.container}>
@@ -82,13 +110,13 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                             </View>
                         )}
                         <View style={styles.priceContainer}>
-                            <Text style={styles.priceText}>$ {price}</Text>
+                            <Text>$ {price}</Text>
                         </View>
                         <View style={styles.bottomContainer}>
                             <View style={styles.tagContainer}>
                                 <View style={styles.tagHeader}>
                                     <Text style={styles.tagText}>Tags</Text>
-                                    <Text>inputted by reviewers</Text>
+                                    <Text style={styles.smallGrayText}>inputted by reviewers</Text>
                                 </View>
                                 <View style={styles.tagContent}> 
                                     {tags.map((item, i) => {
@@ -101,7 +129,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                                 </View>
                                 <View style={styles.tagHeader}>
                                     <Text style={styles.tagText}>Allergens</Text>
-                                    <Text>inputted by reviewers</Text>
+                                    <Text style={styles.smallGrayText}>inputted by reviewers</Text>
                                 </View>
                                 <View style={styles.allergenContent}> 
                                     {allergens.map((item, i) => {
@@ -117,8 +145,27 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                         </View>
                     </View>
                     :
-                    <View>
-                        <Text>Reviews content here</Text>
+                    <View style={styles.reviewsContainer}>
+                        {reviews.map((submission, i) => {
+                            return (
+                                <Review
+                                    key={submission.reviewId} // Add the unique key prop here
+                                    reviewId={submission.reviewId}
+                                    foodName={submission.foodName} 
+                                    comment={submission.comment}
+                                    health={submission.health}
+                                    taste={submission.taste}
+                                    likes={submission.likes}
+                                    location={submission.location}
+                                    price={submission.price}
+                                    tags={submission.tags}
+                                    timestamp={submission.timestamp}
+                                    userId={submission.userId}
+                                    image={submission.image}
+                                    subcomment={submission.subComment}
+                                />
+                            );
+                        })}
                     </View>
                 }
             </ScrollView>
@@ -135,8 +182,9 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 50,
+        paddingTop: 30,
         height: '100%',
+        backgroundColor: colors.backgroundGray,
     },
     selectedHeader: {
         paddingHorizontal: 20,
@@ -168,6 +216,10 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginTop: 5,
         alignSelf: 'flex-start',
+    },
+    smallGrayText: {
+        color: colors.grayStroke,
+        fontSize: 12,
     },
     starText: {
         fontSize: 12,
@@ -205,6 +257,7 @@ const styles = StyleSheet.create({
         marginVertical: 20,
         marginHorizontal: 30,
         alignItems: 'center',
+        paddingBottom: 100,
     },
     locationText: {
         color: colors.grayStroke,
@@ -296,6 +349,9 @@ const styles = StyleSheet.create({
     addReviewText: {
         color: 'white',
         fontSize: 18,
+    },
+    reviewsContainer: {
+        paddingHorizontal: 20,
     }
 });
 

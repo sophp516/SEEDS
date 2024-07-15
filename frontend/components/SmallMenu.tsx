@@ -8,6 +8,7 @@ type RootStackParamList = {
     SelectedMenu: {
         id: String,
         foodName: String,
+        reviewIds: string[],
         image: String,
         location: String,
         price: Number,
@@ -15,6 +16,7 @@ type RootStackParamList = {
         tags: String[],
         allergens: String[]
     };
+    
 };
 
 type SmallMenuProps = {
@@ -26,9 +28,10 @@ type SmallMenuProps = {
     taste: number;
     tags: string[];
     allergens: string[];
+    reviewIds: string[]
 };
 
-const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, image, location, price, taste, tags, allergens }) => {
+const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, image, reviewIds, location, price, taste, tags, allergens }) => {
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const navigateTo = () => {
@@ -36,6 +39,7 @@ const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, image, location, pr
             id,
             foodName,
             image: image || '',
+            reviewIds,
             location,
             price,
             taste,
