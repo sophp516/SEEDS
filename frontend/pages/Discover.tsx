@@ -54,7 +54,21 @@ const Discover = () => {
       {submissions.length > 0 &&
       submissions.map((submission) => {
         if (submission.isReview) {
-          return <Review reviewId={submission.reviewId} />
+          return <Review 
+                reviewId={submission.reviewId}
+                foodName={submission.foodName} 
+                comment={submission.comment}
+                health={submission.health}
+                taste={submission.taste}
+                likes={submission.likes}
+                location={submission.location}
+                price={submission.price}
+                tags={submission.tags}
+                timestamp={submission.timestamp}
+                userId={submission.userId}
+                image={submission.image}
+                subcomment={submission.subComment}
+                />
         } else {
           return <Post 
                 postId={submission.postId}
@@ -80,7 +94,7 @@ const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: colors.backgroundGray,
+    backgroundColor: 'colors.backgroundGray',
   },
   containerTop: {
     padding: 20,

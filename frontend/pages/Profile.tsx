@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, TextInput } from 'react-native';
-import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { StyleSheet, Text, View, TouchableOpacity, Image, TextInput, ScrollView } from 'react-native';
+import { collection, query, where, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../context/authContext.js';
 import { signOut } from "firebase/auth";
@@ -10,10 +10,30 @@ import * as ImagePicker from 'expo-image-picker';
 import Navbar from '../components/Navbar.jsx';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import colors from '../styles.js';
+import Post from '../components/Post.tsx';
+import Review from '../components/Review.tsx';
 
 type RootStackParamList = {
     SignUp: undefined;
 };
+
+type Submission = {
+    isReview: boolean;
+    reviewId?: string;
+    postId?: string;
+    foodName?: string;
+    comment?: string;
+    health?: number;
+    taste?: number;
+    likes?: number;
+    location?: string;
+    price?: number;
+    tags?: string[];
+    timestamp?: string;
+    userId?: string;
+    image?: string;
+    subComment?: string;
+}
 
 const Profile = () => {
     const { user, setLoggedInUser } = useAuth();
@@ -24,6 +44,9 @@ const Profile = () => {
     const [nameInput, setNameInput] = useState('');
     const [tagInput, setTagInput] = useState('');
     const [postHistory, setPostHistory] = useState(true);
+    const [postList, setPostList] = useState([]);
+    const [postIds, setPostIds] = useState([]);
+    const [loading, setLoading] = useState(true);
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     useEffect(() => {
@@ -60,6 +83,42 @@ const Profile = () => {
             fetchDisplayName();
         }
     }, [displayName, loggedInUser, setLoggedInUser]);
+
+    useEffect(() => {
+        if (!loggedInUser) return
+        const fetchHistory = async () => {
+            try {
+                const userId = loggedInUser?.loggedInUser?.uid;
+                    if (!userId) {
+                        Toast.show({
+                            type: 'error',
+                            text1: 'Error',
+                            text2: 'User not found.'
+                        });
+                        return;
+                    }
+                const usersRef = collection(db, 'users');
+                const q = query(usersRef, where('id', '==', userId));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    const userDoc = querySnapshot.docs[0];
+                    const userData = userDoc.data();
+                    setPostIds(userData.submissions)
+
+                    for (const id of postIds) {
+                        fetchReviewWithId(id);
+                    }
+                }
+
+            } catch (err) {
+                console.log(err)
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchHistory();
+    }, [postIds])
 
     useEffect(() => {
         const fetchTags = async () => {
@@ -102,6 +161,24 @@ const Profile = () => {
     const handleEditToggle = () => {
         setNameInput(displayName);
         setEditingStatus(true);
+    }
+
+    const fetchReviewWithId = async (id) => {
+        try {
+            const submissionRef = doc(db, 'globalSubmissions', id);
+            const submissionDoc = await getDoc(submissionRef);
+    
+            if (submissionDoc.exists()) {
+                const submissionData = submissionDoc.data();
+                setPostList((currentPosts) => [...currentPosts, { ...submissionData, id }]);
+            } else {
+                console.log(`No submission found with ID ${id}`);
+                return null;
+            }
+        } catch (error) {
+            console.error("Error fetching submission:", error);
+            return null;
+        }
     }
 
     const asyncSignOut = async () => {
@@ -164,7 +241,6 @@ const Profile = () => {
     const handleSaveProfile = async () => {
         try {
             const userId = loggedInUser.loggedInUser.uid;
-            console.log(userId);
     
             if (!userId) {
                 Toast.show({
@@ -329,6 +405,46 @@ const Profile = () => {
                     <Text>Favorites</Text>
                 </TouchableOpacity>
             </View>
+            <ScrollView style={styles.postHistoryScroll}>
+    {loading ? (
+        <Text>Loading...</Text>
+    ) : (
+        postList.length > 0 &&
+        postList.map((submission, i) => {
+            if (submission.isReview) {
+                return (
+                    <Review
+                        key={`review_${i}`} 
+                        reviewId={submission.reviewId}
+                        foodName={submission.foodName} 
+                        comment={submission.comment}
+                        health={submission.health}
+                        taste={submission.taste}
+                        likes={submission.likes}
+                        location={submission.location}
+                        price={submission.price}
+                        tags={submission.tags}
+                        timestamp={submission.timestamp}
+                        userId={submission.userId}
+                        image={submission.image}
+                        subcomment={submission.subComment}
+                    />
+                );
+            } else {
+                return (
+                    <Post 
+                        key={`post_${i}`}
+                        postId={submission.postId}
+                        comment={submission.comment}
+                        timestamp={submission.timestamp}
+                        uploadCount={submission.uploadCount}
+                        userId={submission.userId}
+                    />
+                );
+            }
+        })
+    )}
+            </ScrollView>
             <TouchableOpacity onPress={asyncSignOut}>
                 <Text>Sign Out</Text>
             </TouchableOpacity>
@@ -468,6 +584,10 @@ const styles = StyleSheet.create({
     },
     createAccountText: {
         color: 'white',
+    },
+    postHistoryScroll: {
+        paddingHorizontal: 20,
+        paddingTop: 20,
     }
 });
 

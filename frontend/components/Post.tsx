@@ -26,7 +26,6 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount }) => {
                 if (userDocSnapshot.exists()) {
                     const userData = userDocSnapshot.data();
                     setUserInfo(userData);
-                    console.log(userInfo)
                 } else {
                     console.log("No such document!");
                 }
@@ -87,7 +86,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount }) => {
                         <Text>{post?.subComment?.length}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={handleLike} style={styles.likeRow}>
-                        {likeStatus ? <Text>liked</Text> : <Text>like</Text>}
+                        {likeStatus ? <Text style={styles.likeText}>liked</Text> : <Text style={styles.likeText}>like</Text>}
                         <Text>{post?.likes?.length}</Text>
                     </TouchableOpacity>
                 </View>
@@ -156,13 +155,16 @@ const styles =  StyleSheet.create({
     },
     likeRow: {
         flexDirection: 'row',
-        marginLeft: 10,
+        marginLeft: 15,
     },
     commentRow: {
         paddingLeft: 20,
     },
     imageContainer: {
         flexDirection: 'row',
+    },
+    likeText: {
+        marginLeft: 3,
     }
 })
 

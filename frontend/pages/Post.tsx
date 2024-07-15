@@ -444,17 +444,20 @@ const Post = () => {
                                     style: { 
                                         color: 'black',
                                         backgroundColor: '#E7E2DB',
-                                        width: 325,
-                                        maxWidth: 325,
-                                        height: 40,
-                                        alignItems: 'center',
+                                        width: 350,
+                                        height: 30,
                                         borderRadius: 10,
-                                        padding: 5,
+                                        
+                                        alignSelf: 'center'
+                                        
                                     }
                                 }}
                                 inputContainerStyle={{
                                     backgroundColor: '#E7E2DB',
                                     width: 350,
+                                    height: 35,
+                                    borderRadius: 10,
+                                    
                                 }}
                             />
 
@@ -596,7 +599,6 @@ const styles = StyleSheet.create({
         borderStyle: 'solid',
         borderWidth: 2,
         width: '70%',
-        height: '4%',
         alignItems: 'center',
         justifyContent: 'center',
         margin: 15,
@@ -634,7 +636,7 @@ const styles = StyleSheet.create({
         borderColor: 'black',
         backgroundColor: '#E7E2DB',
         width: 350,
-        height: 30,
+        height: 35,
         borderRadius: 10,
         padding: 10,
     },
