@@ -69,7 +69,7 @@ const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, image, location, pr
                     {foodName}
                 </Text>
                 <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(taste) }]}>
-                    <Text style={styles.starText}>{taste} stars</Text>
+                    <Text style={styles.starText}>{taste} Taste</Text>
                 </View>
                 </View>
             </View>

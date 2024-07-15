@@ -7,6 +7,7 @@ import AllFilter from '../components/AllFilter.tsx';
 import FilterContent from '../components/FilterContent.tsx'; 
 import colors from '../styles.js';
 import ExampleMenu from '../services/ExampleMenu.json';
+import ExampleTopRated from '../services/ExampleTopRated.json';
 
 
 type RootStackParamList = {
@@ -91,10 +92,9 @@ const DiningHome: React.FC<Props> = ({ route }) => {
     const bottomSheetRef = useRef(null);
 
     // putting in the menu data and change data here: 
-    const topRated = useMemo(() => applyFilters(ExampleMenu), [filters]); 
+    const topRated = useMemo(() => applyFilters(ExampleTopRated), [filters]); 
     const onTheMenu = useMemo(() => applyFilters(ExampleMenu), [filters]); 
     const recommended = useMemo(() => applyFilters(ExampleMenu), [filters]); 
-    const noMealsMessage = topRated.length === 0 && onTheMenu.length === 0 && recommended.length === 0;
 
     return (
         <View style={styles.container}>
@@ -128,7 +128,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     <Text style={styles.seeAllText}>See all</Text>
                                 </TouchableOpacity>
                             </View>
-                            {noMealsMessage ? ( <Text style={styles.placeNameText}>No meals match your filter...</Text>) 
+                            {topRated.length===0 ? ( <Text style={styles.placeNameText}>No meals match your filter...</Text>) 
                             : (
                             <ScrollView horizontal={true} style={styles.horizontalScrollView}>
                                 <View style={styles.smallMenuContainer}>
@@ -157,7 +157,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     <Text style={styles.seeAllText}>See all</Text>
                                 </TouchableOpacity>
                             </View>
-                            {noMealsMessage ? ( <Text style={styles.placeNameText}>No meals match your filter...</Text>) 
+                            {onTheMenu===0 ? ( <Text style={styles.placeNameText}>No meals match your filter...</Text>) 
                             : (
                             <ScrollView horizontal={true} style={styles.horizontalScrollView}>
                                 <View style={styles.smallMenuContainer}>
@@ -188,7 +188,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                 </TouchableOpacity>
                             </View>
 
-                            {noMealsMessage ? ( <Text style={styles.placeNameText}>No meals match your filter...</Text>) 
+                            {recommended===0 ? ( <Text style={styles.placeNameText}>No meals match your filter...</Text>) 
                             : (
                             <ScrollView horizontal={true} style={styles.horizontalScrollView}>
                                 <View style={styles.smallMenuContainer}>
