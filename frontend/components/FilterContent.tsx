@@ -7,7 +7,7 @@ import Preferences from '../services/Preferences.json';
 import Toast from 'react-native-toast-message';
 
 interface FilterContentProps {
-  onFilter: (filteredItems: string[]) => void; // Function to handle filtered items maybe for later for fire base
+  onFilter: (filters: { preferred: string[], allergens: string[], time: string[] }) => void;
   isVisible: boolean; // have two isVisible to control visibility from another component
   setIsVisible: (visible: boolean) => void; 
 }
@@ -21,47 +21,50 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
   const [preferredItems, setPreferredItems] = useState([
   ]);
 
-  const [avoidOpen, setAvoidOpen] = useState(false);
-  const [avoidValue, setAvoidValue] = useState([]);
-  const [avoidItems, setAvoidItems] = useState([
+  const [allergensOpen, setAllergensOpen] = useState(false);
+  const [allergensValue, setAllergensValue] = useState([]);
+  const [allergensItems, setAllergensItems] = useState([
   ]);
 
   const [timeOpen, setTimeOpen] = useState(false);
   const [timeValue, setTimeValue] = useState([]);
   const [timeItems, setTimeItems] = useState([
-    {label: 'Breakfast', value: 'breakfast'},
-    {label: 'Lunch', value: 'lunch'},
-    {label: 'Dinner', value: 'dinner'},
+    {label: 'Breakfast', value: 'Breakfast'},
+    {label: 'Lunch', value: 'Lunch'},
+    {label: 'Dinner', value: 'Dinner'},
   ]);
 
-  // Set the preferred and avoid items from the preferences.json
+  // Set the preferred and allergens items from the preferences.json
   // this library have to use useEffect to set the items
   useEffect(() => {
     const items = preferences.id.map(item => ({
       label: item,
-      value: item.toLowerCase()
+      value: item,
     }));
     setPreferredItems(items);
-    setAvoidItems(items);
+    setAllergensItems(items);
   }, [preferences]);
 
 
   // Function to handle the filter application 
-  // if the user select the same item in both preferred and avoid, it will show an error message
+  // if the user select the same item in both preferred and allergens, it will show an error message
   const handleApplyFilter = () => {
-    const overlappingValues = preferredValue.filter(value => avoidValue.includes(value));
+    const overlappingValues = preferredValue.filter(value => allergensValue.includes(value));
     
     if (overlappingValues.length > 0) {
-      const errorMessage = `Duplicates in Preferred & Avoid: ${overlappingValues.join(', ')}`;
+      const errorMessage = `Duplicates in Preferred & allergens: ${overlappingValues.join(', ')}`;
       Toast.show({
         type: 'error',
         text1: 'Error: Overlapping Selections',
         text2: errorMessage, 
       });
     } else {
-      console.log('Preferred:', preferredValue.join(', ') || 'none');
-      console.log('Avoid:', avoidValue.join(', ') || 'none');
-      console.log('Time:', timeValue.join(', ') || 'none');
+      const filters = {
+        preferred: preferredValue,
+        allergens: allergensValue,
+        time: timeValue,
+      };
+      onFilter(filters); // Pass filters back to DiningHome
       setIsVisible(false); // Close the bottom sheet after applying the filter
     }
   };
@@ -70,7 +73,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
 
   const handleReset = () => {
     setPreferredValue([]);
-    setAvoidValue([]);
+    setAllergensValue([]);
     setTimeValue([]);
   };
 
@@ -137,15 +140,15 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
           />
 
           
-          <Text style={styles.contentText}>Avoid</Text>
+          <Text style={styles.contentText}>Allergens</Text>
           <DropDownPicker
             style={styles.dropDownBox}
-            open={avoidOpen}
-            value={avoidValue}
-            items={avoidItems}
-            setOpen={setAvoidOpen}
-            setValue={setAvoidValue}
-            setItems={setAvoidItems}
+            open={allergensOpen}
+            value={allergensValue}
+            items={allergensItems}
+            setOpen={setAllergensOpen}
+            setValue={setAllergensValue}
+            setItems={setAllergensItems}
             theme="LIGHT"
             multiple={true}
             mode="BADGE"
@@ -154,7 +157,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
             badgeDotColors={[colors.warningPink]}
             containerProps={{
               style: {
-                zIndex: avoidOpen ? 10 : 1
+                zIndex: allergensOpen ? 10 : 1
               }
             }}
           />

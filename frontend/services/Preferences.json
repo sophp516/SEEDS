@@ -1,10 +1,10 @@
 {
   "id": [
     "Shellfish",
-    "fish",
+    "Fish",
     "Dairy",
     "Peanuts",
-    "Tree nuts",
+    "Tree Nuts",
     "Eggs",
     "Gluten",
     "Soy",
@@ -13,6 +13,8 @@
     "Vegetarian",
     "Sesame",
     "Coconut",
-    "Kosher"
+    "Kosher",
+    "High Protein",
+    "Low Carb"
   ]
 }
