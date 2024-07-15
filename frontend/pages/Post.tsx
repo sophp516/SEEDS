@@ -23,6 +23,7 @@ interface newPost{
     likes?:string[];
     isReview: boolean;
     uploadCount?: number;
+    subComments: {};
 }
 interface newReview {
     reviewId?: string;
@@ -37,7 +38,7 @@ interface newReview {
     comment: string|null,
     likes?:string[];
     timestamp?: string;
-    subComments?: string[];
+    subComments: {};
     isReview: boolean;
     uploadCount?: number;
 }
@@ -64,6 +65,7 @@ const Post = () => {
         userId: userId,
         likes: [],
         isReview: false,
+        subComments: {},
     });
     const [review, setReview] = useState<newReview>({
         userId: userId,
@@ -78,6 +80,7 @@ const Post = () => {
         likes: [],
         timestamp: null,
         isReview: true,
+        subComments: {},
     });
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -124,7 +127,7 @@ const Post = () => {
             await submitDiscover(userData.data().schoolName, postID);
             
             console.log("Post added to Firestore with ID:", postRef.id);
-            setPost({ images: [],comment: '', userId: userId, isReview: true}); // reset the post
+            setPost({ images: [],comment: '', userId: userId, isReview: true, subComments: {};}); // reset the post
         }catch{
             console.error("Error adding post to Firestore, have you signed in yet");
         }
@@ -224,7 +227,7 @@ const Post = () => {
             
             console.log("Review added to Firestore with ID:", reviewRef.id);
             setReview({ userId: userId, foodName: '',location: '',price: null, taste: 0,health: 0,
-                images:[],tags: [],comment: '',likes: [],timestamp: null,isReview: false,
+                images:[],tags: [],comment: '',likes: [],timestamp: null,isReview: false, subComments: {},
             }); // reset the review
             navigation.goBack();
         }catch{
@@ -412,7 +415,8 @@ const Post = () => {
             tags: [],
             comment: '',
             likes: [],
-            isReview: true
+            isReview: true,
+            subComments: {}
         });
     }
     /* Later we can do food reccomendation from API if time */
