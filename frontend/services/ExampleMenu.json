@@ -7,14 +7,15 @@
         "price": 15.25,
         "taste": 4.8,
         "tags": [
-            "Vegetarian-friendly",
+            "Vegetarian",
             "High Protein",
             "Rice",
-            "Lunch"
+            "Lunch",
+            "Soy"
         ],
         "allergens": [
             "Gluten",
-            "Soy",
+            "",
             "Chicken"
         ]
     },
@@ -32,7 +33,7 @@
             "Dinner"
         ],
         "allergens": [
-            "Nuts"
+            "Tree Nuts"
         ]
     },
     {
@@ -46,7 +47,7 @@
             "Breakfast",
             "High Protein",
             "Eggs",
-            "Vegetarian-friendly"
+            "Vegetarian"
         ],
         "allergens": [
             "Dairy",
@@ -101,10 +102,265 @@
             "Beef",
             "High Protein",
             "Burger"
+
         ],
         "allergens": [
             "Gluten",
             "Dairy"
+
         ]
-    }
+    },
+
+
+
+
+
+
+    {
+      "id": "7",
+      "foodName": "SeaFood boil",
+      "image": "",
+      "location": "Collis",
+      "price": 15.25,
+      "taste": 4.8,
+      "tags": [
+          "Shellfish",
+          "Lunch",
+          "Fish"
+      ],
+      "allergens": [
+          "Gluten",
+          "Soy",
+          "Coconut"
+      ]
+  },
+  {
+      "id": "8",
+      "foodName": "Kosher Salad",
+      "image": "",
+      "location": "Hanover",
+      "price": 12.00,
+      "taste": 4.5,
+      "tags": [
+          "Vegan",
+          "Low Carb",
+          "Salad",
+          "Vegetarian",
+          "Kosher"
+      ],
+      "allergens": [
+          "Tree Nuts",
+          "Dairy"
+      ]
+  },
+  {
+      "id": "9",
+      "foodName": "Baker's Omelette",
+      "image": "",
+      "location": "Baker",
+      "price": 9.50,
+      "taste": 4.7,
+      "tags": [
+          "Breakfast",
+          "Sesame",
+          "Eggs",
+          "Vegetarian",
+          "Vegan"
+      ],
+      "allergens": [
+          "Dairy",
+          "Eggs"
+          
+      ]
+  },
+  {
+      "id": "10",
+      "foodName": "Foco's Grilled Chicken Sandwich",
+      "image": "",
+      "location": "Foco",
+      "price": 11.75,
+      "taste": 4.6,
+      "tags": [
+          "Lunch",
+          "High Protein",
+          "Sandwich"
+      ],
+      "allergens": [
+          "Gluten",
+          "Soy",
+          "Chicken"
+      ]
+  },
+  {
+      "id": "11",
+      "foodName": "Collis Sushi Roll",
+      "image": "",
+      "location": "Collis",
+      "price": 14.00,
+      "taste": 4.9,
+      "tags": [
+          "Dinner",
+          "Rice"
+          
+      ],
+      "allergens": [
+          "Fish",
+          "Soy",
+          "Shellfish"
+      ]
+  },
+  {
+      "id": "12",
+      "foodName": "The Great Burger",
+      "image": "",
+      "location": "Novack",
+      "price": 13.50,
+      "taste": 4.3,
+      "tags": [
+          "Lunch",
+          "Beef",
+          "High Protein",
+          "Burger"
+      ],
+      "allergens": [
+          "Gluten",
+          "Dairy"
+      ]
+  },
+  {
+    "id": "13",
+    "foodName": "Gluten-Free Pancakes",
+    "image": "",
+    "location": "Collis",
+    "price": 10.50,
+    "taste": 4.7,
+    "tags": [
+      "Breakfast",
+      "Gluten-Free",
+      "Vegetarian"
+    ],
+    "allergens": [
+      "Dairy",
+      "Eggs"
+    ]
+  },
+  {
+    "id": "14",
+    "foodName": "Vegan Burrito",
+    "image": "",
+    "location": "Hanover",
+    "price": 11.00,
+    "taste": 4.6,
+    "tags": [
+      "Lunch",
+      "Vegan",
+      "High Protein",
+      "Gluten-Free"
+    ],
+    "allergens": []
+  },
+  {
+    "id": "15",
+    "foodName": "Halal Chicken Wrap",
+    "image": "",
+    "location": "Baker",
+    "price": 13.00,
+    "taste": 4.8,
+    "tags": [
+      "Lunch",
+      "Halal Friendly",
+      "High Protein",
+      "Wrap"
+    ],
+    "allergens": [
+      "Gluten",
+      "Soy"
+    ]
+  },
+  {
+    "id": "16",
+    "foodName": "Peanut Butter Smoothie",
+    "image": "",
+    "location": "Foco",
+    "price": 8.50,
+    "taste": 4.9,
+    "tags": [
+      "Snack",
+      "High Protein",
+      "Vegetarian"
+    ],
+    "allergens": [
+      "Peanuts",
+      "Dairy"
+    ]
+  },
+  {
+    "id": "17",
+    "foodName": "Sesame Tofu",
+    "image": "",
+    "location": "Collis",
+    "price": 12.50,
+    "taste": 4.7,
+    "tags": [
+      "Dinner",
+      "Vegan",
+      "Low Carb",
+      "Sesame"
+    ],
+    "allergens": [
+      "Soy",
+      "Sesame"
+    ]
+  },
+  {
+    "id": "18",
+    "foodName": "Coconut Curry",
+    "image": "",
+    "location": "Hanover",
+    "price": 14.00,
+    "taste": 4.8,
+    "tags": [
+      "Dinner",
+      "Vegetarian",
+      "High Protein",
+      "Coconut"
+    ],
+    "allergens": [
+      "Coconut",
+      "Soy"
+    ]
+  },
+  {
+    "id": "19",
+    "foodName": "Vegan Quinoa Bowl",
+    "image": "",
+    "location": "Baker",
+    "price": 13.75,
+    "taste": 4.7,
+    "tags": [
+      "Lunch",
+      "Vegan",
+      "Low Carb",
+      "High Protein"
+    ],
+    "allergens": []
+  },
+  {
+    "id": "20",
+    "foodName": "Kosher Chicken",
+    "image": "",
+    "location": "Foco",
+    "price": 15.00,
+    "taste": 4.9,
+    "tags": [
+      "Dinner",
+      "High Protein",
+      "Kosher"
+    ],
+    "allergens": [
+      "Chicken",
+      "Gluten"
+    ]
+  }
+
 ]
