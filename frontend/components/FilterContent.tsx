@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    paddingBottom: 20,
+    paddingBottom: 10,
     paddingHorizontal: 16,
     paddingVertical: 40,
   },

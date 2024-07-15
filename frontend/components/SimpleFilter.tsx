@@ -66,7 +66,7 @@ const SimpleFilter: React.FC<SimpleFilterProps> = ({ disable, reset }) => {
 
 const styles = StyleSheet.create({
   scrollContainer: {
-    paddingVertical: 10,
+    paddingTop: 10,
   },
   container: {
     flexDirection: 'row',
@@ -74,8 +74,8 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: colors.inputGray,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
     borderRadius: 20,
     marginHorizontal: 5,
     borderWidth: 2,

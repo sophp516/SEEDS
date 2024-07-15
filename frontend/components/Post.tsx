@@ -6,8 +6,9 @@ import { View, Text, Image, StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import colors from "../styles.js";
 
-const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste, likes, location, price, tags, timestamp, userId }) => {
+const Post = ({ postId, comment, userId, timestamp, uploadCount }) => {
 
+    const [post, setPost] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
     const [commentToggle, setCommentToggle] = useState(false);
     const [likeStatus, setLikeStatus] = useState(false);
@@ -19,24 +20,24 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
 
         const fetchUserData = async () => {
             try {
-                const usersRef = collection(db, 'users');
-                const q = query(usersRef, where('id', '==', userId));
-                const querySnapshot = await getDocs(q);
+                const userDocRef = doc(db, 'users', userId);
+                const userDocSnapshot = await getDoc(userDocRef);
 
-                if (!querySnapshot.empty) {
-                    const userDoc = querySnapshot.docs[0];
-                    const userData = userDoc.data();
+                if (userDocSnapshot.exists()) {
+                    const userData = userDocSnapshot.data();
                     setUserInfo(userData);
+                } else {
+                    console.log("No such document!");
                 }
             } catch (err) {
                 console.log(err);
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
         };
 
         fetchUserData();
-    }, []);
+    }, [post]);
 
     const handleLike = async () => {
         if (!loggedInUser) return;
@@ -47,7 +48,6 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
             const userQuery = query(usersRef, where('id', '==', loggedInUser?.loggedInUser.uid));
             const userSnapshot = await getDocs(userQuery);
 
-        
         } catch (err) {
             console.error('Error updating like status:', err);
         }
@@ -70,36 +70,24 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
                         <Text style={styles.userInfoText}>{userInfo.displayName}</Text>
                     </View>
                 )}
-                <View style={styles.reviewHeader}>
-                    <Text style={styles.reviewFoodName}>{foodName}</Text>
-                </View>
-                <View style={styles.tagContainer}>
-                {tags?.length > 0 && tags?.map((tag, i) => (
-                    <View style={styles.tagBox} key={i}>
-                        <Text style={styles.tagText}>{tag}</Text>
-                    </View>
-                ))}
-                </View>
                 <View style={styles.reviewContent}>
                     <Text style={styles.reviewComment}>{comment}</Text>
-                    <Text style={styles.taste}>Taste: {taste}/5</Text>
-                    <Text style={styles.health}>Health: {health}/5</Text>
                 </View>
                 <View style={styles.imageContainer}>
-                    {image?.map((item, i) => (
+                    {post?.image?.map((item, i) => (
                         <View key={i}>
                             <Image source={{ uri: item }} style={{ width: 100, height: 100 }} />
                         </View>
                     ))}
                 </View>
                 <View style={styles.reviewBottom}>
-                    <TouchableOpacity onPress={() => setCommentToggle(!commentToggle)}>
+                    <TouchableOpacity style={styles.commentRow} onPress={() => setCommentToggle(!commentToggle)}>
                         <Text>comment</Text>
-                        <Text>{subcomment?.length}</Text>
+                        <Text>{post?.subComment?.length}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={handleLike} style={styles.likeRow}>
-                        <Text>{likes?.length}</Text>
                         {likeStatus ? <Text style={styles.likeText}>liked</Text> : <Text style={styles.likeText}>like</Text>}
+                        <Text>{post?.likes?.length}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -121,6 +109,7 @@ const styles =  StyleSheet.create({
     },
     reviewContainer: {
         borderBottomWidth: 1,
+        width: '100%',
         borderColor: colors.grayStroke,
         marginBottom: 10,
     },
@@ -142,7 +131,6 @@ const styles =  StyleSheet.create({
         paddingVertical: 2,
         borderRadius: 15,
         backgroundColor: colors.warningPink,
-        marginRight: 5,
     },
     reviewContent: {
         marginTop: 10,
@@ -167,7 +155,10 @@ const styles =  StyleSheet.create({
     },
     likeRow: {
         flexDirection: 'row',
-        marginHorizontal: 15,
+        marginLeft: 15,
+    },
+    commentRow: {
+        paddingLeft: 20,
     },
     imageContainer: {
         flexDirection: 'row',
@@ -177,4 +168,4 @@ const styles =  StyleSheet.create({
     }
 })
 
-export default Review;
+export default Post;
