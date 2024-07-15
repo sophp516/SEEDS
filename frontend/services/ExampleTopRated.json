@@ -1,0 +1,156 @@
+[
+  {
+      "id": "21",
+      "foodName": "Spicy Quinoa Tacos",
+      "image": "",
+      "location": "Collis",
+      "price": 10.50,
+      "taste": 5.0,
+      "tags": [
+          "Vegan",
+          "Low Carb",
+          "Taco"
+      ],
+      "allergens": [
+          "Soy"
+      ]
+  },
+  {
+      "id": "22",
+      "foodName": "Zesty Chickpea Salad",
+      "image": "",
+      "location": "Hanover",
+      "price": 9.00,
+      "taste": 5.0,
+      "tags": [
+          "Vegan",
+          "High Protein",
+          "Salad"
+      ],
+      "allergens": []
+  },
+  {
+      "id": "23",
+      "foodName": "Savory Lentil Bowl",
+      "image": "",
+      "location": "Baker",
+      "price": 11.25,
+      "taste": 5.0,
+      "tags": [
+          "Vegan",
+          "High Protein",
+          "Dinner"
+      ],
+      "allergens": []
+  },
+  {
+      "id": "24",
+      "foodName": "Teriyaki Tofu Rice",
+      "image": "",
+      "location": "Foco",
+      "price": 12.75,
+      "taste": 5.0,
+      "tags": [
+          "Vegan",
+          "Gluten-Free",
+          "Dinner"
+      ],
+      "allergens": [
+          "Soy"
+      ]
+  },
+  {
+      "id": "25",
+      "foodName": "Coconut Chia Pudding",
+      "image": "",
+      "location": "Collis",
+      "price": 7.50,
+      "taste": 5.0,
+      "tags": [
+          "Vegan",
+          "Gluten-Free",
+          "Dessert"
+      ],
+      "allergens": [
+          "Coconut"
+      ]
+  },
+  {
+      "id": "26",
+      "foodName": "Grilled Veggie Wrap",
+      "image": "",
+      "location": "Novack",
+      "price": 8.75,
+      "taste": 5.0,
+      "tags": [
+          "Vegan",
+          "Low Carb",
+          "Wrap"
+      ],
+      "allergens": [
+          "Gluten"
+      ]
+  },
+  {
+      "id": "27",
+      "foodName": "Peanut Stir-fry",
+      "image": "",
+      "location": "Hanover",
+      "price": 11.00,
+      "taste": 5.0,
+      "tags": [
+          "Vegan",
+          "High Protein",
+          "Stir-fry"
+      ],
+      "allergens": [
+          "Peanuts"
+      ]
+  },
+  {
+      "id": "28",
+      "foodName": "Sesame Noodle Salad",
+      "image": "",
+      "location": "Collis",
+      "price": 10.00,
+      "taste": 5.0,
+      "tags": [
+          "Vegan",
+          "Low Carb",
+          "Salad"
+      ],
+      "allergens": [
+          "Sesame"
+      ]
+  },
+  {
+      "id": "29",
+      "foodName": "Herb Roasted Chickpeas",
+      "image": "",
+      "location": "Baker",
+      "price": 9.50,
+      "taste": 5.0,
+      "tags": [
+          "Vegan",
+          "High Protein",
+          "Snack"
+      ],
+      "allergens": []
+  },
+  {
+      "id": "30",
+      "foodName": "Rainbow Buddha Bowl",
+      "image": "",
+      "location": "Foco",
+      "price": 13.50,
+      "taste": 5.0,
+      "tags": [
+          "Vegan",
+          "Low Carb",
+          "Bowl"
+      ],
+      "allergens": [
+          "Gluten"
+      ]
+  }
+]

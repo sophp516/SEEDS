@@ -9,6 +9,7 @@ import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../services/firestore.js';
 import colors from '../styles.js';
 import ExampleMenu from '../services/ExampleMenu.json';
+import ExampleTopRated from '../services/ExampleTopRated.json';
 
 
 type RootStackParamList = {
@@ -141,7 +142,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
   };
 
     // putting in the menu data and change data here: 
-    const topRated = useMemo(() => applyFilters(ExampleMenu), [filters]); 
+    //!!! important: topRated, onTheMenu, recommended are the data should be put in here
+    const topRated = useMemo(() => applyFilters(ExampleTopRated), [filters]); 
     const onTheMenu = useMemo(() => applyFilters(ExampleMenu), [filters]); 
     const recommended = useMemo(() => applyFilters(ExampleMenu), [filters]); 
 
@@ -177,28 +179,32 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     <Text style={styles.seeAllText}>See all</Text>
                                 </TouchableOpacity>
                             </View>
-                            {loading ?
+                            {loading ? (
                             <View style={styles.loadingScreen}>
-                                <Text>loading...</Text>
+                              <Text>Loading...</Text>
                             </View>
-                            :<ScrollView horizontal={true} style={styles.horizontalScrollView}>
-                                <View style={styles.smallMenuContainer}>
-                                    {allMenus.map((item) => (
-                                        <SmallMenu
-                                            reviewIds={item.reviewIds}
-                                            key={item.id}
-                                            id={item.id}
-                                            foodName={item.foodName}
-                                            image={item.image}
-                                            location={item.location}
-                                            price={item.price}
-                                            taste={item.taste}
-                                            tags={item.tags}
-                                            allergens={item.allergens}
-                                        />
-                                    ))}
-                                </View>
-                            </ScrollView>}
+                          ) : topRated.length === 0 ? (
+                            <Text style={styles.placeNameText}>No meals match your filter...</Text>
+                          ) : (
+                            <ScrollView horizontal={true} style={styles.horizontalScrollView}>
+                              <View style={styles.smallMenuContainer}>
+                                {topRated.map((item) => (
+                                  <SmallMenu
+                                    reviewIds={item.reviewIds}
+                                    key={item.id}
+                                    id={item.id}
+                                    foodName={item.foodName}
+                                    image={item.image}
+                                    location={item.location}
+                                    price={item.price}
+                                    taste={item.taste}
+                                    tags={item.tags}
+                                    allergens={item.allergens}
+                                  />
+                                ))}
+                              </View>
+                            </ScrollView>
+                          )}
                         </View>
                         <View>
                             <View style={styles.recHeader}>
@@ -207,28 +213,33 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     <Text style={styles.seeAllText}>See all</Text>
                                 </TouchableOpacity>
                             </View>
-                            {loading ?
-                            <View style={styles.loadingScreen}>
-                                <Text>loading...</Text>
-                            </View>
-                            : <ScrollView horizontal={true} style={styles.horizontalScrollView}>
+                            {loading ? (
+                              <View style={styles.loadingScreen}>
+                                <Text>Loading...</Text>
+                              </View>
+                            ) : onTheMenu.length === 0 ? (
+                              <Text style={styles.placeNameText}>No meals match your filter...</Text>
+                            ) : (
+                              <ScrollView horizontal={true} style={styles.horizontalScrollView}>
                                 <View style={styles.smallMenuContainer}>
-                                    {allMenus.map((item) => (
-                                        <SmallMenu
-                                            reviewIds={item.reviewIds}
-                                            key={item.id}
-                                            id={item.id}
-                                            foodName={item.foodName}
-                                            image={item.image}
-                                            location={item.location}
-                                            price={item.price}
-                                            taste={item.taste}
-                                            tags={item.tags}
-                                            allergens={item.allergens}
-                                        />
-                                    ))}
+                                  {allMenus.map((item) => (
+                                    <SmallMenu
+                                      reviewIds={item.reviewIds}
+                                      key={item.id}
+                                      id={item.id}
+                                      foodName={item.foodName}
+                                      image={item.image}
+                                      location={item.location}
+                                      price={item.price}
+                                      taste={item.taste}
+                                      tags={item.tags}
+                                      allergens={item.allergens}
+                                    />
+                                  ))}
                                 </View>
-                            </ScrollView>}
+                              </ScrollView>
+                            )}
+
                         </View>
                         <View>
                             <View style={styles.recHeader}>
@@ -237,28 +248,33 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     <Text style={styles.seeAllText}>See all</Text>
                                 </TouchableOpacity>
                             </View>
-                            {loading ?
-                            <View style={styles.loadingScreen}>
-                                <Text>loading...</Text>
-                            </View>
-                            : <ScrollView horizontal={true} style={styles.horizontalScrollView}>
+                            {loading ? (
+                              <View style={styles.loadingScreen}>
+                                <Text>Loading...</Text>
+                              </View>
+                            ) : recommended.length === 0 ? (
+                              <Text style={styles.placeNameText}>No meals match your filter...</Text>
+                            ) : (
+                              <ScrollView horizontal={true} style={styles.horizontalScrollView}>
                                 <View style={styles.smallMenuContainer}>
-                                    {allMenus.map((item) => (
-                                        <SmallMenu
-                                            reviewIds={item.reviewIds}
-                                            key={item.id}
-                                            id={item.id}
-                                            foodName={item.foodName}
-                                            image={item.image}
-                                            location={item.location}
-                                            price={item.price}
-                                            taste={item.taste}
-                                            tags={item.tags}
-                                            allergens={item.allergens}
-                                        />
-                                    ))}
+                                  {allMenus.map((item) => (
+                                    <SmallMenu
+                                      reviewIds={item.reviewIds}
+                                      key={item.id}
+                                      id={item.id}
+                                      foodName={item.foodName}
+                                      image={item.image}
+                                      location={item.location}
+                                      price={item.price}
+                                      taste={item.taste}
+                                      tags={item.tags}
+                                      allergens={item.allergens}
+                                    />
+                                  ))}
                                 </View>
-                            </ScrollView>}
+                              </ScrollView>
+                            )}
+
                         </View>
                     </View>
                 </ScrollView>
