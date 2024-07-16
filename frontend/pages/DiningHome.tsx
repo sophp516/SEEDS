@@ -44,10 +44,12 @@ const DiningHome: React.FC<Props> = ({ route }) => {
   // For the filter
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [simpleFilter, setSimpleFilter] = useState(''); // State for simple filter
-  const [filters, setFilters] = useState<{ preferred: string[]; allergens: string[]; time: string[] }>({
+  const [filters, setFilters] = useState<{ preferred: string[]; allergens: string[]; time: string[]; taste:number; health:number }>({
     preferred: [],
     allergens: [],
     time: [],
+    taste: 1,
+    health: 1,
   });
   const [isDisabled, setIsDisabled] = useState(false); 
   const [searchChange, setSearchChange] = useState('');
@@ -138,8 +140,15 @@ const DiningHome: React.FC<Props> = ({ route }) => {
       filters.time.length === 0 || 
       filters.time.every(time => item.tags.includes(time));
 
+      // if the taste is not selected (which is when it's the default value of 1), it will show all the items
+      const isTaste =
+      filters.taste <= item.taste;
+
+      // 0000000 health does not exist in the data yet
+
+
       //if all the conditions are true, it will not change the item
-      return isPreferred && isAllergens && isValidTime;
+      return isPreferred && isAllergens && isValidTime && isTaste;
     });
   };
 
