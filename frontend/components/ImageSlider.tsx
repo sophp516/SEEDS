@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, Dimensions , Image, TouchableOpacity} from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 
-const ImageSlider = () => {
-    const width = Dimensions.get('window').width;
+const ImageSlider = ({images}) => {
+    const width = Dimensions.get('window').width - 50;
     const [currentIndex, setCurrentIndex] = useState(0);
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ justifyContent: 'center', alignItems: 'center', width: 200}}>
             <Carousel
-                loop
+                // loop
                 width={width}
                 height={width / 2}
                 autoPlay={false}
-                data={[...new Array(6).keys()]}
+                data={images}
                 // scrollAnimationDuration={1000}
                 onSnapToItem={(index) => setCurrentIndex(index)}
                 renderItem={({ index }) => (
@@ -21,17 +21,20 @@ const ImageSlider = () => {
                         style={{
                             flex: 1,
                             borderWidth: 1,
+                            borderRadius: 10,
                             justifyContent: 'center',
+                            
                         }}
-                    >
-                        <Text style={{ textAlign: 'center', fontSize: 30 }}>
-                            {index}
-                        </Text>
+                    >   
+              
+                        <Image style={{ width: '100%', height: '100%' }} source={{uri: images[index]}}  />
+
+                         
                     </View>
                 )}
             />
             <View style={styles.indicatorContainer}>
-                {[...new Array(6).keys()].map((item, index) => (
+                {images.map((item, index) => (
                     <View
                         key={index}
                         style={[

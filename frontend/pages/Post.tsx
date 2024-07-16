@@ -525,22 +525,29 @@ const Post = () => {
                     <View style={styles.reviewContainer}>
                 
                     {review.images.length > 0 ?   
-                        <ScrollView horizontal showsHorizontalScrollIndicator={true} style={{}}>
-                           {review.images.map((image, index) =>(
-                                <Image source={{uri: review.images[index] || null}} style={styles.uploadedImageContainer} />
-                            ))}
-                            <TouchableOpacity onPress={selectImage} style={styles.imagebox} >
-                                <Image source={require('../assets/image.png')} style={styles.cameraIcon}/>
-                            </TouchableOpacity>
-                       </ScrollView>
-                        
+                    //     <ScrollView horizontal showsHorizontalScrollIndicator={true} style={{}}>
+                    //        {review.images.map((image, index) =>(
+                    //             <Image source={{uri: review.images[index] || null}} style={styles.uploadedImageContainer} />
+                    //         ))}
+                    //         <TouchableOpacity onPress={selectImage} style={styles.imagebox} >
+                    //             <Image source={require('../assets/image.png')} style={styles.cameraIcon}/>
+                    //         </TouchableOpacity>
+                    //    </ScrollView>
+                        <View>
+                        <ImageSlider 
+                            images={review.images}
+                        />
+                        <TouchableOpacity style={styles.addImageButton} onPress={selectImage} >
+                            <Image style={{ width: '100%', height: '100%', resizeMode: 'contain'}} source={require('../assets/addMoreImage.png') }/>
+                        </TouchableOpacity>
+                        </View>
                         :
                         <TouchableOpacity onPress={selectImage} style={styles.imagebox}>
                           <Image source={require('../assets/image.png')} style={styles.cameraIcon} />
                       </TouchableOpacity>
                     
                     }
-                  <ImageSlider></ImageSlider>
+                 
                     <View style={styles.reviewContentContainer}>
                         <Text style={styles.text}> Food name </Text>
                             <FoodDropdown 
@@ -761,6 +768,15 @@ const styles = StyleSheet.create({
         width: 350,
         height: 180,
         margin: 10,
+    },
+    addImageButton:{
+        position: 'absolute',
+        bottom: 25,  // Adjust top and right as needed to position the button in the desired corner
+        right: -60,
+        width: 65,  // Set the size of the button
+        height: 65,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     textbox: {
         borderColor: 'black',
