@@ -9,7 +9,8 @@
       "tags": [
           "Vegan",
           "Low Carb",
-          "Taco"
+          "Taco",
+          "Breakfast"
       ],
       "allergens": [
           "Soy"
@@ -25,7 +26,8 @@
       "tags": [
           "Vegan",
           "High Protein",
-          "Salad"
+          "Salad",
+          "Breakfast"
       ],
       "allergens": []
   },
@@ -69,7 +71,8 @@
       "tags": [
           "Vegan",
           "Gluten-Free",
-          "Dessert"
+          "Dessert",
+          "Breakfast"
       ],
       "allergens": [
           "Coconut"
@@ -85,7 +88,8 @@
       "tags": [
           "Vegan",
           "Low Carb",
-          "Wrap"
+          "Wrap",
+          "Dinner"
       ],
       "allergens": [
           "Gluten"
@@ -101,7 +105,9 @@
       "tags": [
           "Vegan",
           "High Protein",
-          "Stir-fry"
+          "Stir-fry",
+          "Lunch"
+
       ],
       "allergens": [
           "Peanuts"

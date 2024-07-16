@@ -43,18 +43,20 @@ type Props = {
 const DiningHome: React.FC<Props> = ({ route }) => {
   // For the filter
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  // For the content
-  const { placeName, closingHour } = route.params;
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const bottomSheetRef = useRef(null);
+  const [simpleFilter, setSimpleFilter] = useState(''); // State for simple filter
   const [filters, setFilters] = useState<{ preferred: string[]; allergens: string[]; time: string[] }>({
     preferred: [],
     allergens: [],
     time: [],
   });
   const [isDisabled, setIsDisabled] = useState(false); 
+
+  // For the content
+  const { placeName, closingHour } = route.params;
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [allMenus, setAllMenus] = useState([]);
   const [loading, setLoading] = useState(true);
+  
 
   const fetchReviews = async (placeName) => {
     try {
@@ -105,6 +107,12 @@ const DiningHome: React.FC<Props> = ({ route }) => {
 
   const applyFilters = (menu) => {
     return menu.filter(item => {
+    //If bottomSheet is not open then simple filter will apply
+    //other wise bottomsheet filter will apply
+    if (!isBottomSheetOpen && simpleFilter !== '') {
+      return item.tags.includes(simpleFilter) || item.allergens.includes(simpleFilter);
+    }
+
       // if preferred is empty, isPreferred will be true other wise it will check if the item has the selected preferred tags
       // if a meal have allergens tags or prefered tags, it will show the meal
       // if multiple tags is selected then it will show the items that has all the selected tags (works with allergens)
@@ -119,12 +127,12 @@ const DiningHome: React.FC<Props> = ({ route }) => {
       // if multiple tags is selected then it will show the items that has all the selected tags (works with perfered)
       const isAllergens =
         filters.allergens.length === 0 || 
-        !filters.allergens.some(allergens => item.allergens.includes(allergens) || item.tags.includes(allergens));
+        !filters.allergens.every(allergens => item.allergens.includes(allergens) || item.tags.includes(allergens));
   
-      // if multiple time is selected, it will show the items that is either the selected time
+      // can only select one time
       const isValidTime =
       filters.time.length === 0 || 
-      filters.time.some(time => item.tags.includes(time));
+      filters.time.every(time => item.tags.includes(time));
 
       //if all the conditions are true, it will not change the item
       return isPreferred && isAllergens && isValidTime;
@@ -143,9 +151,9 @@ const DiningHome: React.FC<Props> = ({ route }) => {
 
     // putting in the menu data and change data here: 
     //!!! important: topRated, onTheMenu, recommended are the data should be put in here
-    const topRated = useMemo(() => applyFilters(ExampleTopRated), [filters]); 
-    const onTheMenu = useMemo(() => applyFilters(ExampleMenu), [filters]); 
-    const recommended = useMemo(() => applyFilters(ExampleMenu), [filters]); 
+    const topRated = useMemo(() => applyFilters(ExampleTopRated), [filters, simpleFilter]); 
+    const onTheMenu = useMemo(() => applyFilters(ExampleMenu), [filters, simpleFilter]); 
+    const recommended = useMemo(() => applyFilters(ExampleMenu), [filters, simpleFilter]); 
 
     return (
         <View style={styles.container}>
@@ -166,7 +174,9 @@ const DiningHome: React.FC<Props> = ({ route }) => {
               isDisabled={isDisabled}
               toggleBottomSheet={toggleBottomSheet}
               handleFilterClick={handleFilterClick}
-              resetSimpleFilter={() => setIsDisabled(false)}/>
+              resetSimpleFilter={() => setIsDisabled(false)}
+              onSimpleFilterChange={(filter) => {setSimpleFilter(filter);}}
+              />
             </View>
 
             <View style={styles.contentContainer}>
