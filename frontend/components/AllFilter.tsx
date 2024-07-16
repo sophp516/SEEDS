@@ -11,12 +11,14 @@ const AllFilter: React.FC<{
   handleFilterClick: () => void; 
   resetSimpleFilter: () => void; 
   onSimpleFilterChange: (filter: string) => void;
-}> = ({ isDisabled, toggleBottomSheet, handleFilterClick, resetSimpleFilter, onSimpleFilterChange }) => {
+  onSearchChange: (filter: string) => void;
+  
+}> = ({ isDisabled, toggleBottomSheet, handleFilterClick, resetSimpleFilter, onSimpleFilterChange, onSearchChange }) => {
   return (
     <View style={styles.containerTop}>
       <View style={styles.searchFilterRow}>
         <View style={styles.searchBarContainer}>
-          <SearchBar disabled={isDisabled} />
+          <SearchBar disabled={isDisabled}   onSearchChange={(search) => {onSearchChange(search);}} />
         </View>
         <Filter toggleBottomSheet={toggleBottomSheet} onFilterClick={handleFilterClick} />
       </View>
