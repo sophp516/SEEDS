@@ -58,6 +58,7 @@ const Home = () => {
                         openingHour={place.openingHour}
                         closingHour={place.closingHour}
                         businessLevel={place.businessLevel}
+                        image={place.image}
                     />
                 )
             })}

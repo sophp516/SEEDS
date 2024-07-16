@@ -1,4 +1,4 @@
-import { TouchableOpacity, StyleSheet, Text, View } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, View, Image } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import colors from '../styles.js';
 
@@ -8,6 +8,7 @@ type RootStackParamList = {
         openingHour: string;
         closingHour: string;
         businessLevel: string;
+        image: string;
     };
 };
 
@@ -16,9 +17,10 @@ type Props = {
     openingHour: string;
     closingHour: string;
     businessLevel: string;
+    image: string;
 };
 
-const DiningPlaceHome: React.FC<Props> = ({ placeName, openingHour, closingHour, businessLevel }) => {
+const DiningPlaceHome: React.FC<Props> = ({ placeName, openingHour, closingHour, businessLevel, image }) => {
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
@@ -28,13 +30,32 @@ const DiningPlaceHome: React.FC<Props> = ({ placeName, openingHour, closingHour,
             openingHour,
             closingHour,
             businessLevel,
+            image,
         });
+    };
+
+     // Function to dynamically import images
+     const getImageSource = (imagePath: string) => {
+        switch (imagePath) {
+            case 'foco':
+                return require('../assets/diningoptions/foco.jpeg');
+            case 'collis':
+                return require('../assets/diningoptions/collis.jpeg');
+            case 'courtyard':
+                return require('../assets/diningoptions/courtyard.jpeg');
+            case 'novack':
+                return require('../assets/diningoptions/novack.jpeg');
+            case 'fern':
+                return require('../assets/diningoptions/fern.jpeg');
+            default:
+                return require('../assets/dartmouthcampus.jpeg'); // for error cases
+        }
     };
 
     return (
         <TouchableOpacity onPress={handlePress}>
             <View style={styles.diningPlaceContainer}>
-                <View style={styles.diningPlaceImage}></View>
+                <Image source={getImageSource(image)} style={styles.diningPlaceImage} />
                 <View style={styles.diningPlaceInfo}>
                     <Text style={styles.placeNameText}>{placeName}</Text>
                     <View style={styles.diningInfoContainer}>

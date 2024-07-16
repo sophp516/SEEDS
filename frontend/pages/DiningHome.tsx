@@ -43,18 +43,23 @@ type Props = {
 const DiningHome: React.FC<Props> = ({ route }) => {
   // For the filter
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  // For the content
-  const { placeName, closingHour } = route.params;
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const bottomSheetRef = useRef(null);
-  const [filters, setFilters] = useState<{ preferred: string[]; allergens: string[]; time: string[] }>({
+  const [simpleFilter, setSimpleFilter] = useState(''); // State for simple filter
+  const [filters, setFilters] = useState<{ preferred: string[]; allergens: string[]; time: string[]; taste:number; health:number }>({
     preferred: [],
     allergens: [],
     time: [],
+    taste: 1,
+    health: 1,
   });
   const [isDisabled, setIsDisabled] = useState(false); 
+  const [searchChange, setSearchChange] = useState('');
+
+  // For the content
+  const { placeName, closingHour } = route.params;
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [allMenus, setAllMenus] = useState([]);
   const [loading, setLoading] = useState(true);
+  
 
   const fetchReviews = async (placeName) => {
     try {
@@ -101,10 +106,19 @@ const DiningHome: React.FC<Props> = ({ route }) => {
         retrieveReviews();
     }, [])
 
-
-
   const applyFilters = (menu) => {
     return menu.filter(item => {
+    //If Search is not empty, it will show the items that has the search text
+    //only work is search bar doesn't have any text 
+    if(!isBottomSheetOpen && searchChange!== '' && !isDisabled) {
+      return item.tags.includes(searchChange) || item.allergens.includes(searchChange) ||
+      item.foodName.includes(searchChange) || item.location.includes(searchChange);
+    }
+    //only work is search bar doesn't have any text
+    if (!isBottomSheetOpen && simpleFilter !== '' && !isDisabled) {
+      return item.tags.includes(simpleFilter) || item.allergens.includes(simpleFilter);
+      
+    }
       // if preferred is empty, isPreferred will be true other wise it will check if the item has the selected preferred tags
       // if a meal have allergens tags or prefered tags, it will show the meal
       // if multiple tags is selected then it will show the items that has all the selected tags (works with allergens)
@@ -119,15 +133,22 @@ const DiningHome: React.FC<Props> = ({ route }) => {
       // if multiple tags is selected then it will show the items that has all the selected tags (works with perfered)
       const isAllergens =
         filters.allergens.length === 0 || 
-        !filters.allergens.some(allergens => item.allergens.includes(allergens) || item.tags.includes(allergens));
+        !filters.allergens.every(allergens => item.allergens.includes(allergens) || item.tags.includes(allergens));
   
-      // if multiple time is selected, it will show the items that is either the selected time
+      // can only select one time
       const isValidTime =
       filters.time.length === 0 || 
-      filters.time.some(time => item.tags.includes(time));
+      filters.time.every(time => item.tags.includes(time));
+
+      // if the taste is not selected (which is when it's the default value of 1), it will show all the items
+      const isTaste =
+      filters.taste <= item.taste;
+
+      // 0000000 health does not exist in the data yet
+
 
       //if all the conditions are true, it will not change the item
-      return isPreferred && isAllergens && isValidTime;
+      return isPreferred && isAllergens && isValidTime && isTaste;
     });
   };
 
@@ -141,11 +162,27 @@ const DiningHome: React.FC<Props> = ({ route }) => {
     setIsDisabled((prev) => !prev); 
   };
 
+  const useDebounce = (value, delay) => {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+  
+    useEffect(() => {
+      const handler = setTimeout(() => {
+        setDebouncedValue(value);
+      }, delay);
+  
+      return () => {
+        clearTimeout(handler);
+      };
+    }, [value, delay]);
+  
+    return debouncedValue;
+  };
+
     // putting in the menu data and change data here: 
     //!!! important: topRated, onTheMenu, recommended are the data should be put in here
-    const topRated = useMemo(() => applyFilters(ExampleTopRated), [filters]); 
-    const onTheMenu = useMemo(() => applyFilters(ExampleMenu), [filters]); 
-    const recommended = useMemo(() => applyFilters(ExampleMenu), [filters]); 
+    const topRated = useMemo(() => applyFilters(ExampleTopRated), [filters, simpleFilter, searchChange]); 
+    const onTheMenu = useMemo(() => applyFilters(ExampleMenu), [filters, simpleFilter, searchChange]); 
+    const recommended = useMemo(() => applyFilters(ExampleMenu), [filters, simpleFilter, searchChange]); 
 
     return (
         <View style={styles.container}>
@@ -166,7 +203,10 @@ const DiningHome: React.FC<Props> = ({ route }) => {
               isDisabled={isDisabled}
               toggleBottomSheet={toggleBottomSheet}
               handleFilterClick={handleFilterClick}
-              resetSimpleFilter={() => setIsDisabled(false)}/>
+              resetSimpleFilter={() => setIsDisabled(false)}
+              onSimpleFilterChange={(filter) => {setSimpleFilter(filter);}}
+              onSearchChange={(search) => {setSearchChange(search);}}
+              />
             </View>
 
             <View style={styles.contentContainer}>
