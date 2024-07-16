@@ -37,6 +37,7 @@ interface newReview {
     health: number;
     images: string[];
     tags:string[] | null,
+    allergens: string[] | null,
     comment: string|null,
     likes?:string[];
     timestamp?: string;
@@ -57,6 +58,7 @@ const Post = () => {
     const userSchool = loggedInUser?.loggedInUser?.schoolName;
     // const userRef = doc(db, 'users', userId);
     const [tag, setTag] = useState<string>('');
+    const [allergen, setAllergen] = useState<string>('');
     // const route = useRoute<RouteProp<RootStackParamList, 'Post'>>();
     const [selectedImg, setSelectedImg] = useState<string | null>(null);
     const navigation = useNavigation<NavigationProp<ParamListBase>>();
@@ -78,6 +80,7 @@ const Post = () => {
         health: 0,
         images: [],
         tags: [],
+        allergens: [],
         comment: '',
         likes: [],
         timestamp: null,
@@ -233,7 +236,7 @@ const Post = () => {
             
             console.log("Review added to Firestore with ID:", reviewRef.id);
             setReview({ userId: userId, foodName: '',location: '',price: null, taste: 0,health: 0,
-                images:[],tags: [],comment: '',likes: [],timestamp: null,isReview: false, subComments: {},
+                images:[],tags: [], allergens:[], comment: '',likes: [],timestamp: null,isReview: false, subComments: {},
             }); // reset the review
             navigation.goBack();
         }catch{
@@ -383,6 +386,7 @@ const Post = () => {
             health: 0,
             images: [],
             tags: [],
+            allergens:[],
             comment: '',
             likes: [],
             isReview: true,
@@ -423,12 +427,40 @@ const Post = () => {
             setTag('');
         }
     }
+    const handleSubmitAllergen = () => {
+        if (allergen){
+            review.allergens.push(allergen);
+            setAllergen('');
+    }}
     const handleDeleteTag = (index) => {
         const newTags = review.tags.filter((tags, i) => i !== index);
         setReview((prev => ({...prev, tags: newTags})));
     }
+    const handleDeleteAllergen = (index) => {
+        const newAllergens = review.allergens.filter((allergen, i) => i !== index);
+        setReview((prev => ({...prev, allergens: newAllergens})));
+    }
+    const tagsContainer = (tags, handleDelete) => {
+        return tags.map((tag, index) => (
+            <View key={index} style={styles.tags}>
+                <Text>{tag}</Text>
+                <TouchableOpacity onPress={() => handleDelete(index)}>
+                    <Text> x </Text>
+                </TouchableOpacity>
+            </View>
+        ));
+    }
 
 
+             /* <View style={styles.tagsContainer} > 
+                            {review.tags && review.tags.map((tag, index) =>
+                                <View key={index} style={styles.tags}>
+                                    <Text >{tag}</Text>
+                                    <TouchableOpacity onPress={()=>handleDeleteTag(index)}>
+                                        <Text> x </Text>
+                                    </TouchableOpacity>
+                                </View>)}   
+                        </View> */
     return (
         <View style={styles.container}>
                
@@ -620,6 +652,12 @@ const Post = () => {
 
 
                         <Text style={styles.text}> Add Tags</Text>
+                        
+                        {review.tags.length > 0 ?
+                         <View style={styles.tagsContainer}>
+                         {tagsContainer(review.tags, handleDeleteTag)}
+                        </View>:<View/>}
+    
                         <TextInput 
                                 style={styles.textbox}
                                 value={tag}
@@ -628,15 +666,22 @@ const Post = () => {
                                 onSubmitEditing={handleSubmitTag}
                                 returnKeyType='done'
                         />
-                        <View style={styles.tagsContainer} > 
-                            {review.tags && review.tags.map((tag, index) =>
-                                <View key={index} style={styles.tags}>
-                                    <Text >{tag}</Text>
-                                    <TouchableOpacity onPress={()=>handleDeleteTag(index)}>
-                                        <Text> x </Text>
-                                    </TouchableOpacity>
-                                </View>)}   
-                        </View>
+
+                        <Text style={styles.text}> Add allergens</Text>
+                        { review.allergens.length > 0 ?
+                             <View style={styles.tagsContainer}>
+                             {tagsContainer(review.allergens, handleDeleteAllergen)}
+                            </View> 
+                        :<View/>}
+                        <TextInput 
+                                style={styles.textbox}
+                                value={allergen}
+                                onChangeText={(allergen)=>setAllergen(allergen)}
+                                placeholder='enter a allergen'
+                                onSubmitEditing={handleSubmitAllergen}
+                                returnKeyType='done'
+                        />
+                       
 
                         <Text style={styles.text}> Comment </Text>
                         
@@ -837,6 +882,7 @@ const styles = StyleSheet.create({
         width: 350,
         paddingVertical: 5,
         marginVertical: 10,
+        marginTop:-2,
     },
     tags:{
         paddingHorizontal: 10,
