@@ -10,7 +10,8 @@ const AllFilter: React.FC<{
   toggleBottomSheet: () => void; 
   handleFilterClick: () => void; 
   resetSimpleFilter: () => void; 
-}> = ({ isDisabled, toggleBottomSheet, handleFilterClick, resetSimpleFilter }) => {
+  onSimpleFilterChange: (filter: string) => void;
+}> = ({ isDisabled, toggleBottomSheet, handleFilterClick, resetSimpleFilter, onSimpleFilterChange }) => {
   return (
     <View style={styles.containerTop}>
       <View style={styles.searchFilterRow}>
@@ -20,7 +21,7 @@ const AllFilter: React.FC<{
         <Filter toggleBottomSheet={toggleBottomSheet} onFilterClick={handleFilterClick} />
       </View>
       <View style={styles.simpleFilterContainer}>
-        <SimpleFilter disable={isDisabled} reset={resetSimpleFilter} />
+        <SimpleFilter disable={isDisabled} reset={resetSimpleFilter} onSimpleFilterChange={onSimpleFilterChange} />
       </View>
     </View>
   );

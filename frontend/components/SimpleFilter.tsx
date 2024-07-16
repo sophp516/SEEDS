@@ -6,18 +6,22 @@ import Preferences from '../services/Preferences.json';
 interface SimpleFilterProps {
   disable: boolean; // Prop to disable buttons
   reset: () => void; // Reset the filter if needed
+  onSimpleFilterChange: (filter: string) => void;
 }
 
-const SimpleFilter: React.FC<SimpleFilterProps> = ({ disable, reset }) => {
+const SimpleFilter: React.FC<SimpleFilterProps> = ({ disable, reset, onSimpleFilterChange }) => {
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
 
   const handlePress = (item: string) => {
     if (disable) return;
 
-    setSelectedFilter(prev => (prev === item ? null : item));
-    if (selectedFilter !== item) {
-      console.log(item); // Log the selected item
-    }
+    setSelectedFilter(prev => {
+      const newFilter = prev === item ? '' : item;
+      onSimpleFilterChange(newFilter);
+      return newFilter;
+    });
+    
+    
   };
 
   // Effect to reset the selected filter when the filter is clicked
