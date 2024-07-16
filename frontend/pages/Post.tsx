@@ -410,6 +410,15 @@ const Post = () => {
         return () => clearTimeout(timeout);
     }, [locationInput]);
 
+    const handlePriceChange = (text) => {
+        // Check if the last character is numeric or if it's a valid float string
+        if (text === '' || /^-?\d*\.?\d*$/.test(text)) {
+            setReview(prevReview => ({
+                ...prevReview,
+                price: text === '' ? null : text  // Store the raw text for now
+            }));
+        }
+    };
 
     const handleSelectItem = (item) => {
         if (item) {
@@ -626,8 +635,8 @@ const Post = () => {
                                 style={styles.textbox}
                                 value={review.price ? review.price.toString() :  null}
                                 keyboardType='decimal-pad'
-                                onChangeText={(text)=> setReview(prevReview => ({...prevReview, price: parseFloat(text) || null }))}
-                                placeholder='0.00'
+                                onChangeText={handlePriceChange}
+                                placeholder='Enter price (if none, leave blank)'
                             />
                         <Text style={styles.text}> Taste </Text>
                             <CustomSlider 
@@ -777,7 +786,8 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderColor: '#B7B7B7',
         borderStyle: 'solid',
-        borderWidth: 2,
+        // borderWidth: 2,
+        backgroundColor: '#E7E2DB',
         width: '70%',
         alignItems: 'center',
         justifyContent: 'center',
@@ -788,7 +798,7 @@ const styles = StyleSheet.create({
         width: '50%',
         justifyContent: 'center',
         alignContent: 'center',
-        backgroundColor: '#E36609',
+        backgroundColor: '#F9A05F',
         borderRadius: 20,
         borderColor: '#B7B7B7',
         borderStyle: 'solid',
