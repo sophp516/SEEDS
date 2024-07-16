@@ -5,9 +5,10 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import colors from '../styles.js';
 import Preferences from '../services/Preferences.json';
 import Toast from 'react-native-toast-message';
+import CustomSlider from './CustomSlider.tsx';
 
 interface FilterContentProps {
-  onFilter: (filters: { preferred: string[], allergens: string[], time: string[] }) => void;
+  onFilter: (filters: { preferred: string[], allergens: string[], time: string[], taste: number, health: number }) => void;
   isVisible: boolean; // have two isVisible to control visibility from another component
   setIsVisible: (visible: boolean) => void; 
 }
@@ -15,6 +16,8 @@ interface FilterContentProps {
 const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setIsVisible }) => {
   const bottomSheetRef = useRef(null);
   const [ preferences, setPreferences ] = useState(Preferences);
+  const [review, setReview] = useState({ taste: 1, health: 1 }); // Add this line
+  
   
   const [preferredOpen, setPreferredOpen] = useState(false);
   const [preferredValue, setPreferredValue] = useState([]);
@@ -63,6 +66,8 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
         preferred: preferredValue,
         allergens: allergensValue,
         time: timeValue,
+        taste: review.taste,
+        health: review.health,
       };
       onFilter(filters); // Pass filters back to DiningHome
       setIsVisible(false); // Close the bottom sheet after applying the filter
@@ -75,13 +80,14 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
     setPreferredValue([]);
     setAllergensValue([]);
     setTimeValue([]);
+    setReview({ taste: 1, health: 1 });
   };
 
   //TODO!!!!
   //Function to add my preferences from firebase and apply my preferences filter
   //also automatically apply perfered filter when user open the bottom sheet
 
-  const snapPoints = useMemo(() => ['25%', '50%', '75%', '78%'], []); 
+  const snapPoints = useMemo(() => ['25%', '50%', '75%', '85%'], []); 
 
   //control the visibility of the bottom sheet
   useEffect(() => {
@@ -184,6 +190,37 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
             }}
           />
 
+
+          <View style={styles.sliderContainer}>
+            <Text style={styles.contentText}> Taste </Text>
+              <CustomSlider 
+                      minimumValue={1} 
+                      maximumValue={5}
+                      step={1}
+                      onValueChange={(value)=> setReview(prevReview => ({...prevReview, taste: value }))}
+                      value={review.taste}
+                      sliderColor='#F9A05F'
+                      trackColor='white'         
+              />
+
+          </View>
+
+          <View style={styles.sliderContainer}>
+            <Text style={styles.contentText}> Health</Text>
+                <CustomSlider 
+                        minimumValue={1} 
+                        maximumValue={5}
+                        step={1}
+                        onValueChange={(value)=> setReview(prevReview => ({...prevReview, health: value }))}
+                        value={review.health}
+                        sliderColor='#7FB676'
+                        trackColor='white'         
+                />
+
+          </View>
+
+
+
         </View>
       </ScrollView>
     </BottomSheet>
@@ -256,6 +293,12 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.8, 
     shadowRadius: 40, 
+  },
+  sliderContainer: {
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+
   },
 
 
