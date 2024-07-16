@@ -4,9 +4,10 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { db } from '../services/firestore.js';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import Navbar from '../components/Navbar.jsx';
+import SearchBar from '../components/Searchbar.tsx';
 import SmallMenu from '../components/SmallMenu.tsx';
-import AllFilter from '../components/AllFilter.tsx';
-import FilterContent from '../components/FilterContent.tsx';
+import Filter from '../components/Filter.tsx';
+import BottomSheet from '@gorhom/bottom-sheet'
 import colors from '../styles.js';
 import ExampleMenu from '../services/ExampleMenu.json';
 import Review from '../components/Review.tsx';
@@ -27,23 +28,8 @@ type Props = {
 };
 
 const DiningHome: React.FC<Props> = ({ route }) => {
-  //for the filter
-  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  const [filteredItems, setFilteredItems] = useState([]); 
-  const [isDisabled, setIsDisabled] = useState(false); 
-
-  // Function to toggle the bottom sheet visibility
-  const toggleBottomSheet = () => {
-    setIsBottomSheetOpen(!isBottomSheetOpen);
-  };
-
-  // Function to handle filter click and toggle the disabled state
-  const handleFilterClick = () => {
-    setIsDisabled((prev) => !prev); 
-  };
 
     const { placeName } = route.params;
-    
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const bottomSheetRef = useRef(null);
     const [ onTheMenu, setOnTheMenu ] = useState([]);
@@ -159,10 +145,11 @@ const styles = StyleSheet.create({
         marginLeft: 20,
         marginRight: 20,
     },
-    filter:{
-      alignItems: 'center',
-      marginTop: -60,
-
+    searchFilterRow: {
+        justifyContent: 'flex-start',
+        flex: 0,
+        flexDirection: 'row',
+        width: '100%',
     },
     diningHomeBody: {
         width: '100%',
@@ -170,6 +157,11 @@ const styles = StyleSheet.create({
     backButton: {
         paddingTop: 10,
         paddingBottom: 20,
+    },
+    searchAndFilterContainer: {
+        width: '100%',
+        flexDirection: 'row',
+        alignItems: 'center'
     },
     closingText: {
         fontSize: 12,
@@ -201,6 +193,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         paddingTop: 10,
         paddingBottom: 20,
+    },
+    searchBarContainer: {
+        flex: 1,
     },
     recHeaderText: {
         fontSize: 20,

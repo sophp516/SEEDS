@@ -1,6 +1,6 @@
 import { useState, useEffect , useCallback} from 'react';
 import React from 'react';
-import { Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Modal } from 'react-native';
+import { Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Modal , KeyboardAvoidingView} from 'react-native';
 import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
 import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
 import CustomSlider from '../components/CustomSlider';
@@ -12,6 +12,8 @@ import { ref, uploadBytes,getDownloadURL, uploadBytesResumable } from 'firebase/
 import { useAuth } from '../context/authContext.js';
 import diningLocation from '../services/dininglocation.json';
 import {debounce} from 'lodash';
+import FoodDropdown from '../components/FoodDropdown.tsx';
+import ImageSlider from '../components/ImageSlider.tsx';
 // import storage from '@react-native-firebase/storage';
 
 interface newPost{
@@ -23,13 +25,14 @@ interface newPost{
     likes?:string[];
     isReview: boolean;
     uploadCount?: number;
+    subComments: {};
 }
 interface newReview {
     reviewId?: string;
     userId: string;
     foodName: string;
     location: string;
-    price: number| null;
+    price?: number| null;
     taste: number;
     health: number;
     images: string[];
@@ -37,7 +40,7 @@ interface newReview {
     comment: string|null,
     likes?:string[];
     timestamp?: string;
-    subComments?: string[];
+    subComments: {};
     isReview: boolean;
     uploadCount?: number;
 }
@@ -64,6 +67,7 @@ const Post = () => {
         userId: userId,
         likes: [],
         isReview: false,
+        subComments: {},
     });
     const [review, setReview] = useState<newReview>({
         userId: userId,
@@ -78,6 +82,7 @@ const Post = () => {
         likes: [],
         timestamp: null,
         isReview: true,
+        subComments: {},
     });
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -124,7 +129,7 @@ const Post = () => {
             await submitDiscover(userData.data().schoolName, postID);
             
             console.log("Post added to Firestore with ID:", postRef.id);
-            setPost({ images: [],comment: '', userId: userId, isReview: true}); // reset the post
+            setPost({ images: [],comment: '', userId: userId, isReview: true, subComments: {}}); // reset the post
         }catch{
             console.error("Error adding post to Firestore, have you signed in yet");
         }
@@ -141,6 +146,7 @@ const Post = () => {
 
     const handleCreateReview = async () =>{
         try{
+          
             const userData = await verifyUser();
             if (!userData) return; 
 
@@ -176,19 +182,36 @@ const Post = () => {
                 delete finalReview.images;
             }
             // Adding to review collection
+          
             const reviewRef = await addDoc(collection(db, 'globalSubmissions'), finalReview);
             const reviewId = reviewRef.id;
+            console.log("userID:", reviewId);
             const count = await getCount();
             if (count === -1) return;
             await updateDoc(doc(db, 'globalSubmissions', reviewId), {reviewId: reviewId, uploadCount: count});
-            // UPDATES FOOD COLLECTION
+            // UPDATES FOOD COLLECTION and FOODLIST 
+           
             try{
-                const foodCollectionRef= collection(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName);
-                const exist = await checkCollectionExist(foodCollectionRef);
+                //paths
+                const foodCollectionRef= collection(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName); // checks if food collection exist in location
+                const localFoodlistRef = collection(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, 'foodList'); // path for local foodlist within the dining hall
+                const localFoodListDoc = doc(localFoodlistRef, review.foodName); // local foodlist doc, for ex. is smoothie in collis yet?
+                const collegeFoodListDoc = doc(db, 'colleges', 'Dartmouth College', 'foodList', review.foodName); // used for checking if food already in global list
+                // check for edge cases for if the food collection/doc exist or not
+                const exist = await checkCollectionExist(foodCollectionRef); // if food collection exist
+                const collegeFoodlistDocExist = await checkDocExist(collegeFoodListDoc); // if food already in global list
+                const foodlistExist = await checkDocExist(collegeFoodListDoc); // add if not there
+                
+                // if food is not already in the global list, then we will add it there
+                if (collegeFoodlistDocExist === false){
+                    await setDoc(collegeFoodListDoc, {foodName: review.foodName, location: review.location,likes: [], tags: []});
+                }
+
                 if (exist === false){
                     console.log('exist??:', exist)
                     const foodDocRef = doc(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName, 'reviews');
                     await setDoc(foodDocRef,{reviewIds: [reviewId]});
+                    await setDoc(localFoodListDoc, {foodName: review.foodName});
                 }
                 await updateDoc(doc(db,'colleges', 'Dartmouth College','diningLocations',review.location, review.foodName, 'reviews'),{reviewIds: arrayUnion(reviewId)})
                
@@ -210,7 +233,7 @@ const Post = () => {
             
             console.log("Review added to Firestore with ID:", reviewRef.id);
             setReview({ userId: userId, foodName: '',location: '',price: null, taste: 0,health: 0,
-                images:[],tags: [],comment: '',likes: [],timestamp: null,isReview: false,
+                images:[],tags: [],comment: '',likes: [],timestamp: null,isReview: false, subComments: {},
             }); // reset the review
             navigation.goBack();
         }catch{
@@ -279,6 +302,8 @@ const Post = () => {
         }
     }
 
+    
+
     /******* FUNCTIONS FOR UPLOAD IMAGES ******/
     // Read more about documentation here: https://docs.expo.dev/versions/latest/sdk/imagepicker/ 
     const getPermission = async() =>{
@@ -292,6 +317,8 @@ const Post = () => {
         return true;
     }
     const selectImage = async() => {
+        // const foodItem = fetchReviews(review.location);
+        // console.log("foodItem:", foodItem);
         const permissionStatus = await getPermission();
         if (!permissionStatus) return; 
 
@@ -358,7 +385,8 @@ const Post = () => {
             tags: [],
             comment: '',
             likes: [],
-            isReview: true
+            isReview: true,
+            subComments: {}
         });
     }
     /* Later we can do food reccomendation from API if time */
@@ -383,6 +411,11 @@ const Post = () => {
         if (item) {
         //   setReview(prevReview => ({ ...prevReview, location: item.title })); // Adjust item.title to the correct property
             setLocationInput(item.title);} };
+    const handleSelectedFood = (food) => {
+        if (food){
+            setReview(prevReview => ({ ...prevReview, foodName: food.title }));
+        }
+    }
     
     const handleSubmitTag = () => {
         if (tag){
@@ -482,34 +515,48 @@ const Post = () => {
                 : 
 
                 // Review Section
+                <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                style={ {flex: 1,
+                    width: '100%'}}
+                keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 10}
+               >
                 <ScrollView contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>   
                     <View style={styles.reviewContainer}>
                 
                     {review.images.length > 0 ?   
-                        <ScrollView horizontal showsHorizontalScrollIndicator={true} style={{}}>
-                           {review.images.map((image, index) =>(
-                                <Image source={{uri: review.images[index] || null}} style={styles.uploadedImageContainer} />
-                            ))}
-                            <TouchableOpacity onPress={selectImage} style={styles.imagebox} >
-                                <Image source={require('../assets/image.png')} style={styles.cameraIcon}/>
-                            </TouchableOpacity>
-                       </ScrollView>
-                        
+                    //     <ScrollView horizontal showsHorizontalScrollIndicator={true} style={{}}>
+                    //        {review.images.map((image, index) =>(
+                    //             <Image source={{uri: review.images[index] || null}} style={styles.uploadedImageContainer} />
+                    //         ))}
+                    //         <TouchableOpacity onPress={selectImage} style={styles.imagebox} >
+                    //             <Image source={require('../assets/image.png')} style={styles.cameraIcon}/>
+                    //         </TouchableOpacity>
+                    //    </ScrollView>
+                        <View>
+                        <ImageSlider 
+                            images={review.images}
+                        />
+                        <TouchableOpacity style={styles.addImageButton} onPress={selectImage} >
+                            <Image style={{ width: '100%', height: '100%', resizeMode: 'contain'}} source={require('../assets/addMoreImage.png') }/>
+                        </TouchableOpacity>
+                        </View>
                         :
                         <TouchableOpacity onPress={selectImage} style={styles.imagebox}>
                           <Image source={require('../assets/image.png')} style={styles.cameraIcon} />
                       </TouchableOpacity>
                     
                     }
-                  
+                 
                     <View style={styles.reviewContentContainer}>
                         <Text style={styles.text}> Food name </Text>
-                            <TextInput 
-                                style={styles.textbox}
-                                value={review.foodName}
+                            <FoodDropdown 
                                 onChangeText={handleChangeFoodName}
-                                placeholder='ex. Apple'
+                                onSelectItem={handleSelectedFood}
+                                onClear={()=>setReview(prevReview => ({...prevReview, foodName: ''}))}
+                                value={review.foodName}
                             />
+                           
                         <Text style={styles.text}> Location </Text>
                            
                             <AutocompleteDropdown 
@@ -592,19 +639,24 @@ const Post = () => {
                         </View>
 
                         <Text style={styles.text}> Comment </Text>
+                        
                              <TextInput 
                                 style={styles.commentBox}
                                 value={review.comment}
                                 numberOfLines={100}
                                 multiline={true}
                                 onChangeText={(text)=> setReview(prevReview => ({...prevReview, comment: text}))}
-                                placeholder='enter comment'/>
+                                placeholder='enter comment'
+                               
+                                />
+                           
                         </View>
                         <TouchableOpacity onPress={handleCreateReview} style={styles.addReviewBtn}>
                             <Text style={styles.btnText1}>Add review</Text>
                         </TouchableOpacity>
                     </View>   
                 </ScrollView>
+                </KeyboardAvoidingView>
              }
 
             <Navbar />
@@ -705,6 +757,8 @@ const styles = StyleSheet.create({
     },
     reviewContentContainer:{
         justifyContent: 'flex-start',
+         flexGrow: 1,
+        // justifyContent: 'space-between'
     },
     imagebox:{
         backgroundColor: '#E7E2DB',
@@ -715,6 +769,15 @@ const styles = StyleSheet.create({
         height: 180,
         margin: 10,
     },
+    addImageButton:{
+        position: 'absolute',
+        bottom: 25,  // Adjust top and right as needed to position the button in the desired corner
+        right: -60,
+        width: 65,  // Set the size of the button
+        height: 65,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     textbox: {
         borderColor: 'black',
         backgroundColor: '#E7E2DB',
@@ -722,6 +785,10 @@ const styles = StyleSheet.create({
         height: 35,
         borderRadius: 10,
         paddingHorizontal: 10,
+    },
+    commentContainer:{
+        justifyContent: 'center',  // Centers children vertically
+        width: '100%',
     },
     commentBox:{
         backgroundColor: '#E7E2DB',
