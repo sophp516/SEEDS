@@ -50,6 +50,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
     time: [],
   });
   const [isDisabled, setIsDisabled] = useState(false); 
+  const [searchChange, setSearchChange] = useState('');
 
   // For the content
   const { placeName, closingHour } = route.params;
@@ -103,16 +104,19 @@ const DiningHome: React.FC<Props> = ({ route }) => {
         retrieveReviews();
     }, [])
 
-
-
   const applyFilters = (menu) => {
     return menu.filter(item => {
-    //If bottomSheet is not open then simple filter will apply
-    //other wise bottomsheet filter will apply
-    if (!isBottomSheetOpen && simpleFilter !== '') {
-      return item.tags.includes(simpleFilter) || item.allergens.includes(simpleFilter);
+    //If Search is not empty, it will show the items that has the search text
+    //only work is search bar doesn't have any text 
+    if(!isBottomSheetOpen && searchChange!== '' && !isDisabled) {
+      return item.tags.includes(searchChange) || item.allergens.includes(searchChange) ||
+      item.foodName.includes(searchChange) || item.location.includes(searchChange);
     }
-
+    //only work is search bar doesn't have any text
+    if (!isBottomSheetOpen && simpleFilter !== '' && !isDisabled) {
+      return item.tags.includes(simpleFilter) || item.allergens.includes(simpleFilter);
+      
+    }
       // if preferred is empty, isPreferred will be true other wise it will check if the item has the selected preferred tags
       // if a meal have allergens tags or prefered tags, it will show the meal
       // if multiple tags is selected then it will show the items that has all the selected tags (works with allergens)
@@ -149,11 +153,27 @@ const DiningHome: React.FC<Props> = ({ route }) => {
     setIsDisabled((prev) => !prev); 
   };
 
+  const useDebounce = (value, delay) => {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+  
+    useEffect(() => {
+      const handler = setTimeout(() => {
+        setDebouncedValue(value);
+      }, delay);
+  
+      return () => {
+        clearTimeout(handler);
+      };
+    }, [value, delay]);
+  
+    return debouncedValue;
+  };
+
     // putting in the menu data and change data here: 
     //!!! important: topRated, onTheMenu, recommended are the data should be put in here
-    const topRated = useMemo(() => applyFilters(ExampleTopRated), [filters, simpleFilter]); 
-    const onTheMenu = useMemo(() => applyFilters(ExampleMenu), [filters, simpleFilter]); 
-    const recommended = useMemo(() => applyFilters(ExampleMenu), [filters, simpleFilter]); 
+    const topRated = useMemo(() => applyFilters(ExampleTopRated), [filters, simpleFilter, searchChange]); 
+    const onTheMenu = useMemo(() => applyFilters(ExampleMenu), [filters, simpleFilter, searchChange]); 
+    const recommended = useMemo(() => applyFilters(ExampleMenu), [filters, simpleFilter, searchChange]); 
 
     return (
         <View style={styles.container}>
@@ -176,6 +196,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
               handleFilterClick={handleFilterClick}
               resetSimpleFilter={() => setIsDisabled(false)}
               onSimpleFilterChange={(filter) => {setSimpleFilter(filter);}}
+              onSearchChange={(search) => {setSearchChange(search);}}
               />
             </View>
 
