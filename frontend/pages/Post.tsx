@@ -12,6 +12,8 @@ import { ref, uploadBytes,getDownloadURL, uploadBytesResumable } from 'firebase/
 import { useAuth } from '../context/authContext.js';
 import diningLocation from '../services/dininglocation.json';
 import {debounce} from 'lodash';
+import FoodDropdown from '../components/FoodDropdown.tsx';
+import ImageSlider from '../components/ImageSlider.tsx';
 // import storage from '@react-native-firebase/storage';
 
 interface newPost{
@@ -302,42 +304,6 @@ const Post = () => {
 
     
 
-    const fetchReviews = async (location) => {
-        try {
-            const foodItems = [];
-            const locationDocRef = collection(db, 'colleges', 'Dartmouth College', 'diningLocations', location);
-            const collectionsSnapshot = await getDocs(locationDocRef);
-    
-            for (const subCollectionDoc of collectionsSnapshot.docs) {
-                const foodName = subCollectionDoc.id;
-                const reviewsDocRef = doc(db, 'colleges', 'Dartmouth College', 'diningLocations', location, foodName, 'reviews');
-                const reviewsDocSnapshot = await getDoc(reviewsDocRef);
-    
-                if (reviewsDocSnapshot.exists()) {
-                    const reviewsData = reviewsDocSnapshot.data();
-                    const reviewIds = reviewsData.reviewIds || [];
-                    const foodItem = {
-                        foodName,
-                        reviewIds,
-                        image: reviewsData.image ?? 'default-image-url', // Default image URL if image is missing
-                        location,
-                        price: reviewsData.price ?? 'N/A', // Default value if price is missing
-                        taste: reviewsData.taste ?? 'N/A', // Default value if taste is missing
-                        health: reviewsData.health ?? 'N/A', // Default value if health is missing
-                        allergens: reviewsData.allergens ?? [], // Default to an empty array if allergens are missing
-                        tags: reviewsData.tags ?? [] // Default to an empty array if tags are missing
-                    };
-                    foodItems.push(foodItem);
-                }
-            }
-            return foodItems;
-        } catch (error) {
-            console.error("Error fetching reviews: ", error);
-            return [];
-        }
-    };
-
-
     /******* FUNCTIONS FOR UPLOAD IMAGES ******/
     // Read more about documentation here: https://docs.expo.dev/versions/latest/sdk/imagepicker/ 
     const getPermission = async() =>{
@@ -445,6 +411,11 @@ const Post = () => {
         if (item) {
         //   setReview(prevReview => ({ ...prevReview, location: item.title })); // Adjust item.title to the correct property
             setLocationInput(item.title);} };
+    const handleSelectedFood = (food) => {
+        if (food){
+            setReview(prevReview => ({ ...prevReview, foodName: food.title }));
+        }
+    }
     
     const handleSubmitTag = () => {
         if (tag){
@@ -569,15 +540,16 @@ const Post = () => {
                       </TouchableOpacity>
                     
                     }
-                  
+                  <ImageSlider></ImageSlider>
                     <View style={styles.reviewContentContainer}>
                         <Text style={styles.text}> Food name </Text>
-                            <TextInput 
-                                style={styles.textbox}
-                                value={review.foodName}
+                            <FoodDropdown 
                                 onChangeText={handleChangeFoodName}
-                                placeholder='ex. Apple'
+                                onSelectItem={handleSelectedFood}
+                                onClear={()=>setReview(prevReview => ({...prevReview, foodName: ''}))}
+                                value={review.foodName}
                             />
+                           
                         <Text style={styles.text}> Location </Text>
                            
                             <AutocompleteDropdown 
