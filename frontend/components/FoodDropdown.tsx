@@ -32,7 +32,7 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
         fetchFood();
     }, [])
 
-    console.log("food list", foodlist)
+    // console.log("food list", foodlist)
     return (
         <View>
             <AutocompleteDropdown
