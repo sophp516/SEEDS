@@ -51,19 +51,28 @@ const Discover = () => {
   }, []);
   
   const applyFilters = (submissions) => {
-    if (filters.preferred.length === 0) {
-      return submissions;
-    }
 
+    
+    
     return submissions.filter(item => {
-      const itemTags = item.tags || [];
-
+      //only preferred works for now
+      const Tags = item.tags || [];
+      const allergens = item.allergens || [];
+      
       const isPreferred =
-        filters.preferred.every(preferred =>
-          itemTags.includes(preferred)
-        );
+      filters.preferred.length === 0 || 
+      filters.preferred.every(preferred => 
+        Tags.includes(preferred)
+      );
 
-      return isPreferred;
+      const isAllergen =
+      filters.allergens.length === 0 ||
+      filters.allergens.every(allergen => 
+        !Tags.includes(allergen)
+      );
+
+
+      return isPreferred && isAllergen;
     });
   }
   const filterSubmissions = useMemo(() => applyFilters(submissions), [filters, simpleFilter, searchChange]);
@@ -107,6 +116,7 @@ const Discover = () => {
                 userId={submission.userId}
                 image={submission.image}
                 subcomment={submission.subComment}
+                allergens={submission.allergens}
                 />
               );
             } else {
