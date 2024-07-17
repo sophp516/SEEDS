@@ -118,7 +118,7 @@ const Discover = () => {
                 tags={submission.tags}
                 timestamp={submission.timestamp}
                 userId={submission.userId}
-                image={submission.image}
+                image={submission.images}
                 subcomment={submission.subComment}
                 allergens={submission.allergens}
               />
@@ -130,6 +130,7 @@ const Discover = () => {
                 timestamp={submission.timestamp}
                 uploadCount={submission.uploadCount}
                 userId={submission.userId}
+                image={submission.images}
               />
             )
           ))
