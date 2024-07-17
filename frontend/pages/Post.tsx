@@ -207,8 +207,8 @@ const Post = () => {
                 
                 // if food is not already in the global list, then we will add it there
                 if (collegeFoodlistDocExist === false){
-                    await setDoc(collegeFoodListDoc, {foodName: review.foodName, location: review.location,likes: [], tags: []});
-                }
+                    await setDoc(collegeFoodListDoc, {foodName: review.foodName, location: review.location,likes: [], tags: review.tags, allergens: review.allergens,
+                        health:review.health, price: review.price, taste: review.taste, images: imageURls, averageRating: (review.taste + review.health)/2});}
 
                 if (exist === false){
                     console.log('exist??:', exist)
@@ -291,7 +291,7 @@ const Post = () => {
             }
        }catch{
            console.error("Error adding review to discover collection");
-           return;
+           return;  
        }
     }
     const getCount = async() => {
@@ -410,6 +410,15 @@ const Post = () => {
         return () => clearTimeout(timeout);
     }, [locationInput]);
 
+    const handlePriceChange = (text) => {
+        // Check if the last character is numeric or if it's a valid float string
+        if (text === '' || /^-?\d*\.?\d*$/.test(text)) {
+            setReview(prevReview => ({
+                ...prevReview,
+                price: text === '' ? null : text  // Store the raw text for now
+            }));
+        }
+    };
 
     const handleSelectItem = (item) => {
         if (item) {
@@ -464,11 +473,26 @@ const Post = () => {
     return (
         <View style={styles.container}>
                
-            {/* <TouchableOpacity onPress={handleExit}>
-                <Text>Exit</Text>
-             </TouchableOpacity> */}
+               <View style={{margin: 15}}></View>
+           
+                {toggle ? 
+                 <View style={{  alignItems: 'flex-start', flexDirection:'row', marginRight: '41%'}}>
+                    {/* <TouchableOpacity onPress={handleExit}>
+                        <Text>Exit</Text>
+                    </TouchableOpacity> */}
+                    <Text style={[styles.header,  {alignItems: 'flex-start', flexDirection:'row',}]}>Create a new post</Text>
+                </View>
+                :    <View style={{justifyContent: 'center', alignItems: 'flex-start', flexDirection:'row', marginRight: '35.5%'}}>
+                    {/* <TouchableOpacity onPress={handleExit}>
+                        <Text>Exit</Text>
+                    </TouchableOpacity> */}
+                    <Text style={[styles.header]}>Create a new review</Text>
+                    </View>
+                }
+           
 
             <View style={styles.toggleContainer}>
+                
                 <TouchableOpacity onPress={()=>setToggle(true)} style={toggle ? styles.activeToggle : styles.inactiveToggle}>
                     <Text style={toggle ? styles.btnText1 : styles.btnText2}>Post</Text>
                 </TouchableOpacity>
@@ -626,8 +650,8 @@ const Post = () => {
                                 style={styles.textbox}
                                 value={review.price ? review.price.toString() :  null}
                                 keyboardType='decimal-pad'
-                                onChangeText={(text)=> setReview(prevReview => ({...prevReview, price: parseFloat(text) || null }))}
-                                placeholder='0.00'
+                                onChangeText={handlePriceChange}
+                                placeholder='Enter price (if none, leave blank)'
                             />
                         <Text style={styles.text}> Taste </Text>
                             <CustomSlider 
@@ -737,24 +761,34 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         paddingVertical: 12,
     },
+    header:{
+        color: '#35353E',
+        fontFamily: 'Space Grotesk', 
+        fontSize: 24,
+        fontStyle: 'normal',
+        fontWeight: '500', 
+        lineHeight: 36,
+        letterSpacing: -0.264,
+        textAlign: 'left',
+    },
     btnText1:{ // white
-        color: 'white',
-        fontFamily: 'Satoshi',
-        fontSize: 16,
+        color: '#35353E',
+        fontFamily: 'Satoshi', 
+        fontSize: 14,
         fontStyle: 'normal',
         fontWeight: '500',
-        lineHeight: 18,
-        letterSpacing: 0.1,
+        lineHeight: 21, 
+        letterSpacing: -0.154,
         textAlign: 'center',
     },
     btnText2:{ // white
-        color: '#000',
-        fontFamily: 'Satoshi',
-        fontSize: 16,
+        color: '#35353E',
+        fontFamily: 'Satoshi', 
+        fontSize: 14,
         fontStyle: 'normal',
         fontWeight: '500',
-        lineHeight: 18,
-        letterSpacing: 0.1,
+        lineHeight: 21, 
+        letterSpacing: -0.154,
         textAlign: 'center',
     },
     slider:{
@@ -777,7 +811,8 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         borderColor: '#B7B7B7',
         borderStyle: 'solid',
-        borderWidth: 2,
+        // borderWidth: 2,
+        backgroundColor: '#E7E2DB',
         width: '70%',
         alignItems: 'center',
         justifyContent: 'center',
@@ -788,7 +823,7 @@ const styles = StyleSheet.create({
         width: '50%',
         justifyContent: 'center',
         alignContent: 'center',
-        backgroundColor: '#E36609',
+        backgroundColor: '#F9A05F',
         borderRadius: 20,
         borderColor: '#B7B7B7',
         borderStyle: 'solid',
