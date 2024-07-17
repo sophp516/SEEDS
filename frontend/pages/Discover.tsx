@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { db } from '../services/firestore.js';
 import { collection, getDocs } from 'firebase/firestore';
@@ -11,19 +11,25 @@ import FilterContent from '../components/FilterContent';
 
 const Discover = () => {
   const [submissions, setSubmissions] = useState([]);
+
+  
+  //function for filters
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
-  const [filters, setFilters] = useState<{ preferred: string[]; allergens: string[]; time: string[] }>({
+  const [filters, setFilters] = useState<{ preferred: string[]; allergens: string[]; time: string[]; taste:number; health:number }>({
     preferred: [],
     allergens: [],
     time: [],
+    taste: 1,
+    health: 1,
   });
-
-  // Function to toggle the bottom sheet visibility
+  const [searchChange, setSearchChange] = useState('');
+  const [simpleFilter, setSimpleFilter] = useState('');
+  
   const toggleBottomSheet = () => {
     setIsBottomSheetOpen(!isBottomSheetOpen);
   };
-
+  
   const fetchSubmissions = async () => {
     try {
       const submissionRef = collection(db, 'globalSubmissions');
@@ -35,7 +41,7 @@ const Discover = () => {
       return [];
     }
   };
-
+  
   useEffect(() => {
     const loadSubmissions = async () => {
       const submissionData = await fetchSubmissions();
@@ -43,6 +49,28 @@ const Discover = () => {
     };
     loadSubmissions();
   }, []);
+  
+  const applyFilters = (submissions) => {
+    if (filters.preferred.length === 0) {
+      return submissions;
+    }
+
+    return submissions.filter(item => {
+      const itemTags = item.tags || [];
+
+      const isPreferred =
+        filters.preferred.every(preferred =>
+          itemTags.includes(preferred)
+        );
+
+      return isPreferred;
+    });
+  }
+  const filterSubmissions = useMemo(() => applyFilters(submissions), [filters, simpleFilter, searchChange]);
+
+  //function need to to load filter page
+  const filterOrNone = filterSubmissions.length > 0 ? filterSubmissions : submissions;
+  
 
   // Function to handle filter click and toggle the disabled state
   const handleFilterClick = () => {
@@ -56,10 +84,12 @@ const Discover = () => {
         toggleBottomSheet={toggleBottomSheet}
         handleFilterClick={handleFilterClick}
         resetSimpleFilter={() => setIsDisabled(false)}
-      />
+        onSimpleFilterChange={(filter) => {setSimpleFilter(filter);}}
+        onSearchChange={(search) => {setSearchChange(search);}}
+        />
       <ScrollView style={styles.scrollContainer}>
         {submissions.length > 0 &&
-          submissions.map((submission, index) => {
+          filterOrNone.map((submission, index) => {
             if (submission.isReview) {
               return (
                 <Review

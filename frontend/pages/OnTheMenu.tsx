@@ -6,12 +6,12 @@ import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import Navbar from '../components/Navbar.jsx';
 import SearchBar from '../components/Searchbar.tsx';
 import SmallMenu from '../components/SmallMenu.tsx';
-import Filter from '../components/Filter.tsx';
-import BottomSheet from '@gorhom/bottom-sheet'
 import colors from '../styles.js';
 import ExampleMenu from '../services/ExampleMenu.json';
 import Review from '../components/Review.tsx';
 import FoodItem from '../components/FoodItem.tsx';
+import AllFilter from '../components/AllFilter.tsx';
+import FilterContent from '../components/FilterContent.tsx';
 
 
 type RootStackParamList = {
@@ -28,6 +28,27 @@ type Props = {
 };
 
 const DiningHome: React.FC<Props> = ({ route }) => {
+    // For the filter
+    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+    const [simpleFilter, setSimpleFilter] = useState(''); // State for simple filter
+    const [filters, setFilters] = useState<{ preferred: string[]; allergens: string[]; time: string[]; taste:number; health:number }>({
+      preferred: [],
+      allergens: [],
+      time: [],
+      taste: 1,
+      health: 1,
+    });
+    const [isDisabled, setIsDisabled] = useState(false); 
+    const [searchChange, setSearchChange] = useState('');
+
+
+  const toggleBottomSheet = () => {
+    setIsBottomSheetOpen(!isBottomSheetOpen);
+  };
+  const handleFilterClick = () => {
+    setIsDisabled((prev) => !prev); 
+  };
+
 
     const { placeName } = route.params;
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -96,10 +117,14 @@ const DiningHome: React.FC<Props> = ({ route }) => {
             <View style={styles.contentContainer}>
             <View style={styles.filter}>
             <AllFilter 
-                isDisabled={isDisabled}
-                toggleBottomSheet={toggleBottomSheet}
-                handleFilterClick={handleFilterClick}
-                resetSimpleFilter={() => setIsDisabled(false)}/>
+              isDisabled={isDisabled}
+              toggleBottomSheet={toggleBottomSheet}
+              handleFilterClick={handleFilterClick}
+              resetSimpleFilter={() => setIsDisabled(false)}
+              onSimpleFilterChange={(filter) => {setSimpleFilter(filter);}}
+              onSearchChange={(search) => {setSearchChange(search);}}
+              />
+                
 
           </View>
             {loading ?
@@ -128,6 +153,11 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                 )}
             </ScrollView>}
         </View>
+        <FilterContent
+              onFilter={setFilters}
+              isVisible={isBottomSheetOpen}
+              setIsVisible={setIsBottomSheetOpen}
+              />
         <Navbar />
 
         </View>
@@ -221,7 +251,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center'
-    }
+    },
+    filter: {
+      alignItems: 'center',
+      marginTop: -60,
+  },
 })
 
 export default DiningHome;
