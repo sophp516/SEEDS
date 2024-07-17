@@ -14,6 +14,9 @@ import diningLocation from '../services/dininglocation.json';
 import {debounce} from 'lodash';
 import FoodDropdown from '../components/FoodDropdown.tsx';
 import ImageSlider from '../components/ImageSlider.tsx';
+import preferences from '../services/Preferences.json';
+import Allergens from '../services/Allergens.json';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 // import storage from '@react-native-firebase/storage';
 
 interface newPost{
@@ -449,15 +452,31 @@ const Post = () => {
         const newAllergens = review.allergens.filter((allergen, i) => i !== index);
         setReview((prev => ({...prev, allergens: newAllergens})));
     }
-    const tagsContainer = (tags, handleDelete) => {
+    // tag color: 
+    const tagsContainer = (type, tags, handleDelete) => {
+
         return tags.map((tag, index) => (
-            <View key={index} style={styles.tags}>
+            <View key={index} style={[styles.tags, {backgroundColor: getTagColor(type, tag)}]}>
                 <Text>{tag}</Text>
                 <TouchableOpacity onPress={() => handleDelete(index)}>
                     <Text> x </Text>
                 </TouchableOpacity>
             </View>
         ));
+    }
+
+    const getTagColor = (type, tag) =>{
+        const verifiedTags = preferences.id;
+        const allergens = Allergens.id;
+        if (type === 'tags' && verifiedTags.includes(tag)){
+            return '#7FB676';
+        }else if(allergens.includes(tag)){
+            return '#FF7D84'
+        }
+        else{
+            return '#E7E2DB';
+        }
+
     }
 
 
@@ -682,7 +701,7 @@ const Post = () => {
                         
                         {review.tags.length > 0 ?
                          <View style={styles.tagsContainer}>
-                         {tagsContainer(review.tags, handleDeleteTag)}
+                         {tagsContainer("tags", review.tags, handleDeleteTag)}
                         </View>:<View/>}
     
                         <TextInput 
@@ -697,7 +716,7 @@ const Post = () => {
                         <Text style={styles.text}> Add allergens</Text>
                         { review.allergens.length > 0 ?
                              <View style={styles.tagsContainer}>
-                             {tagsContainer(review.allergens, handleDeleteAllergen)}
+                             {tagsContainer("allergens", review.allergens, handleDeleteAllergen)}
                             </View> 
                         :<View/>}
                         <TextInput 
@@ -928,7 +947,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 15,
-        backgroundColor: '#D9D9D9',
+        flexDirection: 'row',
+        marginHorizontal: 5,
+        marginVertical: 5,
+    },
+    allergens:{
+        paddingHorizontal: 10,
+        paddingVertical: 3,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 15,
         flexDirection: 'row',
         marginHorizontal: 5,
         marginVertical: 5,
