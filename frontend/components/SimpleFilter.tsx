@@ -86,8 +86,8 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   selectedButton: {
-    backgroundColor: colors.orangeHighlight,
-    borderColor: colors.orangeHighlight,
+    backgroundColor: colors.grayStroke,
+    borderColor: colors.grayStroke,
   },
   buttonText: {
     color: 'black',
