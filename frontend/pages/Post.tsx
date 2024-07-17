@@ -605,13 +605,16 @@ const Post = () => {
                     }
                  
                     <View style={styles.reviewContentContainer}>
+
                         <Text style={styles.text}> Food name </Text>
+                            <View style={{position:'relative', marginTop: 0}}>
                             <FoodDropdown 
                                 onChangeText={handleChangeFoodName}
                                 onSelectItem={handleSelectedFood}
                                 onClear={()=>setReview(prevReview => ({...prevReview, foodName: ''}))}
                                 value={review.foodName}
                             />
+                        </View>
                            
                         <Text style={styles.text}> Location </Text>
                            

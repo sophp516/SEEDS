@@ -210,6 +210,7 @@ const Profile = () => {
         }
     }
 
+
     const asyncSignOut = async () => {
         try {
             await signOut(auth);
