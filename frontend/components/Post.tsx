@@ -76,7 +76,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount }) => {
                 <View style={styles.imageContainer}>
                     {post?.image?.map((item, i) => (
                         <View key={i}>
-                            <Image source={{ uri: item }} style={{ width: 100, height: 100 }} />
+                            <Image source={{ uri: post.image[i] }} style={{ width: 100, height: 100 }} />
                         </View>
                     ))}
                 </View>
