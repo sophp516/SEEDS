@@ -8,6 +8,8 @@ const colors = {
     highRating: '#7FB676',
     mediumRating: '#B3CC6C',
     warningPink: '#FF7D84',
+    userInput: '#EFEFEF',
+    yellow: '#F2C897',
 };
 
 export default colors;

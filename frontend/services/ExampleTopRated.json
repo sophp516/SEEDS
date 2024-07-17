@@ -92,7 +92,8 @@
           "Dinner"
       ],
       "allergens": [
-          "Gluten"
+          "Gluten",
+          "Chicken"
       ]
   },
   {

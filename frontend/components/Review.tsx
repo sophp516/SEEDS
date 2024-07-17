@@ -5,8 +5,9 @@ import { useAuth } from "../context/authContext.js";
 import { View, Text, Image, StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import colors from "../styles.js";
+import Preferences from "../services/Preferences.json";
 
-const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste, likes, location, price, tags, timestamp, userId }) => {
+const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste, likes, location, price, tags, timestamp, userId, allergens }) => {
 
     const [userInfo, setUserInfo] = useState(null);
     const [commentToggle, setCommentToggle] = useState(false);
@@ -53,6 +54,19 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
         }
     };
 
+    const getTagStyle = (tag) => {
+        if(["Breakfast", "Lunch", "Dinner"].includes(tag)) {
+            return styles.tagYellow;
+        }else if (Preferences.id.includes(tag)) {
+            return styles.tagGreen;
+        }
+        return styles.tagGray;
+    };
+
+    const getAllergenStyle = (allergen) => {
+        return Preferences.id.includes(allergen) ? styles.tagRed : styles.tagGray;
+    };
+
     return (
         <View style={styles.reviewContainer}>
             {loading ? (
@@ -75,8 +89,15 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
                 </View>
                 <View style={styles.tagContainer}>
                 {tags?.length > 0 && tags?.map((tag, i) => (
-                    <View style={styles.tagBox} key={i}>
+                    <View style={[styles.tagBox, getTagStyle(tag)]} key={i}>
                         <Text style={styles.tagText}>{tag}</Text>
+                    </View>
+                ))}
+                </View>
+                <View style={styles.tagContainer}>
+                {allergens?.length > 0 && allergens?.map((allergen, i) => (
+                    <View style={[styles.allergensBox, getAllergenStyle(allergen)]} key={i}>
+                        <Text style={styles.tagText}>{allergen}</Text>
                     </View>
                 ))}
                 </View>
@@ -141,7 +162,24 @@ const styles =  StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 2,
         borderRadius: 15,
+        marginRight: 5,
+    },
+    tagGreen: {
+        backgroundColor: colors.highRating,
+    },
+    tagGray: {
+        backgroundColor: colors.userInput,
+    },
+    tagRed: {
         backgroundColor: colors.warningPink,
+    },
+    tagYellow: {
+        backgroundColor: colors.yellow,
+    },
+    allergensBox: {
+        paddingHorizontal: 10,
+        paddingVertical: 2,
+        borderRadius: 15,
         marginRight: 5,
     },
     reviewContent: {
@@ -174,7 +212,8 @@ const styles =  StyleSheet.create({
     },
     likeText: {
         marginLeft: 3,
-    }
+    },
+
 })
 
 export default Review;
