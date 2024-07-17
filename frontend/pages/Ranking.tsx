@@ -2,17 +2,34 @@ import Navbar from "../components/Navbar";
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import colors from "../styles.js";
+import { getDocs, collection, average} from 'firebase/firestore'
+import { db } from '../services/firestore'
 
 
 const Ranking = () => {
     const [toggle, setToggle] = useState<boolean>(true); // true = post, false = review 
     const [foodLeaderboard, setFoodLeaderboards] = useState<any[]>([]);
+    const [foodData, setFoodData] = useState<any[]>([]); // can fetch by time, but for demo fetch per update?
     
 
     // can fetch by time, but for demo fetch per update?
 
     useEffect(()=>{
-      
+      const fetchFoodLeaderboard = async () => {
+          try{
+              const res = await getDocs(collection(db,"colleges", "Dartmouth College", "foodlist"))
+              const data = res.docs.map(doc=>{
+                   const foodName = doc.data().foodName;
+                   return{
+                        foodName: foodName,
+                        averageRating: doc.data().averageRating,
+                   }
+              })
+
+          }catch{
+            console.log("Error fetching food leaderboard")
+          }
+      }
     })
 
 

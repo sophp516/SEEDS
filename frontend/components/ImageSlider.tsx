@@ -26,7 +26,6 @@ const ImageSlider = ({images}) => {
                             
                         }}
                     >   
-              
                         <Image style={{ width: '100%', height: '100%' }} source={{uri: images[index]}}  />
 
                          

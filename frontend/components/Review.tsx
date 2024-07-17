@@ -15,6 +15,7 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
     const [loading, setLoading] = useState(true);
     const { user } = useAuth();
     const { loggedInUser } = user;
+    console.log("likes", likes)
 
     useEffect(() => {
         const fetchUserData = async () => {
