@@ -207,8 +207,8 @@ const Post = () => {
                 
                 // if food is not already in the global list, then we will add it there
                 if (collegeFoodlistDocExist === false){
-                    await setDoc(collegeFoodListDoc, {foodName: review.foodName, location: review.location,likes: [], tags: []});
-                }
+                    await setDoc(collegeFoodListDoc, {foodName: review.foodName, location: review.location,likes: [], tags: review.tags, allergens: review.allergens,
+                        health:review.health, price: review.price, taste: review.taste, images: imageURls, averageRating: (review.taste + review.health)/2});}
 
                 if (exist === false){
                     console.log('exist??:', exist)
@@ -291,7 +291,7 @@ const Post = () => {
             }
        }catch{
            console.error("Error adding review to discover collection");
-           return;
+           return;  
        }
     }
     const getCount = async() => {
@@ -473,11 +473,26 @@ const Post = () => {
     return (
         <View style={styles.container}>
                
-            {/* <TouchableOpacity onPress={handleExit}>
-                <Text>Exit</Text>
-             </TouchableOpacity> */}
+               <View style={{margin: 15}}></View>
+           
+                {toggle ? 
+                 <View style={{  alignItems: 'flex-start', flexDirection:'row', marginRight: '41%'}}>
+                    {/* <TouchableOpacity onPress={handleExit}>
+                        <Text>Exit</Text>
+                    </TouchableOpacity> */}
+                    <Text style={[styles.header,  {alignItems: 'flex-start', flexDirection:'row',}]}>Create a new post</Text>
+                </View>
+                :    <View style={{justifyContent: 'center', alignItems: 'flex-start', flexDirection:'row', marginRight: '35.5%'}}>
+                    {/* <TouchableOpacity onPress={handleExit}>
+                        <Text>Exit</Text>
+                    </TouchableOpacity> */}
+                    <Text style={[styles.header]}>Create a new review</Text>
+                    </View>
+                }
+           
 
             <View style={styles.toggleContainer}>
+                
                 <TouchableOpacity onPress={()=>setToggle(true)} style={toggle ? styles.activeToggle : styles.inactiveToggle}>
                     <Text style={toggle ? styles.btnText1 : styles.btnText2}>Post</Text>
                 </TouchableOpacity>
@@ -746,24 +761,34 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         paddingVertical: 12,
     },
+    header:{
+        color: '#35353E',
+        fontFamily: 'Space Grotesk', 
+        fontSize: 24,
+        fontStyle: 'normal',
+        fontWeight: '500', 
+        lineHeight: 36,
+        letterSpacing: -0.264,
+        textAlign: 'left',
+    },
     btnText1:{ // white
-        color: 'white',
-        fontFamily: 'Satoshi',
-        fontSize: 16,
+        color: '#35353E',
+        fontFamily: 'Satoshi', 
+        fontSize: 14,
         fontStyle: 'normal',
         fontWeight: '500',
-        lineHeight: 18,
-        letterSpacing: 0.1,
+        lineHeight: 21, 
+        letterSpacing: -0.154,
         textAlign: 'center',
     },
     btnText2:{ // white
-        color: '#000',
-        fontFamily: 'Satoshi',
-        fontSize: 16,
+        color: '#35353E',
+        fontFamily: 'Satoshi', 
+        fontSize: 14,
         fontStyle: 'normal',
         fontWeight: '500',
-        lineHeight: 18,
-        letterSpacing: 0.1,
+        lineHeight: 21, 
+        letterSpacing: -0.154,
         textAlign: 'center',
     },
     slider:{
