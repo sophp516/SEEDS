@@ -20,7 +20,7 @@ type RootStackParamList = {
 const SignUp = () => {
     const [input, setInput] = useState({
         email: "",
-        displayName: "",
+        username: "",
         schoolName: "",
         password: "",
         confirmPassword: "",
@@ -45,9 +45,9 @@ const SignUp = () => {
         return querySnapshot.empty;
     }
 
-    const isDisplayNameUnique = async (displayName: string) => {
+    const isUsernameUnique = async (username: string) => {
         const usersRef = collection(db, 'users');
-        const q = query(usersRef, where('displayName', '==', displayName));
+        const q = query(usersRef, where('username', '==', username));
         const querySnapshot = await getDocs(q);
         return querySnapshot.empty;
     };
@@ -63,15 +63,15 @@ const SignUp = () => {
                 Toast.show({
                     type: 'error',
                     text1: 'Email Unavailable',
-                    text2: 'The email address is already taken. Please choose another one.'
+                    text2: 'This email address is already in use. Please choose another one.'
                 });
                 return;
             }
-            if (!await isDisplayNameUnique(input.displayName)) {
+            if (!await isUsernameUnique(input.username)) {
                 Toast.show({
                     type: 'error',
-                    text1: 'Display Name Unavailable',
-                    text2: 'The display name is already taken. Please choose another one.'
+                    text1: 'Username Unavailable',
+                    text2: 'This username is unavailable. Please choose another one.'
                 });
                 setLoading(false);
                 return;
@@ -89,7 +89,7 @@ const SignUp = () => {
             const userCredential = await createUserWithEmailAndPassword(auth, input.email, input.password)
             setLoggedInUser({
                 ...userCredential.user,
-                displayName: input.displayName,
+                username: input.username,
                 schoolName: input.schoolName,
             });
 
@@ -106,7 +106,7 @@ const SignUp = () => {
             await setDoc(userRef, {
                 id: userCredential.user.uid,
                 email: input.email,
-                displayName: input.displayName,
+                displayName: input.username,
                 schoolName: input.schoolName,
                 password: input.password,
                 submissions: [],
@@ -170,12 +170,14 @@ const SignUp = () => {
                         placeholder="Email"
                         value={input.email}
                         onChangeText={(text) => handleChange('email', text)}
+                        autoCapitalize="none"
                     />
                     <TextInput
                         style={styles.input}
-                        placeholder="Display Name"
-                        value={input.displayName}
-                        onChangeText={(text) => handleChange('displayName', text)}
+                        placeholder="Username"
+                        value={input.username}
+                        onChangeText={(text) => handleChange('username', text)}
+                        autoCapitalize="none"
                     />
                     <AutocompleteDropdown
                         ref={searchRef}
@@ -236,12 +238,14 @@ const SignUp = () => {
                         placeholder="Password"
                         value={input.password}
                         onChangeText={(text) => handleChange('password', text)}
+                        autoCapitalize="none"
                     />
                     <TextInput
                         style={styles.input}
                         placeholder="Confirm Password"
                         value={input.confirmPassword}
                         onChangeText={(text) => handleChange('confirmPassword', text)}
+                        autoCapitalize="none"
                     />
                     <TouchableOpacity onPress={asyncSignUp} style={styles.signUpButton}>
                         <Text style={styles.signUpText}>SIGN UP</Text>
