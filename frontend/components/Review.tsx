@@ -11,13 +11,12 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
 
     const [userInfo, setUserInfo] = useState(null);
     const [commentToggle, setCommentToggle] = useState(false);
-    const [likeStatus, setLikeStatus] = useState(false);
+    const [likeStatus, setLikeStatus] = useState(null);
     const [loading, setLoading] = useState(true);
     const { user } = useAuth();
     const { loggedInUser } = user;
 
     useEffect(() => {
-
         const fetchUserData = async () => {
             try {
                 const usersRef = collection(db, 'users');
@@ -28,6 +27,7 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
                     const userDoc = querySnapshot.docs[0];
                     const userData = userDoc.data();
                     setUserInfo(userData);
+
                 }
             } catch (err) {
                 console.log(err);
@@ -37,18 +37,84 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
         };
 
         fetchUserData();
+    }, [reviewId, userId]);
+
+    useEffect(() => {
+        if (!loggedInUser) return
+        const fetchLikeData = async () => {
+            try {
+                const usersRef = collection(db, 'globalSubmissions');
+                const q = query(usersRef, where('id', '==', reviewId));
+                const querySnapshot = await getDocs(q);
+
+                if (!querySnapshot.empty) {
+                    const reviewDoc = querySnapshot.docs[0];
+                    const reviewData = reviewDoc.data();
+                    
+                    const likeData = reviewData.likes || [];
+
+                    if (likeData.includes(loggedInUser.loggedInUser.uid)) {
+                        setLikeStatus(true) 
+                    } else {
+                        setLikeStatus(false)
+                    }
+
+                }
+            } catch (err) {
+                console.log(err);
+            } finally {
+                setLoading(false)
+            }
+        };
+
+        fetchLikeData();
     }, []);
 
     const handleLike = async () => {
         if (!loggedInUser) return;
-
+    
         try {
             // Fetch the user document
+            const userId = loggedInUser.loggedInUser.uid;
             const usersRef = collection(db, 'users');
-            const userQuery = query(usersRef, where('id', '==', loggedInUser?.loggedInUser.uid));
+            const userQuery = query(usersRef, where('id', '==', userId));
             const userSnapshot = await getDocs(userQuery);
-
-        
+    
+            if (!userSnapshot.empty) {
+                const userDoc = userSnapshot.docs[0];
+                const userData = userDoc.data();
+                const userLikes = userData.likes || []; // Ensure userLikes is an array
+    
+                // Fetch the review document
+                const reviewRef = doc(db, 'globalSubmissions', reviewId);
+                const reviewDoc = await getDoc(reviewRef);
+    
+                if (reviewDoc.exists()) {
+                    const reviewData = reviewDoc.data();
+                    const reviewLikes = reviewData.likes || []; // Ensure reviewLikes is an array
+    
+                    if (userLikes.includes(reviewId)) {
+                        // Unlike the review
+                        const newUserLikes = userLikes.filter(id => id !== reviewId);
+                        const newReviewLikes = reviewLikes.filter(id => id !== userId);
+    
+                        await updateDoc(userDoc.ref, { likes: newUserLikes });
+                        await updateDoc(reviewRef, { likes: newReviewLikes });
+                        setLikeStatus(false); // Set local like status to false
+                    } else {
+                        // Like the review
+                        const newUserLikes = [...userLikes, reviewId];
+                        const newReviewLikes = [...reviewLikes, userId];
+    
+                        await updateDoc(userDoc.ref, { likes: newUserLikes });
+                        await updateDoc(reviewRef, { likes: newReviewLikes });
+                        setLikeStatus(true); // Set local like status to true
+                    }
+                }
+            } else {
+                // Handle case where the user document does not exist
+                console.error('User document not found');
+            }
         } catch (err) {
             console.error('Error updating like status:', err);
         }
@@ -115,12 +181,12 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
                 </View>
                 <View style={styles.reviewBottom}>
                     <TouchableOpacity onPress={() => setCommentToggle(!commentToggle)}>
-                        <Text>comment</Text>
+                        <Image source={require('../assets/comment.jpg')}/>
                         <Text>{subcomment?.length}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={handleLike} style={styles.likeRow}>
                         <Text>{likes?.length}</Text>
-                        {likeStatus ? <Text style={styles.likeText}>liked</Text> : <Text style={styles.likeText}>like</Text>}
+                        {likeStatus ? <Image source={require('../assets/fullHeart.jpg')}/> : <Image source={require('../assets/emptyHeart.jpg')}/>}
                     </TouchableOpacity>
                 </View>
             </View>

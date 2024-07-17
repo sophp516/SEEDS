@@ -89,6 +89,7 @@ const Profile = () => {
         const fetchHistory = async () => {
             try {
                 const userId = loggedInUser?.loggedInUser?.uid;
+                console.log(userId)
                     if (!userId) {
                         Toast.show({
                             type: 'error',
@@ -104,11 +105,7 @@ const Profile = () => {
                 if (!querySnapshot.empty) {
                     const userDoc = querySnapshot.docs[0];
                     const userData = userDoc.data();
-                    setPostIds(userData.submissions)
-
-                    for (const id of postIds) {
-                        fetchReviewWithId(id);
-                    }
+                    setPostIds(userData.submissions || [])
                 }
 
             } catch (err) {
@@ -117,8 +114,40 @@ const Profile = () => {
                 setLoading(false);
             }
         }
-        fetchHistory();
-    }, [postIds])
+        if (loggedInUser) {
+            fetchHistory();
+        }
+    }, [loggedInUser])
+
+    useEffect(() => {
+        const fetchReviewWithId = async (id: string) => {
+            try {
+                const submissionRef = doc(db, 'globalSubmissions', id);
+                const submissionDoc = await getDoc(submissionRef);
+    
+                if (submissionDoc.exists()) {
+                    const submissionData = submissionDoc.data();
+                    setPostList((currentPosts) => [...currentPosts, { ...submissionData, id }]);
+                } else {
+                    console.log(`No submission found with ID ${id}`);
+                }
+            } catch (error) {
+                console.error("Error fetching submission:", error);
+            }
+        };
+
+        const fetchHistory = async () => {
+            setLoading(true);
+            for (const id of postIds) {
+                await fetchReviewWithId(id);
+            }
+            setLoading(false);
+        };
+
+        if (postIds.length > 0) {
+            fetchHistory();
+        }
+    }, [postIds]);
 
     useEffect(() => {
         const fetchTags = async () => {
@@ -319,12 +348,17 @@ const Profile = () => {
         <View style={styles.container}>
             {displayName ? (
                 <View style={styles.profileBox}>
+                    <View style={styles.profileLeft}>
                     <TouchableOpacity onPress={pickImage}>
                         <Image
                             source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
                             style={styles.profileImage}
                         />
                     </TouchableOpacity>
+                    <TouchableOpacity onPress={asyncSignOut}>
+                        <Text>Sign Out</Text>
+                    </TouchableOpacity>
+                    </View>
                     <View>
                         {editingStatus ? (
                             <View style={styles.editingContainer}>
@@ -409,9 +443,14 @@ const Profile = () => {
     {loggedInUser && (loading ? (
         <Text>Loading...</Text>
     ) : (
-        postList.length > 0 &&
-        postList.map((submission, i) => {
+        postHistory ?
+        (postList.length == 0 ?
+        <View style={styles.noReview}>
+            <Text>You haven't posted a review yet!</Text>
+        </View>
+        : postList.map((submission, i) => {
             if (submission.isReview) {
+                console.log(submission)
                 return (
                     <Review
                         key={`review_${i}`} 
@@ -428,6 +467,7 @@ const Profile = () => {
                         userId={submission.userId}
                         image={submission.image}
                         subcomment={submission.subComment}
+                        allergens={submission.allergens}
                     />
                 );
             } else {
@@ -443,11 +483,11 @@ const Profile = () => {
                 );
             }
         })
-    ))}
+    ) :
+    <View>
+        <Text>favorites</Text>
+    </View>))}
             </ScrollView>
-            <TouchableOpacity onPress={asyncSignOut}>
-                <Text>Sign Out</Text>
-            </TouchableOpacity>
             <Navbar />
         </View>
     );
@@ -464,13 +504,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: 90,
         marginBottom: 20,
-        marginHorizontal: 60,
+        marginLeft: 40,
     },
     profileImage: {
         width: 100,
         height: 100,
         borderRadius: 50,
-        marginRight: 20,
+        marginBottom: 5,
     },
     displayName: {
         fontSize: 24,
@@ -528,7 +568,8 @@ const styles = StyleSheet.create({
     },
     displayContainer: {
         flexDirection: 'column',
-        marginBottom: 10
+        marginBottom: 10,
+        marginLeft: 20,
     },
     editingContainer: {
         marginBottom: 10
@@ -588,6 +629,16 @@ const styles = StyleSheet.create({
     postHistoryScroll: {
         paddingHorizontal: 20,
         paddingTop: 20,
+    },
+    profileLeft: {
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    noReview: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginVertical: 30,
     }
 });
 

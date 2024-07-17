@@ -104,7 +104,7 @@ const LogIn = () => {
                     <View style={styles.logInNav}>
                         <Text>Want to create an account?</Text>
                         <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-                            <Text style={styles.logInNavText}>Log in</Text>
+                            <Text style={styles.logInNavText}>Sign up</Text>
                         </TouchableOpacity>
                     </View>
                 </>
