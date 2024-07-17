@@ -118,7 +118,7 @@ const Profile = () => {
             }
         }
         fetchHistory();
-    }, [postIds])
+    }, [postIds.length])
 
     useEffect(() => {
         const fetchTags = async () => {
@@ -180,6 +180,7 @@ const Profile = () => {
             return null;
         }
     }
+
 
     const asyncSignOut = async () => {
         try {
