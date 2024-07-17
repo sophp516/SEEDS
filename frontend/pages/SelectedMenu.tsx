@@ -163,6 +163,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                                     userId={submission.userId}
                                     image={submission.image}
                                     subcomment={submission.subComment}
+                                    allergens={submission.allergens}
                                 />
                             );
                         })}

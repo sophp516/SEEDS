@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, TouchableOpacity } from 'react-native';
-import { collection, query, where, getDocs, addDoc, doc ,setDoc} from 'firebase/firestore';
+import React, { useState, useRef, useCallback } from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { collection, query as firestoreQuery, where, getDocs, doc, setDoc } from 'firebase/firestore';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { Platform } from 'react-native';
-import { ActivityIndicator } from 'react-native';
 import { db, auth } from '../services/firestore.js';
 import { useAuth } from '../context/authContext.js';
 import Toast from 'react-native-toast-message';
@@ -20,34 +18,34 @@ type RootStackParamList = {
 const SignUp = () => {
     const [input, setInput] = useState({
         email: "",
-        displayName: "",
+        username: "",
         schoolName: "",
         password: "",
         confirmPassword: "",
     });
     const [loading, setLoading] = useState(false);
-    const [suggestionsList, setSuggestionsList] = useState(null);
+    const [suggestionsList, setSuggestionsList] = useState([]);
+    const [query, setQuery] = useState("");
     const dropdownController = useRef(null);
     const searchRef = useRef(null);
 
     const { setLoggedInUser } = useAuth();
-
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-    const handleChange = (name, value) => {
+    const handleChange = (name: string, value: string) => {
         setInput({ ...input, [name]: value });
     }
 
-    const isEmailUnique = async (email: String) => {
+    const isEmailUnique = async (email: string) => {
         const usersRef = collection(db, 'users');
-        const q = query(usersRef, where('email', '==', email));
+        const q = firestoreQuery(usersRef, where('email', '==', email));
         const querySnapshot = await getDocs(q);
         return querySnapshot.empty;
     }
 
-    const isDisplayNameUnique = async (displayName: string) => {
+    const isUsernameUnique = async (username: string) => {
         const usersRef = collection(db, 'users');
-        const q = query(usersRef, where('displayName', '==', displayName));
+        const q = firestoreQuery(usersRef, where('username', '==', username));
         const querySnapshot = await getDocs(q);
         return querySnapshot.empty;
     };
@@ -63,15 +61,15 @@ const SignUp = () => {
                 Toast.show({
                     type: 'error',
                     text1: 'Email Unavailable',
-                    text2: 'The email address is already taken. Please choose another one.'
+                    text2: 'This email address is already in use. Please choose another one.'
                 });
                 return;
             }
-            if (!await isDisplayNameUnique(input.displayName)) {
+            if (!await isUsernameUnique(input.username)) {
                 Toast.show({
                     type: 'error',
-                    text1: 'Display Name Unavailable',
-                    text2: 'The display name is already taken. Please choose another one.'
+                    text1: 'Username Unavailable',
+                    text2: 'This username is unavailable. Please choose another one.'
                 });
                 setLoading(false);
                 return;
@@ -85,34 +83,23 @@ const SignUp = () => {
                 setLoading(false);
                 return;
             }
-            
-            const userCredential = await createUserWithEmailAndPassword(auth, input.email, input.password)
+
+            const userCredential = await createUserWithEmailAndPassword(auth, input.email, input.password);
             setLoggedInUser({
                 ...userCredential.user,
-                displayName: input.displayName,
+                username: input.username,
                 schoolName: input.schoolName,
             });
 
-            // const usersRef = collection(db, 'users');
-            // await addDoc(usersRef, {
-            //     id: userCredential.user.uid,
-            //     email: input.email,
-            //     displayName: input.displayName,
-            //     schoolName: input.schoolName,
-            //     password: input.password,
-            // });
-            
             const userRef = doc(db, 'users', userCredential.user.uid);
             await setDoc(userRef, {
                 id: userCredential.user.uid,
                 email: input.email,
-                displayName: input.displayName,
+                displayName: input.username,
                 schoolName: input.schoolName,
                 password: input.password,
                 submissions: [],
             });
-
-            
 
             Toast.show({
                 type: 'success',
@@ -134,14 +121,13 @@ const SignUp = () => {
         }
     }
 
-    const getSuggestions = useCallback(async (q) => {
+    const getSuggestions = useCallback(async (q: string) => {
         const filterToken = q.toLowerCase();
         if (typeof q !== 'string' || q.length < 3) {
-            setSuggestionsList(null);
+            setSuggestionsList([]);
             return;
         }
         setLoading(true);
-        // Replace the URL with your actual endpoint for fetching school names
         const items = collegesData;
         const suggestions = items
             .filter(item => item.title.toLowerCase().includes(filterToken))
@@ -170,12 +156,14 @@ const SignUp = () => {
                         placeholder="Email"
                         value={input.email}
                         onChangeText={(text) => handleChange('email', text)}
+                        autoCapitalize="none"
                     />
                     <TextInput
                         style={styles.input}
-                        placeholder="Display Name"
-                        value={input.displayName}
-                        onChangeText={(text) => handleChange('displayName', text)}
+                        placeholder="Username"
+                        value={input.username}
+                        onChangeText={(text) => handleChange('username', text)}
+                        autoCapitalize="none"
                     />
                     <AutocompleteDropdown
                         ref={searchRef}
@@ -184,22 +172,32 @@ const SignUp = () => {
                         }}
                         direction={Platform.select({ ios: 'down' })}
                         dataSet={suggestionsList}
-                        onChangeText={getSuggestions}
+                        onChangeText={(text) => {
+                            setQuery(text);
+                            getSuggestions(text);
+                        }}
                         onSelectItem={(item) => {
-                            item && setInput({ ...input, schoolName: item.title });
+                            if (item) {
+                                setInput({ ...input, schoolName: item.title });
+                                setQuery(item.title);
+                            }
                         }}
                         debounce={600}
-                       onClear={() => setSuggestionsList(null)}
+                        onClear={() => {
+                            setSuggestionsList([]);
+                            setQuery('');
+                        }}
                         loading={loading}
                         textInputProps={{
-                            placeholder: 'Type 3+ letters (school...)',
+                            placeholder: 'Type 3+ letters (School...)',
+                            value: query,
                             autoCorrect: false,
                             autoCapitalize: 'none',
                             style: {
                                 borderRadius: 10,
                                 borderColor: 'black',
                                 borderWidth: 1,
-                                backgroundColor: colors.backgroundGra,
+                                backgroundColor: colors.backgroundGray,
                                 color: 'black',
                                 fontSize: 14,
                                 paddingLeft: 10,
@@ -208,6 +206,10 @@ const SignUp = () => {
                                 width: '100%',
                                 marginBottom: 13,
                             },
+                            onChangeText: (text) => {
+                                setQuery(text);
+                                getSuggestions(text);
+                            }
                         }}
                         rightButtonsContainerStyle={{
                             right: 8,
@@ -219,15 +221,15 @@ const SignUp = () => {
                             marginBottom: 13,
                         }}
                         inputContainerStyle={{
-                            backgroundColor: colors.backgroundGra,
+                            backgroundColor: colors.backgroundGray,
                             borderRadius: 10,
                         }}
                         suggestionsListContainerStyle={{
                             backgroundColor: colors.backgroundGray,
                         }}
                         containerStyle={{ width: '100%', marginBottom: 12 }}
-                        renderItem={(item, text) => (
-                            <Text style={{ color: '#fff', padding: 15 }}>{item.title}</Text>
+                        renderItem={(item) => (
+                            <Text style={{ color: '#35353E', padding: 15 }}>{item.title}</Text>
                         )}
                         inputHeight={50}
                     />
@@ -236,15 +238,17 @@ const SignUp = () => {
                         placeholder="Password"
                         value={input.password}
                         onChangeText={(text) => handleChange('password', text)}
+                        autoCapitalize="none"
                     />
                     <TextInput
                         style={styles.input}
                         placeholder="Confirm Password"
                         value={input.confirmPassword}
                         onChangeText={(text) => handleChange('confirmPassword', text)}
+                        autoCapitalize="none"
                     />
                     <TouchableOpacity onPress={asyncSignUp} style={styles.signUpButton}>
-                        <Text style={styles.signUpText}>SIGN UP</Text>
+                        <Text style={styles.signUpText}>Sign up</Text>
                     </TouchableOpacity>
                     <View style={styles.logInNav}>
                         <Text>Already have an account?</Text>
@@ -255,7 +259,7 @@ const SignUp = () => {
                 </>
             )}
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
