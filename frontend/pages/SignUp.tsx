@@ -194,14 +194,14 @@ const SignUp = () => {
                        onClear={() => setSuggestionsList(null)}
                         loading={loading}
                         textInputProps={{
-                            placeholder: 'Type 3+ letters (school...)',
+                            placeholder: 'Type 3+ letters (School...)',
                             autoCorrect: false,
                             autoCapitalize: 'none',
                             style: {
                                 borderRadius: 10,
                                 borderColor: 'black',
                                 borderWidth: 1,
-                                backgroundColor: colors.backgroundGra,
+                                backgroundColor: colors.backgroundGray,
                                 color: 'black',
                                 fontSize: 14,
                                 paddingLeft: 10,
@@ -221,7 +221,7 @@ const SignUp = () => {
                             marginBottom: 13,
                         }}
                         inputContainerStyle={{
-                            backgroundColor: colors.backgroundGra,
+                            backgroundColor: colors.backgroundGray,
                             borderRadius: 10,
                         }}
                         suggestionsListContainerStyle={{
@@ -248,7 +248,7 @@ const SignUp = () => {
                         autoCapitalize="none"
                     />
                     <TouchableOpacity onPress={asyncSignUp} style={styles.signUpButton}>
-                        <Text style={styles.signUpText}>SIGN UP</Text>
+                        <Text style={styles.signUpText}>Sign up</Text>
                     </TouchableOpacity>
                     <View style={styles.logInNav}>
                         <Text>Already have an account?</Text>
