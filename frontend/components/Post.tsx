@@ -6,7 +6,7 @@ import { View, Text, Image, StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import colors from "../styles.js";
 
-const Post = ({ postId, comment, userId, timestamp, uploadCount }) => {
+const Post = ({ postId, comment, userId, timestamp, uploadCount, image }) => {
 
     const [post, setPost] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
@@ -74,12 +74,13 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount }) => {
                     <Text style={styles.reviewComment}>{comment}</Text>
                 </View>
                 <View style={styles.imageContainer}>
-                    {post?.image?.map((item, i) => (
+                    {image?.map((item, i) => (
                         <View key={i}>
-                            <Image source={{ uri: post.image[i] }} style={{ width: 100, height: 100 }} />
+                            <Image source={{ uri: item }} style={{ width: 100, height: 100 }} />
                         </View>
                     ))}
                 </View>
+
                 <View style={styles.reviewBottom}>
                     <TouchableOpacity style={styles.commentRow} onPress={() => setCommentToggle(!commentToggle)}>
                         <Text>comment</Text>

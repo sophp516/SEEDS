@@ -440,6 +440,7 @@ const Profile = () => {
                         timestamp={submission.timestamp}
                         uploadCount={submission.uploadCount}
                         userId={submission.userId}
+                        image={submission.image}
                     />
                 );
             }
