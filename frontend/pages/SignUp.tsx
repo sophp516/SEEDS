@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, TouchableOpacity } from 'react-native';
-import { collection, query, where, getDocs, addDoc, doc ,setDoc} from 'firebase/firestore';
+import React, { useState, useRef, useCallback } from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { collection, query as firestoreQuery, where, getDocs, doc, setDoc } from 'firebase/firestore';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { Platform } from 'react-native';
-import { ActivityIndicator } from 'react-native';
 import { db, auth } from '../services/firestore.js';
 import { useAuth } from '../context/authContext.js';
 import Toast from 'react-native-toast-message';
@@ -26,28 +24,28 @@ const SignUp = () => {
         confirmPassword: "",
     });
     const [loading, setLoading] = useState(false);
-    const [suggestionsList, setSuggestionsList] = useState(null);
+    const [suggestionsList, setSuggestionsList] = useState([]);
+    const [query, setQuery] = useState("");
     const dropdownController = useRef(null);
     const searchRef = useRef(null);
 
     const { setLoggedInUser } = useAuth();
-
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-    const handleChange = (name, value) => {
+    const handleChange = (name: string, value: string) => {
         setInput({ ...input, [name]: value });
     }
 
-    const isEmailUnique = async (email: String) => {
+    const isEmailUnique = async (email: string) => {
         const usersRef = collection(db, 'users');
-        const q = query(usersRef, where('email', '==', email));
+        const q = firestoreQuery(usersRef, where('email', '==', email));
         const querySnapshot = await getDocs(q);
         return querySnapshot.empty;
     }
 
     const isUsernameUnique = async (username: string) => {
         const usersRef = collection(db, 'users');
-        const q = query(usersRef, where('username', '==', username));
+        const q = firestoreQuery(usersRef, where('username', '==', username));
         const querySnapshot = await getDocs(q);
         return querySnapshot.empty;
     };
@@ -85,23 +83,14 @@ const SignUp = () => {
                 setLoading(false);
                 return;
             }
-            
-            const userCredential = await createUserWithEmailAndPassword(auth, input.email, input.password)
+
+            const userCredential = await createUserWithEmailAndPassword(auth, input.email, input.password);
             setLoggedInUser({
                 ...userCredential.user,
                 username: input.username,
                 schoolName: input.schoolName,
             });
 
-            // const usersRef = collection(db, 'users');
-            // await addDoc(usersRef, {
-            //     id: userCredential.user.uid,
-            //     email: input.email,
-            //     displayName: input.displayName,
-            //     schoolName: input.schoolName,
-            //     password: input.password,
-            // });
-            
             const userRef = doc(db, 'users', userCredential.user.uid);
             await setDoc(userRef, {
                 id: userCredential.user.uid,
@@ -111,8 +100,6 @@ const SignUp = () => {
                 password: input.password,
                 submissions: [],
             });
-
-            
 
             Toast.show({
                 type: 'success',
@@ -134,14 +121,13 @@ const SignUp = () => {
         }
     }
 
-    const getSuggestions = useCallback(async (q) => {
+    const getSuggestions = useCallback(async (q: string) => {
         const filterToken = q.toLowerCase();
         if (typeof q !== 'string' || q.length < 3) {
-            setSuggestionsList(null);
+            setSuggestionsList([]);
             return;
         }
         setLoading(true);
-        // Replace the URL with your actual endpoint for fetching school names
         const items = collegesData;
         const suggestions = items
             .filter(item => item.title.toLowerCase().includes(filterToken))
@@ -186,15 +172,25 @@ const SignUp = () => {
                         }}
                         direction={Platform.select({ ios: 'down' })}
                         dataSet={suggestionsList}
-                        onChangeText={getSuggestions}
+                        onChangeText={(text) => {
+                            setQuery(text);
+                            getSuggestions(text);
+                        }}
                         onSelectItem={(item) => {
-                            item && setInput({ ...input, schoolName: item.title });
+                            if (item) {
+                                setInput({ ...input, schoolName: item.title });
+                                setQuery(item.title);
+                            }
                         }}
                         debounce={600}
-                       onClear={() => setSuggestionsList(null)}
+                        onClear={() => {
+                            setSuggestionsList([]);
+                            setQuery('');
+                        }}
                         loading={loading}
                         textInputProps={{
                             placeholder: 'Type 3+ letters (School...)',
+                            value: query,
                             autoCorrect: false,
                             autoCapitalize: 'none',
                             style: {
@@ -210,6 +206,10 @@ const SignUp = () => {
                                 width: '100%',
                                 marginBottom: 13,
                             },
+                            onChangeText: (text) => {
+                                setQuery(text);
+                                getSuggestions(text);
+                            }
                         }}
                         rightButtonsContainerStyle={{
                             right: 8,
@@ -228,8 +228,8 @@ const SignUp = () => {
                             backgroundColor: colors.backgroundGray,
                         }}
                         containerStyle={{ width: '100%', marginBottom: 12 }}
-                        renderItem={(item, text) => (
-                            <Text style={{ color: '#fff', padding: 15 }}>{item.title}</Text>
+                        renderItem={(item) => (
+                            <Text style={{ color: '#35353E', padding: 15 }}>{item.title}</Text>
                         )}
                         inputHeight={50}
                     />
@@ -259,7 +259,7 @@ const SignUp = () => {
                 </>
             )}
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
