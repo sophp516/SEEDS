@@ -22,6 +22,14 @@ const navigation = useNavigation<NavigationProp<RootStackParamList>>();
       </View>
 
       <Text style={styles.text}>MyProfile</Text>
+
+
+    
+
+
+
+
+
     </View>
   );
 }

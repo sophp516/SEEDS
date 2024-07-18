@@ -22,6 +22,8 @@ const navigation = useNavigation<NavigationProp<RootStackParamList>>();
       </View>
 
       <Text style={styles.text}>MyActivity</Text>
+
+      
     </View>
   );
 }
