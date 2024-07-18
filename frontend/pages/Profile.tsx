@@ -13,8 +13,13 @@ import colors from '../styles.js';
 import Post from '../components/Post.tsx';
 import Review from '../components/Review.tsx';
 
+
+
 type RootStackParamList = {
     SignUp: undefined;
+    MyProfile: undefined;
+    MyPreferences: undefined;
+    MyActivity: undefined;
 };
 
 type Submission = {
@@ -345,6 +350,12 @@ const Profile = () => {
         }
     };
 
+
+
+    const handlePress = (dest: keyof RootStackParamList) => {
+      navigation.navigate(dest);
+  };
+
     return (
         <View style={styles.container}>
             {displayName ? (
@@ -453,6 +464,14 @@ const Profile = () => {
             if (submission.isReview) {
                 console.log(submission)
                 return (
+                  <View> 
+                    <View style={styles.container}>
+                    {['MyProfile', 'MyPreferences', 'MyActivity'].map((dest) => (
+                    <TouchableOpacity key={dest} onPress={() => handlePress(dest as keyof RootStackParamList)} style={styles.button}>
+                    <Text style={[styles.buttonText]}>{dest}</Text>
+                    </TouchableOpacity>
+                    ))}
+                    </View>
                     <Review
                         key={`review_${i}`} 
                         reviewId={submission.reviewId}
@@ -470,6 +489,8 @@ const Profile = () => {
                         subcomment={submission.subComment}
                         allergens={submission.allergens}
                     />
+
+                  </View>
                 );
             } else {
                 return (
@@ -641,6 +662,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginVertical: 30,
+    },
+    button: {
+        backgroundColor: colors.orangeHighlight,
+        padding: 10,
+        borderRadius: 10,
+        margin: 5,
+    },
+    buttonText: {
+        color: 'white',
+        fontWeight: 'bold',
     }
 });
 
