@@ -14,6 +14,9 @@ import LogIn from './pages/LogIn.tsx';
 import Toast from 'react-native-toast-message';
 import Ranking from './pages/Ranking.tsx';
 import SelectedMenu from './pages/SelectedMenu.tsx';
+import MyActivity from './pages/ProfileDetail/MyActivity.tsx';
+import MyPreferences from './pages/ProfileDetail/MyPreferences.tsx';
+import MyProfile from './pages/ProfileDetail/MyProfile.tsx';
 
 import React, { useEffect, useState } from 'react';
 import fonts from './fonts.js';
@@ -57,7 +60,10 @@ export default function App() {
           <Stack.Screen name="LogIn" component={LogIn} options={{ headerShown: false }} />  
           <Stack.Screen name="Ranking" component={Ranking} options={{ headerShown: false }} />  
           <Stack.Screen name="SelectedMenu" component={SelectedMenu} options={{ headerShown: false }} /> 
-          <Stack.Screen name="OnTheMenu" component={OnTheMenu} options={{ headerShown: false }} />   
+          <Stack.Screen name="OnTheMenu" component={OnTheMenu} options={{ headerShown: false }} />  
+          <Stack.Screen name="MyActivity" component={MyActivity} options={{ headerShown: false }} />
+          <Stack.Screen name="MyPreferences" component={MyPreferences} options={{ headerShown: false }} />
+          <Stack.Screen name="MyProfile" component={MyProfile} options={{ headerShown: false }} /> 
         </Stack.Navigator>
       </NavigationContainer>
       <Toast />  

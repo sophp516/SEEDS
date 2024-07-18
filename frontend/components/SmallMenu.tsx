@@ -13,6 +13,7 @@ type RootStackParamList = {
         location: String,
         price: Number,
         taste: Number,
+        health: Number,
         tags: String[],
         allergens: String[]
     };
@@ -29,9 +30,10 @@ type SmallMenuProps = {
     tags: string[];
     allergens: string[];
     reviewIds: string[]
+    health: number;
 };
 
-const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, image, reviewIds, location, price, taste, tags, allergens }) => {
+const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, image, reviewIds, location, price, taste, tags, allergens, health }) => {
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const navigateTo = () => {
@@ -44,8 +46,13 @@ const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, image, reviewIds, l
             price,
             taste,
             tags,
-            allergens
+            allergens, 
+            health
         });
+    }
+
+    const getAverageRating = (taste:number, health:number) => {
+        return (taste + health) / 2;
     }
 
     const getRatingBackgroundColor = (taste: number) => {
@@ -72,8 +79,12 @@ const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, image, reviewIds, l
                 <Text style={styles.nameText} numberOfLines={1} ellipsizeMode="tail">
                     {foodName}
                 </Text>
-                <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(taste) }]}>
-                    <Text style={styles.starText}>{taste} Taste</Text>
+                <View>
+                  <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(getAverageRating(taste,health)) }]}>
+                      <Text style={styles.starText}>{getAverageRating(taste,health)} </Text>
+                      <Image source={require('../assets/star.png')} style={{width: 13, height: 13}}/>
+                  </View>
+
                 </View>
                 </View>
             </View>
@@ -105,6 +116,7 @@ const styles = StyleSheet.create({
         color: '#7c7c7c',
     },
     ratingBackground: {
+        flexDirection: 'row',
         paddingVertical: 3,
         paddingHorizontal: 7,
         borderRadius: 10,

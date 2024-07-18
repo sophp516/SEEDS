@@ -188,10 +188,12 @@ const styles = StyleSheet.create({
         backgroundColor: colors.backgroundGray,
     },
     selectedHeader: {
+        
         paddingHorizontal: 20,
         flexDirection: 'column',
     },
     backButton: {
+        marginTop: 20,
         padding: 10,
     },
     backButtonText: {

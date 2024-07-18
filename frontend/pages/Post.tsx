@@ -14,6 +14,9 @@ import diningLocation from '../services/dininglocation.json';
 import {debounce} from 'lodash';
 import FoodDropdown from '../components/FoodDropdown.tsx';
 import ImageSlider from '../components/ImageSlider.tsx';
+import preferences from '../services/Preferences.json';
+import Allergens from '../services/Allergens.json';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 // import storage from '@react-native-firebase/storage';
 
 interface newPost{
@@ -25,7 +28,7 @@ interface newPost{
     likes?:string[];
     isReview: boolean;
     uploadCount?: number;
-    subComments: {};
+    subComments: [];
 }
 interface newReview {
     reviewId?: string;
@@ -41,7 +44,7 @@ interface newReview {
     comment: string|null,
     likes?:string[];
     timestamp?: string;
-    subComments: {};
+    subComments: [];
     isReview: boolean;
     uploadCount?: number;
 }
@@ -69,7 +72,7 @@ const Post = () => {
         userId: userId,
         likes: [],
         isReview: false,
-        subComments: {},
+        subComments: [],
     });
     const [review, setReview] = useState<newReview>({
         userId: userId,
@@ -85,7 +88,7 @@ const Post = () => {
         likes: [],
         timestamp: null,
         isReview: true,
-        subComments: {},
+        subComments: [],
     });
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -132,7 +135,7 @@ const Post = () => {
             await submitDiscover(userData.data().schoolName, postID);
             
             console.log("Post added to Firestore with ID:", postRef.id);
-            setPost({ images: [],comment: '', userId: userId, isReview: true, subComments: {}}); // reset the post
+            setPost({ images: [],comment: '', userId: userId, isReview: true, subComments: []}); // reset the post
         }catch{
             console.error("Error adding post to Firestore, have you signed in yet");
         }
@@ -209,13 +212,15 @@ const Post = () => {
                 if (collegeFoodlistDocExist === false){
                     await setDoc(collegeFoodListDoc, {foodName: review.foodName, location: review.location,likes: [], tags: review.tags, allergens: review.allergens,
                         health:review.health, price: review.price, taste: review.taste, images: imageURls, averageRating: (review.taste + review.health)/2});}
-
                 if (exist === false){
                     console.log('exist??:', exist)
                     const foodDocRef = doc(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName, 'reviews');
                     await setDoc(foodDocRef,{reviewIds: [reviewId]});
                     await setDoc(localFoodListDoc, {foodName: review.foodName});
                 }
+                const newAverage = await calculateAverageRating(review.foodName, review.location, review.health, review.taste);
+                console.log("new avg", newAverage)
+                await updateDoc(doc(db, 'colleges', 'Dartmouth College', 'foodList', review.foodName), {averageRating: newAverage});
                 await updateDoc(doc(db,'colleges', 'Dartmouth College','diningLocations',review.location, review.foodName, 'reviews'),{reviewIds: arrayUnion(reviewId)})
                
             }catch{
@@ -236,7 +241,7 @@ const Post = () => {
             
             console.log("Review added to Firestore with ID:", reviewRef.id);
             setReview({ userId: userId, foodName: '',location: '',price: null, taste: 0,health: 0,
-                images:[],tags: [], allergens:[], comment: '',likes: [],timestamp: null,isReview: false, subComments: {},
+                images:[],tags: [], allergens:[], comment: '',likes: [],timestamp: null,isReview: false, subComments: [],
             }); // reset the review
             navigation.goBack();
         }catch{
@@ -277,6 +282,32 @@ const Post = () => {
             const docSnap = await getDoc(ref);
             return docSnap.exists();
         }catch(e){console.log("There is error with checking the existence of the document"); return}
+    }
+
+    const calculateAverageRating = async (foodName, location, health, taste) => {
+        try{
+            const getAverage = await getDoc(doc(db, 'colleges', 'Dartmouth College', 'foodList', foodName));
+            if (!getAverage.exists()) {
+                console.error("avergage Document does not exist!");
+                return; // Optionally handle this case more gracefully
+            }
+            const currAverage = getAverage.data().averageRating;
+            console.log("curr rating:", currAverage);
+            const reviews = await getDoc(doc(db, 'colleges', 'Dartmouth College',"diningLocations", location, foodName, 'reviews'));
+            if (!reviews.exists()) {
+                console.error(" review. Document does not exist!");
+                return; // Optionally handle this case more gracefully
+            }
+            const reviewIds = reviews.data().reviewIds;
+            const length = reviewIds.length
+            const newAverage = ((currAverage * length )+ ((health + taste)/2)) / (length + 1);
+            return newAverage;
+
+        }catch{
+            console.error("Error calculating average rating");
+        }
+
+
     }
 
     const submitDiscover = async(location, id) => {
@@ -390,7 +421,7 @@ const Post = () => {
             comment: '',
             likes: [],
             isReview: true,
-            subComments: {}
+            subComments: []
         });
     }
     /* Later we can do food reccomendation from API if time */
@@ -449,15 +480,31 @@ const Post = () => {
         const newAllergens = review.allergens.filter((allergen, i) => i !== index);
         setReview((prev => ({...prev, allergens: newAllergens})));
     }
-    const tagsContainer = (tags, handleDelete) => {
+    // tag color: 
+    const tagsContainer = (type, tags, handleDelete) => {
+
         return tags.map((tag, index) => (
-            <View key={index} style={styles.tags}>
+            <View key={index} style={[styles.tags, {backgroundColor: getTagColor(type, tag)}]}>
                 <Text>{tag}</Text>
                 <TouchableOpacity onPress={() => handleDelete(index)}>
                     <Text> x </Text>
                 </TouchableOpacity>
             </View>
         ));
+    }
+
+    const getTagColor = (type, tag) =>{
+        const verifiedTags = preferences.id;
+        const allergens = Allergens.id;
+        if (type === 'tags' && verifiedTags.includes(tag)){
+            return '#7FB676';
+        }else if(allergens.includes(tag)){
+            return '#FF7D84'
+        }
+        else{
+            return '#E7E2DB';
+        }
+
     }
 
 
@@ -682,14 +729,14 @@ const Post = () => {
                         
                         {review.tags.length > 0 ?
                          <View style={styles.tagsContainer}>
-                         {tagsContainer(review.tags, handleDeleteTag)}
+                         {tagsContainer("tags", review.tags, handleDeleteTag)}
                         </View>:<View/>}
     
                         <TextInput 
                                 style={styles.textbox}
                                 value={tag}
                                 onChangeText={(tag)=> setTag(tag)}
-                                placeholder='enter a tag'
+                                placeholder='Enter a tag'
                                 onSubmitEditing={handleSubmitTag}
                                 returnKeyType='done'
                         />
@@ -697,14 +744,14 @@ const Post = () => {
                         <Text style={styles.text}> Add allergens</Text>
                         { review.allergens.length > 0 ?
                              <View style={styles.tagsContainer}>
-                             {tagsContainer(review.allergens, handleDeleteAllergen)}
+                             {tagsContainer("allergens", review.allergens, handleDeleteAllergen)}
                             </View> 
                         :<View/>}
                         <TextInput 
                                 style={styles.textbox}
                                 value={allergen}
                                 onChangeText={(allergen)=>setAllergen(allergen)}
-                                placeholder='enter a allergen'
+                                placeholder='Enter an allergen'
                                 onSubmitEditing={handleSubmitAllergen}
                                 returnKeyType='done'
                         />
@@ -718,8 +765,8 @@ const Post = () => {
                                 numberOfLines={100}
                                 multiline={true}
                                 onChangeText={(text)=> setReview(prevReview => ({...prevReview, comment: text}))}
-                                placeholder='enter comment'
-                               
+                                placeholder='Share your thoughts here'
+                                autoCapitalize="none"
                                 />
                            
                         </View>
@@ -928,7 +975,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 15,
-        backgroundColor: '#D9D9D9',
+        flexDirection: 'row',
+        marginHorizontal: 5,
+        marginVertical: 5,
+    },
+    allergens:{
+        paddingHorizontal: 10,
+        paddingVertical: 3,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 15,
         flexDirection: 'row',
         marginHorizontal: 5,
         marginVertical: 5,

@@ -90,6 +90,7 @@ const LogIn = () => {
                         placeholder="Email"
                         value={input.email}
                         onChangeText={(text) => handleChange('email', text)}
+                        autoCapitalize="none"
                     />
                     <TextInput
                         style={styles.input}
@@ -97,9 +98,10 @@ const LogIn = () => {
                         value={input.password}
                         secureTextEntry={true}
                         onChangeText={(text) => handleChange('password', text)}
+                        autoCapitalize="none"
                     />
                     <TouchableOpacity onPress={asyncLogIn} style={styles.signUpButton}>
-                        <Text style={styles.signUpText}>LOG IN</Text>
+                        <Text style={styles.signUpText}>Log in</Text>
                     </TouchableOpacity>
                     <View style={styles.logInNav}>
                         <Text>Want to create an account?</Text>

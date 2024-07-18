@@ -2,28 +2,69 @@ import Navbar from "../components/Navbar";
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import colors from "../styles.js";
+import { getDocs, collection, average, where, query,} from 'firebase/firestore'
+import { db } from '../services/firestore'
+import FoodRank from "../components/FoodRank.tsx";
 
 
 const Ranking = () => {
     const [toggle, setToggle] = useState<boolean>(true); // true = post, false = review 
+    const [foodNames, setFoodNames] = useState<String[]>([]);
     const [foodLeaderboard, setFoodLeaderboards] = useState<any[]>([]);
+    const [foodData, setFoodData] = useState<any[]>([]); // can fetch by time, but for demo fetch per update?
     
 
-    // can fetch by time, but for demo fetch per update?
+   
+    // fetches the list of food names to get rating data 
+    useEffect(()=>{
+      const fetchFoodNames = async () => {
+          try{
+              const res = await getDocs(collection(db,"colleges", "Dartmouth College", "foodList"))
+              setFoodNames(res.docs.map(doc => doc.data().foodName))
+          }catch{
+            console.log("Error fetching food leaderboard")
+          }
+      }
+      fetchFoodNames();
+    }, [])
 
     useEffect(()=>{
-      
-    })
+      const fetchFoodRating = async () => {
+        try{
+          const queries = foodNames.map(foodName => 
+            getDocs(query(collection(db, "colleges", "Dartmouth College", "foodList"), where("foodName", "==", foodName)))
+          );
+
+          const res = await Promise.all(queries); // consist all of the documents
+
+          // Mapping through several documents
+          // each document data is a array, but we only want one array of objects which is why flatMap is used (2D array -> 1D array)
+          // for each doc in docs, map the data to an object with foodName and averageRating
+          const datas = res.flatMap(res => res.docs.map(doc => ({
+            foodName: doc.data().foodName,
+            averageRating: doc.data().averageRating
+          })));
+
+          datas.sort((a,b)=>b.averageRating-a.averageRating) // sort in ascending order
+          setFoodLeaderboards(datas)
+        }catch{
+          console.log("Error fetching food leaderboard")
+        }
+      }
+      fetchFoodRating();
+    },[foodNames])
+
+    console.log(foodLeaderboard)
 
 
 
 
     return (
       <View style={styles.container}>
-      <View style={{margin: 40}}></View>
-      <View style={{  alignItems: 'flex-start', flexDirection:'row', marginRight: '50%'}}>
-      <Text style={styles.header}>Leaderboard</Text>
-      </View>
+        <View style={{margin: 40}}></View>
+        <View style={{  alignItems: 'flex-start', flexDirection:'row', marginRight: '50%'}}>
+          <Text style={styles.header}>Leaderboard</Text>
+        </View>
         <View style={styles.toggleContainer}>
                 <TouchableOpacity onPress={()=>setToggle(true)} style={toggle ? styles.activeToggle : styles.inactiveToggle}>
                     <Text style={toggle ? styles.btnText1 : styles.btnText2}>Food</Text>
@@ -31,7 +72,20 @@ const Ranking = () => {
                 <TouchableOpacity onPress={()=>setToggle(false)} style={toggle ?  styles.inactiveToggle : styles.activeToggle }>
                     <Text style={!toggle ? styles.btnText1 : styles.btnText2}>Review</Text>
                 </TouchableOpacity>
-            </View>
+         </View>
+         <View>
+            {foodLeaderboard.map((food, index) => (
+              <View>
+                <FoodRank rank={index} foodName={food.foodName} rating={food.averageRating}/>
+                {/* <Text>{index+1}. {food.foodName} - {food.averageRating}</Text> */}
+              </View>
+              
+            ))}
+
+
+
+
+         </View>
 
         <Navbar />
       </View>
