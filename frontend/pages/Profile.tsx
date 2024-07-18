@@ -154,48 +154,16 @@ const Profile = () => {
                                     onChangeText={setNameInput}
                                     placeholder="Enter your display name"
                                 />
-                                <View style={styles.tagList}>
-                                    {tags.map((tag, i) => (
-                                        <View style={styles.tagWithDelete} key={i}>
-                                            <Text>{tag}</Text>
-                                            <TouchableOpacity onPress={() => handleDeleteTag(i)}>
-                                                <Text style={styles.tagDeleteButton}>x</Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                    ))}
-                                </View>
-                                <View style={styles.tagContainer}>
-                                    <TextInput
-                                        style={styles.tagInput}
-                                        value={tagInput}
-                                        onChangeText={setTagInput}
-                                    />
-                                    <TouchableOpacity onPress={handleAddTag} style={styles.editProfileButton}>
-                                        <Text>Add Tag</Text>
-                                    </TouchableOpacity>
-                                </View>
-                                <View style={styles.saveCancelContainer}>
-                                    <TouchableOpacity style={styles.saveButton} onPress={handleSaveProfile}>
-                                        <Text>Save</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity style={styles.cancelButton} onPress={() => setEditingStatus(false)}>
-                                        <Text>Cancel</Text>
-                                    </TouchableOpacity>
-                                </View>
+                                <TouchableOpacity style={styles.saveButton} onPress={handleSaveProfile}>
+                                    <Text>Save</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.cancelButton} onPress={() => setEditingStatus(false)}>
+                                    <Text>Cancel</Text>
+                                </TouchableOpacity>
                             </View>
                         ) : (
                             <View style={styles.displayContainer}>
                                 <Text style={styles.displayName}>{displayName}</Text>
-                                <View style={styles.tagList}>
-                                    {tags.map((tag, i) => (
-                                        <View style={styles.tagWithDelete} key={i}>
-                                            <Text>{tag}</Text>
-                                            <TouchableOpacity onPress={() => handleDeleteTag(i)}>
-                                                <Text style={styles.tagDeleteButton}>x</Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                    ))}
-                                </View>
                                 <TouchableOpacity onPress={handleEditToggle}>
                                     <Text>Edit</Text>
                                 </TouchableOpacity>
@@ -211,7 +179,7 @@ const Profile = () => {
                     />
                     <View style={styles.guestProfileButtonContainer}>
                         <Text style={styles.displayName}>Guest</Text>
-                        <TouchableOpacity onPress={() => { navigation.navigate('SignUp') }} style={styles.createAccountButton}>
+                        <TouchableOpacity onPress={() => navigation.navigate('SignUp')} style={styles.createAccountButton}>
                             <Text style={styles.createAccountText}>Create an account</Text>
                         </TouchableOpacity>
                     </View>
@@ -235,7 +203,6 @@ const Profile = () => {
         </View>
     );
 };
-
 
 
 const styles = StyleSheet.create({
@@ -291,7 +258,7 @@ const styles = StyleSheet.create({
         color: 'white',
     },
     profileSections: {
-        flexDirection: 'row',
+        flexDirection: 'column',
         justifyContent: 'space-around',
         width: '100%',
         marginTop: 20,
@@ -300,66 +267,64 @@ const styles = StyleSheet.create({
     profileSectionButton: {
         paddingVertical: 10,
         paddingHorizontal: 20,
-        backgroundColor: 'lightblue',
+        // backgroundColor: 'lightblue',
         borderRadius: 10,
-        paddingBottom: 100,
     },
     inputName: {
-       
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 5,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    marginBottom: 10,
-    width: '80%',
+        borderWidth: 1,
+        borderColor: 'gray',
+        borderRadius: 5,
+        paddingVertical: 8,
+        paddingHorizontal: 10,
+        marginBottom: 10,
+        width: '80%',
     },
     tagContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
     },
     tagInput: {
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 5,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    marginRight: 10,
-    width: '60%',
+        borderWidth: 1,
+        borderColor: 'gray',
+        borderRadius: 5,
+        paddingVertical: 5,
+        paddingHorizontal: 10,
+        marginRight: 10,
+        width: '60%',
     },
     editProfileButton: {
-    backgroundColor: 'lightblue',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 5,
+        backgroundColor: 'lightblue',
+        paddingVertical: 8,
+        paddingHorizontal: 10,
+        borderRadius: 5,
     },
     saveCancelContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 10,
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginTop: 10,
     },
     saveButton: {
-    backgroundColor: 'lightgreen',
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 5,
+        backgroundColor: 'lightgreen',
+        paddingVertical: 8,
+        paddingHorizontal: 20,
+        borderRadius: 5,
     },
     cancelButton: {
-    backgroundColor: 'pink',
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 5,
+        backgroundColor: 'pink',
+        paddingVertical: 8,
+        paddingHorizontal: 20,
+        borderRadius: 5,
     },
     editingContainer: {
-    alignItems: 'center',
+        
     },
     displayContainer: {
-    alignItems: 'center',
+    
     },
     guestProfileButtonContainer: {
-    alignItems: 'center',
-    marginTop: 20,
+        alignItems: 'center',
+        marginTop: 20,
     },
 });
 
