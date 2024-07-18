@@ -10,6 +10,7 @@ import { db } from '../services/firestore.js';
 import colors from '../styles.js';
 import ExampleMenu from '../services/ExampleMenu.json';
 import ExampleTopRated from '../services/ExampleTopRated.json';
+import SurpriseMe from '../components/SurpriseMe.tsx';
 
 
 type RootStackParamList = {
@@ -209,9 +210,13 @@ const DiningHome: React.FC<Props> = ({ route }) => {
               />
             </View>
 
+
+
             <View style={styles.contentContainer}>
                 <ScrollView style={styles.contentScrollContainer} contentContainerStyle={{ paddingBottom: 100 }}>
+                    <SurpriseMe />
                     <View style={styles.recHolder}>
+                      
                         <View>
                             <View style={styles.recHeader}>
                                 <Text style={styles.recHeaderText}>Top rated</Text>
@@ -250,6 +255,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                             </ScrollView>
                           )}
                         </View>
+                        
                         <View>
                             <View style={styles.recHeader}>
                                 <Text style={styles.recHeaderText}>On the menu</Text>
@@ -288,6 +294,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                             )}
 
                         </View>
+
                         <View>
                             <View style={styles.recHeader}>
                                 <Text style={styles.recHeaderText}>Recommended for you</Text>
