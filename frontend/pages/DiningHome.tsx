@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView, Image } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import Navbar from '../components/Navbar.jsx';
 import SmallMenu from '../components/SmallMenu.tsx';
@@ -221,7 +221,10 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                             </View>
                             {loading ? (
                             <View style={styles.loadingScreen}>
+                              <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
                               <Text>Loading...</Text>
+
+
                             </View>
                           ) : topRated.length === 0 ? (
                             <Text style={styles.placeNameText}>No meals match your filter...</Text>
@@ -240,6 +243,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     taste={item.taste}
                                     tags={item.tags}
                                     allergens={item.allergens}
+                                    health={item.health}
                                   />
                                 ))}
                               </View>
@@ -255,6 +259,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                             </View>
                             {loading ? (
                               <View style={styles.loadingScreen}>
+                                <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
                                 <Text>Loading...</Text>
                               </View>
                             ) : onTheMenu.length === 0 ? (
@@ -274,6 +279,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                       taste={item.taste}
                                       tags={item.tags}
                                       allergens={item.allergens}
+                                      health={item.health}
+
                                     />
                                   ))}
                                 </View>
@@ -290,7 +297,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                             </View>
                             {loading ? (
                               <View style={styles.loadingScreen}>
-                                <Text>Loading...</Text>
+                               <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
+                               <Text>Loading...</Text>
                               </View>
                             ) : recommended.length === 0 ? (
                               <Text style={styles.placeNameText}>No meals match your filter...</Text>
@@ -309,6 +317,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                       taste={item.taste}
                                       tags={item.tags}
                                       allergens={item.allergens}
+                                      health={item.health}
                                     />
                                   ))}
                                 </View>
