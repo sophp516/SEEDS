@@ -221,7 +221,8 @@ const Post = () => {
                 const [newAverage, newHealth, newTaste] = await calculateAverageRating(review.foodName, review.location, review.health, review.taste);
                 console.log("new avg", newAverage)
                 await updateDoc(doc(db, 'colleges', 'Dartmouth College', 'foodList', review.foodName), {averageRating: newAverage, health: newHealth, taste: newTaste});
-                await updateDoc(doc(db,'colleges', 'Dartmouth College','diningLocations',review.location, review.foodName, 'reviews'),{reviewIds: arrayUnion(reviewId)})
+                await updateDoc(doc(db,'colleges', 'Dartmouth College','diningLocations',review.location, review.foodName, 'reviews'),{reviewIds: arrayUnion(reviewId)});
+                await updateTagFrequency(review.foodName, review.tags, review.allergens)
                
             }catch{
                 console.error("Error adding review to food collection");
@@ -283,6 +284,42 @@ const Post = () => {
             return docSnap.exists();
         }catch(e){console.log("There is error with checking the existence of the document"); return}
     }
+    const updateTagFrequency = async(foodName, tags, allergens) =>{
+        const tagCollectionRef = collection(db,'colleges', 'Dartmouth College', "foodList", foodName, "tagsCollection")
+        const allergenCollectionRef = collection(db,'colleges', 'Dartmouth College', "foodList", foodName, "allergensCollection");
+        try{
+            for (const tag of tags){
+                const tagDocRef = doc(tagCollectionRef, tag)
+                const tagDoc = await getDoc(tagDocRef)
+                if (!tagDoc.exists()){
+                    await setDoc(tagDocRef, {frequency: 1})
+                }else{
+                    const newCount = tagDoc.data().frequency + 1
+                    await updateDoc(tagDocRef, {frequency: newCount})
+                }   
+            }
+        }catch{
+            console.log("Error updating tags frequency on firestore")
+            return
+        }
+        try{
+            for (const allergen of allergens){
+                const allergenDocRef = doc(allergenCollectionRef, allergen)
+                const allergenDoc = await getDoc(allergenDocRef)
+                console.log("Does allergenDoc exist?", allergenDoc.exists());
+                if (!allergenDoc.exists()){
+                    await setDoc(allergenDocRef, {frequency: 1})
+                }else{
+                    const newCount = allergenDoc.data().frequency + 1
+                    await updateDoc(allergenDocRef, {frequency: newCount})
+                }
+            }
+        }catch{
+            console.log("Error updating allergens frequency on firestore")
+            return
+        }
+    }
+
 
     const calculateAverageRating = async (foodName, location, health, taste) => {
         try{
@@ -340,7 +377,7 @@ const Post = () => {
     }
 
     
-
+    console.log(review.allergens)
     /******* FUNCTIONS FOR UPLOAD IMAGES ******/
     // Read more about documentation here: https://docs.expo.dev/versions/latest/sdk/imagepicker/ 
     const getPermission = async() =>{
