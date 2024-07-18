@@ -212,13 +212,15 @@ const Post = () => {
                 if (collegeFoodlistDocExist === false){
                     await setDoc(collegeFoodListDoc, {foodName: review.foodName, location: review.location,likes: [], tags: review.tags, allergens: review.allergens,
                         health:review.health, price: review.price, taste: review.taste, images: imageURls, averageRating: (review.taste + review.health)/2});}
-
                 if (exist === false){
                     console.log('exist??:', exist)
                     const foodDocRef = doc(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName, 'reviews');
                     await setDoc(foodDocRef,{reviewIds: [reviewId]});
                     await setDoc(localFoodListDoc, {foodName: review.foodName});
                 }
+                const newAverage = await calculateAverageRating(review.foodName, review.location, review.health, review.taste);
+                console.log("new avg", newAverage)
+                await updateDoc(doc(db, 'colleges', 'Dartmouth College', 'foodList', review.foodName), {averageRating: newAverage});
                 await updateDoc(doc(db,'colleges', 'Dartmouth College','diningLocations',review.location, review.foodName, 'reviews'),{reviewIds: arrayUnion(reviewId)})
                
             }catch{
@@ -280,6 +282,32 @@ const Post = () => {
             const docSnap = await getDoc(ref);
             return docSnap.exists();
         }catch(e){console.log("There is error with checking the existence of the document"); return}
+    }
+
+    const calculateAverageRating = async (foodName, location, health, taste) => {
+        try{
+            const getAverage = await getDoc(doc(db, 'colleges', 'Dartmouth College', 'foodList', foodName));
+            if (!getAverage.exists()) {
+                console.error("avergage Document does not exist!");
+                return; // Optionally handle this case more gracefully
+            }
+            const currAverage = getAverage.data().averageRating;
+            console.log("curr rating:", currAverage);
+            const reviews = await getDoc(doc(db, 'colleges', 'Dartmouth College',"diningLocations", location, foodName, 'reviews'));
+            if (!reviews.exists()) {
+                console.error(" review. Document does not exist!");
+                return; // Optionally handle this case more gracefully
+            }
+            const reviewIds = reviews.data().reviewIds;
+            const length = reviewIds.length
+            const newAverage = ((currAverage * length )+ ((health + taste)/2)) / (length + 1);
+            return newAverage;
+
+        }catch{
+            console.error("Error calculating average rating");
+        }
+
+
     }
 
     const submitDiscover = async(location, id) => {
