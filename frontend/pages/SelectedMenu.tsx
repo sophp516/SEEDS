@@ -18,6 +18,7 @@ export type RootStackParamList = {
         taste: number;
         tags: string[];
         allergens: string[];
+        health: number;
     },
     Post: { toggle: boolean; foodName: string };
 };
@@ -43,7 +44,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
             return colors.grayStroke;
         }
     };
-    console.log(reviews);
+
     const navigateToReview = () => {
         navigation.navigate('Post', { toggle: false, foodName: foodName });
     }
@@ -71,6 +72,32 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
         fetchReviews();
     }, [reviewIds])
 
+    useEffect(() => {
+        const collectAllTags = () => {
+            const allTags = [];
+
+            // Collect all tags from all reviews
+            reviews.forEach(review => {
+                review.tags.forEach(tag => {
+                    allTags.push(tag);
+                });
+            });
+
+            reviews.forEach(review => {
+              review.allergens.forEach(allergens => {
+                  allTags.push(allergens);
+              });
+          });
+
+            return allTags;
+        };
+
+        if (reviews.length > 0) {
+            const tagsArray = collectAllTags();
+            console.log('All tags:', tagsArray);
+        }
+    }, [reviews]);
+    
     return (
         <View style={styles.container}>
             <View style={styles.selectedHeader}>
@@ -188,7 +215,6 @@ const styles = StyleSheet.create({
         backgroundColor: colors.backgroundGray,
     },
     selectedHeader: {
-        
         paddingHorizontal: 20,
         flexDirection: 'column',
     },

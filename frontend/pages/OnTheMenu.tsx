@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, ScrollView, Image } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { db } from '../services/firestore.js';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
@@ -129,7 +129,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
           </View>
             {loading ?
             <View style={styles.loadingScreen}>
-                <Text>loading...</Text>
+              <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
+              <Text>loading...</Text>
             </View>
             : <ScrollView style={styles.contentScrollContainer}>
                 {onTheMenu.length > 0 ? (

@@ -1,13 +1,15 @@
 import { NavigationProp, useNavigation } from '@react-navigation/native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import colors from '../styles';
+import ProgressBar from 'react-native-progress-bar-horizontal';
 
 type RootStackParamList = {
     SelectedMenu: { foodName, reviewIds, image, location, price, taste, health, tags, allergens },
 };
 
 const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens }) => {
+
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
@@ -38,10 +40,51 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                         </View>
                     ))}
                 </View>
-                <View>
-                    <Text>Taste {taste}</Text>
-                    <Text>Health {health}</Text>
+
+                <View style={styles.ratingContainer}>
+
+                  <View style={styles.tasteAndHealthContainer}>
+                      
+                    <Text>Health</Text>
+
+                    <View style={styles.progressContainer}>
+                      <ProgressBar
+                        progress={0.4}
+                        borderWidth={1}
+                        fillColor={colors.lightOrange}
+                        unfilledColor={colors.inputGray}
+                        height={10}
+                        borderColor={colors.inputGray}
+                        duration={100}
+                        
+                      />
+                    </View>
+
+                    <Text>  {health}</Text>
+                  </View>
+
+                  
+                  <View style={styles.tasteAndHealthContainer}>
+                    <Text>Taste  </Text>
+
+                    <View style={styles.progressContainer}>
+                      <ProgressBar
+                        progress={0.7}
+                        borderWidth={1}
+                        fillColor={colors.highRating}
+                        unfilledColor= {colors.inputGray}
+                        height={10}
+                        borderColor={colors.inputGray}
+                        duration={100}
+                        
+                      />
+                    </View>
+                    <Text>  {taste}</Text>
+                  </View>
+
                 </View>
+
+
             </View>
         </TouchableOpacity>
     );
@@ -58,6 +101,7 @@ const styles = StyleSheet.create({
     foodInfoContainer: {
         paddingLeft: 18,
         paddingTop: 10,
+        flex: 1,
     },
     image: {
         position: 'relative',
@@ -99,6 +143,7 @@ const styles = StyleSheet.create({
     },
     foodInfoHeader: {
         flexDirection: 'row',
+
     },
     tagBlob: {
         paddingHorizontal: 10,
@@ -113,6 +158,23 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
         marginVertical: 5,
     },
+    ratingContainer: {
+      flexDirection: 'column',
+      marginTop: 20,
+      
+
+    },
+    tasteAndHealthContainer: {
+        flexDirection: 'row',
+        marginLeft: 5,
+        alignItems: 'center',
+    },
+    progressContainer: {
+        marginLeft: 5,
+        flex: 1,
+    },
+
+    
 });
 
 export default FoodItem;

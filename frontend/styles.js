@@ -10,7 +10,8 @@ const colors = {
     warningPink: '#FF7D84',
     userInput: '#EFEFEF',
     yellow: '#F2C897',
-    commentContainer: 'E7E2DB'
+    commentContainer: '#E7E2DB',
+    lightOrange: '#F9A05F'
 };
 
 export default colors;
