@@ -532,7 +532,8 @@ const Post = () => {
                         numberOfLines={100}
                         multiline={true}
                         onChangeText={(text)=> setPost(prevPost => ({...prevPost, comment: text}))}
-                        placeholder='enter comment'
+                        placeholder='Share thoughts, updates, or questions about your campus dining'
+                        autoCapitalize="none"
                     />
                     <View >
                         {post.images.length > 0 ? 
