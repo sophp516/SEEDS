@@ -79,14 +79,8 @@ const Ranking = () => {
                 <FoodRank rank={index} foodName={food.foodName} rating={food.averageRating}/>
                 {/* <Text>{index+1}. {food.foodName} - {food.averageRating}</Text> */}
               </View>
-              
             ))}
-
-
-
-
          </View>
-
         <Navbar />
       </View>
 
