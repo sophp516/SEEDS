@@ -23,7 +23,7 @@ interface SubCommentProps {
     sublikes: string[];
 }
 
-const Post = ({ postId, comment, userId, timestamp, uploadCount }) => {
+const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
     const [usersCache, setUsersCache] = useState({});
     const [post, setPost] = useState(null);
     const [userInfo, setUserInfo] = useState(null);
@@ -265,7 +265,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount }) => {
                         <Text style={styles.reviewComment}>{comment}</Text>
                     </View>
                     <View style={styles.imageContainer}>
-                        {post?.image?.map((item, i) => (
+                        {image?.map((item, i) => (
                             <View key={i}>
                                 <Image source={{ uri: item }} style={{ width: 100, height: 100 }} />
                             </View>
