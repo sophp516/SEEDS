@@ -739,7 +739,7 @@ const Post = () => {
                                 style={styles.textbox}
                                 value={tag}
                                 onChangeText={(tag)=> setTag(tag)}
-                                placeholder='enter a tag'
+                                placeholder='Enter a tag'
                                 onSubmitEditing={handleSubmitTag}
                                 returnKeyType='done'
                         />
@@ -754,7 +754,7 @@ const Post = () => {
                                 style={styles.textbox}
                                 value={allergen}
                                 onChangeText={(allergen)=>setAllergen(allergen)}
-                                placeholder='enter a allergen'
+                                placeholder='Enter an allergen'
                                 onSubmitEditing={handleSubmitAllergen}
                                 returnKeyType='done'
                         />
@@ -768,8 +768,8 @@ const Post = () => {
                                 numberOfLines={100}
                                 multiline={true}
                                 onChangeText={(text)=> setReview(prevReview => ({...prevReview, comment: text}))}
-                                placeholder='enter comment'
-                               
+                                placeholder='Share your thoughts here'
+                                autoCapitalize="none"
                                 />
                            
                         </View>

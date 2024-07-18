@@ -1,21 +1,102 @@
-import React, { useEffect, useState } from "react";
-import { collection, query, where, getDocs, getDoc, doc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import React, { useEffect, useState, memo } from "react";
+import { collection, query, where, getDocs, getDoc, doc, updateDoc, addDoc } from 'firebase/firestore';
 import { db } from '../services/firestore.js';
 import { useAuth } from "../context/authContext.js";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, TextInput } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import colors from "../styles.js";
 import Preferences from "../services/Preferences.json";
 
-const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste, likes, location, price, tags, timestamp, userId, allergens }) => {
+interface Comment {
+    id: string;
+    content: string;
+    userId: string;
+    postedUnder: string;
+    likes: string[];
+    subComments: string[];
+}
 
+interface SubCommentProps {
+    content: string;
+    userId: string;
+    commentId: string;
+    reviewId: string;
+    sublikes: string[]
+}
+
+const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste, likes: initialLikes, location, price, tags, timestamp, userId, allergens }) => {
+    const [usersCache, setUsersCache] = useState({});
     const [userInfo, setUserInfo] = useState(null);
     const [commentToggle, setCommentToggle] = useState(false);
-    const [likeStatus, setLikeStatus] = useState(null);
+    const [likeStatus, setLikeStatus] = useState(false);
+    const [likes, setLikes] = useState(initialLikes || []);
     const [loading, setLoading] = useState(true);
+    const [commentInput, setCommentInput] = useState("");
+    const [comments, setComments] = useState<Comment[]>([]);
     const { user } = useAuth();
     const { loggedInUser } = user;
-    console.log("likes", likes)
+    const [commentTarget, setCommentTarget] = useState(reviewId);
+
+    const SubComment: React.FC<SubCommentProps> = memo(({ content, userId, commentId, reviewId, sublikes }) => {
+        const commentUser = usersCache[userId];
+        const [subLikes, setSubLikes] = useState(sublikes || []);
+        const [isLiked, setIsLiked] = useState(false);
+    
+        useEffect(() => {
+            if (loggedInUser && sublikes) {
+                setIsLiked(sublikes.includes(loggedInUser.loggedInUser.uid));
+            }
+        }, [sublikes, loggedInUser]);
+    
+        const handleSubLike = async () => {
+            if (!loggedInUser) return;
+    
+            try {
+                const userId = loggedInUser.loggedInUser.uid;
+                const commentRef = doc(db, 'comments', commentId);
+                const commentDoc = await getDoc(commentRef);
+    
+                if (commentDoc.exists()) {
+                    const commentData = commentDoc.data();
+                    let commentLikes = commentData.likes || [];
+    
+                    if (commentLikes.includes(userId)) {
+                        commentLikes = commentLikes.filter(id => id !== userId);
+                        setIsLiked(false);
+                    } else {
+                        commentLikes.push(userId);
+                        setIsLiked(true);
+                    }
+    
+                    setSubLikes(commentLikes);
+                    await updateDoc(commentRef, { likes: commentLikes });
+                }
+            } catch (err) {
+                console.error('Error updating like status:', err);
+            }
+        };
+    
+        return (
+            <View style={styles.subCommentMain}>
+                <View style={styles.subCommentUser}>
+                    <Image 
+                    style={styles.subCommentProfile}
+                    source={commentUser?.profileImage ? { uri: commentUser.profileImage } : require('../assets/profile.jpeg')}
+                    />
+                    <Text style={styles.subCommentName}>{commentUser?.displayName}</Text>
+                </View>
+                <View style={styles.subCommentContainer}>
+                    <Text style={styles.subCommentContent}>{content}</Text>
+                </View>
+                <View style={styles.subreviewBottom}>
+                    <TouchableOpacity onPress={handleSubLike} style={styles.sublikeRow}>
+                        {isLiked ? <Image style={styles.subicon2} source={require('../assets/fullHeart.png')} /> : <Image style={styles.subicon2} source={require('../assets/emptyHeart.png')} />}
+                        <Text style={styles.sublikeNumber}>{subLikes.length}</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        );
+    });
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -28,12 +109,11 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
                     const userDoc = querySnapshot.docs[0];
                     const userData = userDoc.data();
                     setUserInfo(userData);
-
                 }
             } catch (err) {
                 console.log(err);
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
         };
 
@@ -41,80 +121,91 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
     }, [reviewId, userId]);
 
     useEffect(() => {
-        if (!loggedInUser) return
+        const fetchComments = async () => {
+            const commentsRef = collection(db, 'comments');
+            const q = query(commentsRef, where('postedUnder', '==', reviewId));
+            const querySnapshot = await getDocs(q);
+
+            const loadedComments: Comment[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Comment));
+            setComments(loadedComments);
+        };
+
+        fetchComments();
+    }, [reviewId]);
+
+    useEffect(() => {
+        const fetchAllUserData = async () => {
+            const userIds = new Set([userId, ...comments.map(comment => comment.userId)]);
+            const newCache = { ...usersCache };
+            
+            for (const id of userIds) {
+                if (!newCache[id]) {
+                    try {
+                        const usersRef = collection(db, 'users');
+                        const q = query(usersRef, where('id', '==', id));
+                        const querySnapshot = await getDocs(q);
+        
+                        if (!querySnapshot.empty) {
+                            const userDoc = querySnapshot.docs[0];
+                            const userData = userDoc.data();
+                            newCache[id] = userData;
+                        }
+                    } catch (err) {
+                        console.log(err);
+                    }
+                }
+            }
+            
+            setUsersCache(newCache);
+        };
+
+        fetchAllUserData();
+    }, [comments]);
+
+    useEffect(() => {
+        if (!loggedInUser) return;
         const fetchLikeData = async () => {
             try {
-                const usersRef = collection(db, 'globalSubmissions');
-                const q = query(usersRef, where('id', '==', reviewId));
-                const querySnapshot = await getDocs(q);
+                const reviewRef = doc(db, 'globalSubmissions', reviewId);
+                const reviewDoc = await getDoc(reviewRef);
 
-                if (!querySnapshot.empty) {
-                    const reviewDoc = querySnapshot.docs[0];
+                if (reviewDoc.exists()) {
                     const reviewData = reviewDoc.data();
-                    
                     const likeData = reviewData.likes || [];
 
-                    if (likeData.includes(loggedInUser.loggedInUser.uid)) {
-                        setLikeStatus(true) 
-                    } else {
-                        setLikeStatus(false)
-                    }
-
+                    setLikeStatus(likeData.includes(loggedInUser.loggedInUser.uid));
+                    setLikes(likeData);
                 }
             } catch (err) {
                 console.log(err);
-            } finally {
-                setLoading(false)
             }
         };
 
         fetchLikeData();
-    }, []);
+    }, [loggedInUser, reviewId]);
 
     const handleLike = async () => {
         if (!loggedInUser) return;
-    
+
         try {
-            // Fetch the user document
             const userId = loggedInUser.loggedInUser.uid;
-            const usersRef = collection(db, 'users');
-            const userQuery = query(usersRef, where('id', '==', userId));
-            const userSnapshot = await getDocs(userQuery);
-    
-            if (!userSnapshot.empty) {
-                const userDoc = userSnapshot.docs[0];
-                const userData = userDoc.data();
-                const userLikes = userData.likes || []; // Ensure userLikes is an array
-    
-                // Fetch the review document
-                const reviewRef = doc(db, 'globalSubmissions', reviewId);
-                const reviewDoc = await getDoc(reviewRef);
-    
-                if (reviewDoc.exists()) {
-                    const reviewData = reviewDoc.data();
-                    const reviewLikes = reviewData.likes || []; // Ensure reviewLikes is an array
-    
-                    if (userLikes.includes(reviewId)) {
-                        // Unlike the review
-                        const newUserLikes = userLikes.filter(id => id !== reviewId);
-                        const newReviewLikes = reviewLikes.filter(id => id !== userId);
-    
-                        await updateDoc(userDoc.ref, { likes: newUserLikes });
-                        await updateDoc(reviewRef, { likes: newReviewLikes });
-                        setLikeStatus(false); // Set local like status to false
-                    } else {
-                        // Like the review
-                        const newUserLikes = [...userLikes, reviewId];
-                        const newReviewLikes = [...reviewLikes, userId];
-    
-                        await updateDoc(userDoc.ref, { likes: newUserLikes });
-                        await updateDoc(reviewRef, { likes: newReviewLikes });
-                        setLikeStatus(true); // Set local like status to true
-                    }
+            const reviewRef = doc(db, 'globalSubmissions', reviewId);
+            const reviewDoc = await getDoc(reviewRef);
+
+            if (reviewDoc.exists()) {
+                const reviewData = reviewDoc.data();
+                let reviewLikes = reviewData.likes || [];
+
+                if (reviewLikes.includes(userId)) {
+                    reviewLikes = reviewLikes.filter(id => id !== userId);
+                    setLikeStatus(false);
+                } else {
+                    reviewLikes.push(userId);
+                    setLikeStatus(true);
                 }
-            } else {
-                // Handle case where the user document does not exist
-                console.error('User document not found');
+
+                setLikes(reviewLikes);
+                await updateDoc(reviewRef, { likes: reviewLikes });
             }
         } catch (err) {
             console.error('Error updating like status:', err);
@@ -122,9 +213,9 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
     };
 
     const getTagStyle = (tag) => {
-        if(["Breakfast", "Lunch", "Dinner"].includes(tag)) {
+        if (["Breakfast", "Lunch", "Dinner"].includes(tag)) {
             return styles.tagYellow;
-        }else if (Preferences.id.includes(tag)) {
+        } else if (Preferences.id.includes(tag)) {
             return styles.tagGreen;
         }
         return styles.tagGray;
@@ -134,69 +225,149 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
         return Preferences.id.includes(allergen) ? styles.tagRed : styles.tagGray;
     };
 
+    const asyncSubmitComment = async () => {
+        if (!loggedInUser) return;
+    
+        const commentCollectionRef = collection(db, 'comments');
+    
+        let time = new Date().getTime();
+        let date = new Date(time);
+        const timestamp = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
+        
+        // Add the new comment and get its document reference
+        const newCommentRef = await addDoc(commentCollectionRef, {
+            content: commentInput,
+            timestamp,
+            userId: loggedInUser.loggedInUser.uid,
+            postedUnder: commentTarget, // This can be reviewId or parent comment ID
+            likes: [],
+            subComments: []
+        });
+    
+        // Get the new comment's document ID
+        const docId = newCommentRef.id;
+    
+        // Update the new comment with the document ID
+        await updateDoc(newCommentRef, { commentId: docId });
+    
+        // Determine the parent document reference (could be a review or a parent comment)
+        const parentDocRef = doc(db, 'globalSubmissions', reviewId); // If commentTarget is a review
+        // If commentTarget is a comment, you would use:
+        // const parentDocRef = doc(db, 'comments', commentTarget);
+    
+        // Fetch the parent document to get the current subComments array
+        const parentDoc = await getDoc(parentDocRef);
+        if (parentDoc.exists()) {
+            const parentData = parentDoc.data();
+            const subComments = parentData.subComments || [];
+    
+            // Update the subComments array to include the new comment ID
+            await updateDoc(parentDocRef, {
+                subComments: [...subComments, docId]
+            });
+
+            // Update the comments state to include the new comment
+            setComments([...comments, { id: docId, content: commentInput, userId: loggedInUser.loggedInUser.uid, postedUnder: commentTarget, likes: [], subComments: [] }]);
+            setCommentInput(''); // Clear the input field
+        } else {
+            console.error('Parent document not found');
+        }
+    
+        console.log(docId);
+    };
+
     return (
         <View style={styles.reviewContainer}>
             {loading ? (
                 <View style={styles.loadingContainer}>
-                    <Text>loading...</Text>
+                    <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
+                    <Text>Loading...</Text>
                 </View>
             ) : (
                 <View>
-                {userInfo && (
-                    <View style={styles.profileBox}>
-                        <Image
-                            source={userInfo.image ? { uri: userInfo.image } : require('../assets/profile.jpeg')}
-                            style={{ width: 30, height: 30, borderRadius: 25, marginRight: 10 }}
-                        />
-                        <Text style={styles.userInfoText}>{userInfo.displayName}</Text>
-                    </View>
-                )}
-                <View style={styles.reviewHeader}>
-                    <Text style={styles.reviewFoodName}>{foodName}</Text>
-                </View>
-                <View style={styles.tagContainer}>
-                {tags?.length > 0 && tags?.map((tag, i) => (
-                    <View style={[styles.tagBox, getTagStyle(tag)]} key={i}>
-                        <Text style={styles.tagText}>{tag}</Text>
-                    </View>
-                ))}
-                </View>
-                <View style={styles.tagContainer}>
-                {allergens?.length > 0 && allergens?.map((allergen, i) => (
-                    <View style={[styles.allergensBox, getAllergenStyle(allergen)]} key={i}>
-                        <Text style={styles.tagText}>{allergen}</Text>
-                    </View>
-                ))}
-                </View>
-                <View style={styles.reviewContent}>
-                    <Text style={styles.reviewComment}>{comment}</Text>
-                    <Text style={styles.taste}>Taste: {taste}/5</Text>
-                    <Text style={styles.health}>Health: {health}/5</Text>
-                </View>
-                <View style={styles.imageContainer}>
-                    {image?.map((item, i) => (
-                        <View key={i}>
-                            <Image source={{ uri: item }} style={{ width: 100, height: 100 }} />
+                    {userInfo && (
+                        <View style={styles.profileBox}>
+                            <Image
+                                source={userInfo.image ? { uri: userInfo.image } : require('../assets/profile.jpeg')}
+                                style={{ width: 30, height: 30, borderRadius: 25, marginRight: 10 }}
+                            />
+                            <Text style={styles.userInfoText}>{userInfo.displayName}</Text>
                         </View>
-                    ))}
+                    )}
+                    <View style={styles.reviewHeader}>
+                        <Text style={styles.reviewFoodName}>{foodName}</Text>
+                    </View>
+                    <View style={styles.tagContainer}>
+                        {tags?.length > 0 && tags.map((tag, i) => (
+                            <View style={[styles.tagBox, getTagStyle(tag)]} key={i}>
+                                <Text style={styles.tagText}>{tag}</Text>
+                            </View>
+                        ))}
+                    </View>
+                    <View style={styles.tagContainer}>
+                        {allergens?.length > 0 && allergens.map((allergen, i) => (
+                            <View style={[styles.allergensBox, getAllergenStyle(allergen)]} key={i}>
+                                <Text style={styles.tagText}>{allergen}</Text>
+                            </View>
+                        ))}
+                    </View>
+                    <View style={styles.reviewContent}>
+                        <Text style={styles.reviewComment}>{comment}</Text>
+                        <Text style={styles.taste}>Taste: {taste}/5</Text>
+                        <Text style={styles.health}>Health: {health}/5</Text>
+                    </View>
+                    <View style={styles.imageContainer}>
+                        {image?.map((item, i) => (
+                            <View key={i}>
+                                <Image source={{ uri: item }} style={{ width: 100, height: 100 }} />
+                            </View>
+                        ))}
+                    </View>
+                    <View style={styles.reviewBottom}>
+                        <TouchableOpacity style={styles.commentRow} onPress={() => setCommentToggle(!commentToggle)}>
+                            <Image style={styles.icon} source={require('../assets/comment.png')} />
+                            <Text style={styles.likeNumber}>{comments.length || 0}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={handleLike} style={styles.likeRow}>
+                            {likeStatus ? <Image style={styles.icon} source={require('../assets/fullHeart.png')} /> : <Image style={styles.icon} source={require('../assets/emptyHeart.png')} />}
+                            <Text style={styles.likeNumber}>{likes.length}</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
-                <View style={styles.reviewBottom}>
-                    <TouchableOpacity onPress={() => setCommentToggle(!commentToggle)}>
-                        <Image source={require('../assets/comment.jpg')}/>
-                        <Text>{subcomment?.length}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={handleLike} style={styles.likeRow}>
-                        <Text>{likes?.length}</Text>
-                        {likeStatus ? <Image source={require('../assets/fullHeart.jpg')}/> : <Image source={require('../assets/emptyHeart.jpg')}/>}
+            )}
+            {commentToggle &&
+            <View style={styles.commentContainer}>
+                <View>
+                {comments.length > 0 &&
+                comments.map((comment: Comment, i) => {
+                    return <SubComment
+                            key={i}
+                            content={comment.content}
+                            userId={comment.userId}
+                            commentId={comment.id}
+                            reviewId={reviewId}
+                            sublikes={comment.likes}
+                            />
+                })}
+            </View>
+                <View style={styles.commentInputRow}>
+                    <TextInput 
+                    placeholder="Add a comment"
+                    style={styles.textInput}
+                    value={commentInput}
+                    onChangeText={(text) => setCommentInput(text)} 
+                    />
+                    <TouchableOpacity style={styles.replyButton} onPress={asyncSubmitComment}>
+                        <Text>reply</Text>
                     </TouchableOpacity>
                 </View>
             </View>
-            )}
+            }
         </View>
-    )
+    );
 }
 
-const styles =  StyleSheet.create({
+const styles = StyleSheet.create({
     profileBox: {
         flexDirection: 'row',
         alignItems: 'center'
@@ -210,6 +381,7 @@ const styles =  StyleSheet.create({
     reviewContainer: {
         borderBottomWidth: 1,
         borderColor: colors.grayStroke,
+        paddingBottom: 10,
         marginBottom: 10,
     },
     userInfoText: {
@@ -217,7 +389,7 @@ const styles =  StyleSheet.create({
     },
     reviewHeader: {
         paddingTop: 10,
-    }, 
+    },
     reviewFoodName: {
         fontSize: 16,
     },
@@ -249,6 +421,10 @@ const styles =  StyleSheet.create({
         borderRadius: 15,
         marginRight: 5,
     },
+    subreviewBottom: {
+        flexDirection: 'row-reverse',
+        alignItems: 'center',
+    },
     reviewContent: {
         marginTop: 10,
     },
@@ -273,6 +449,7 @@ const styles =  StyleSheet.create({
     likeRow: {
         flexDirection: 'row',
         marginHorizontal: 15,
+        alignItems: 'center'
     },
     imageContainer: {
         flexDirection: 'row',
@@ -280,7 +457,84 @@ const styles =  StyleSheet.create({
     likeText: {
         marginLeft: 3,
     },
-
-})
+    likeNumber: {
+        marginLeft: 4
+    },
+    sublikeNumber: {
+        marginLeft: 5
+    },
+    icon: {
+        width: 18,
+        height: 16,
+    },
+    subicon: {
+        width: 12,
+        height: 12,
+        marginLeft: 12,
+    },
+    subicon2: {
+        width: 12,
+        height: 10,
+    },
+    commentRow: {
+        flexDirection: 'row'
+    },
+    subcommentRow: {
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    sublikeRow: {
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    commentContainer: {
+        backgroundColor: colors.inputGray,
+        marginTop: 8,
+        paddingTop: 20,
+        paddingBottom: 8,
+        paddingHorizontal: 6,
+    },
+    textInput: {
+        backgroundColor: 'white',
+        paddingVertical: 4,
+        paddingHorizontal: 3,
+        width: '85%',
+        borderRadius: 5
+    },
+    commentInputRow: {
+        flexDirection: 'row',
+    },
+    replyButton: {
+        width: 50,
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    subCommentProfile: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        alignSelf: 'center',
+        justifyContent: 'center',
+        marginBottom: 10
+    },
+    subCommentUser: {
+        flexDirection: 'row'
+    },
+    subCommentName: {
+        marginLeft: 5,
+        fontSize: 13,
+    },
+    subCommentContent: {
+        fontSize: 13
+    },
+    subCommentContainer: {
+        paddingTop: 3,
+    },
+    subCommentMain: {
+        paddingHorizontal: 3,
+        paddingBottom: 15,
+    }
+});
 
 export default Review;
