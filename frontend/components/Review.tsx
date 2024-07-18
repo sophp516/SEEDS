@@ -138,7 +138,8 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
         <View style={styles.reviewContainer}>
             {loading ? (
                 <View style={styles.loadingContainer}>
-                    <Text>loading...</Text>
+                    <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
+                    <Text>Loading...</Text>
                 </View>
             ) : (
                 <View>
