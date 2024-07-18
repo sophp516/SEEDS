@@ -652,6 +652,7 @@ const styles = StyleSheet.create({
     postHistoryScroll: {
         paddingHorizontal: 20,
         paddingTop: 20,
+        paddingBottom: 100,
     },
     profileLeft: {
         flexDirection: 'column',

@@ -218,9 +218,9 @@ const Post = () => {
                     await setDoc(foodDocRef,{reviewIds: [reviewId]});
                     await setDoc(localFoodListDoc, {foodName: review.foodName});
                 }
-                const newAverage = await calculateAverageRating(review.foodName, review.location, review.health, review.taste);
+                const [newAverage, newHealth, newTaste] = await calculateAverageRating(review.foodName, review.location, review.health, review.taste);
                 console.log("new avg", newAverage)
-                await updateDoc(doc(db, 'colleges', 'Dartmouth College', 'foodList', review.foodName), {averageRating: newAverage});
+                await updateDoc(doc(db, 'colleges', 'Dartmouth College', 'foodList', review.foodName), {averageRating: newAverage, health: newHealth, taste: newTaste});
                 await updateDoc(doc(db,'colleges', 'Dartmouth College','diningLocations',review.location, review.foodName, 'reviews'),{reviewIds: arrayUnion(reviewId)})
                
             }catch{
@@ -292,6 +292,8 @@ const Post = () => {
                 return; // Optionally handle this case more gracefully
             }
             const currAverage = getAverage.data().averageRating;
+            const currHealth = getAverage.data().health;
+            const currTaste = getAverage.data().taste; 
             console.log("curr rating:", currAverage);
             const reviews = await getDoc(doc(db, 'colleges', 'Dartmouth College',"diningLocations", location, foodName, 'reviews'));
             if (!reviews.exists()) {
@@ -301,13 +303,13 @@ const Post = () => {
             const reviewIds = reviews.data().reviewIds;
             const length = reviewIds.length
             const newAverage = ((currAverage * length )+ ((health + taste)/2)) / (length + 1);
-            return newAverage;
+            const newHealth = ((currHealth * length) + health) / (length + 1);
+            const newTaste = ((currTaste * length) + taste) / (length + 1);
+            return [newAverage, newHealth, newTaste];
 
         }catch{
             console.error("Error calculating average rating");
         }
-
-
     }
 
     const submitDiscover = async(location, id) => {
@@ -325,6 +327,7 @@ const Post = () => {
            return;  
        }
     }
+
     const getCount = async() => {
         try{
             const getCount = await getDoc(doc(db, 'globalData', 'uploadCount'));
