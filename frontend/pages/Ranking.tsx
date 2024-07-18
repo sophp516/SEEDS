@@ -75,8 +75,7 @@ const Ranking = () => {
                     <Text style={!toggle ? styles.btnText1 : styles.btnText2}>Review</Text>
                 </TouchableOpacity>
          </View>
-        {/* Drop down for filtering leaderboard by time */}
-        <View style={{justifyContent:'center'}}>
+         <View style={{justifyContent:'center'}}>
           <View style={{backgroundColor: '#E7E2DB', marginBottom: 20, marginTop: 10, marginLeft: "60%",
             borderRadius: 30, justifyContent:'center', alignContent: 'center', alignItems: "center", height: 40, width:100}}>
               <TouchableOpacity onPress={()=>setOpen(!open)} style={{ paddingHorizontal: 10, paddingVertical: 10 ,flexDirection: 'row', justifyContent: 'space-between'} }>
@@ -88,14 +87,19 @@ const Ranking = () => {
             <TimeDropdown setSelectedValue={setSelectedValue}/>:<View/>}
         </View>
         {/* Displays the leader board based off fetching  */}
-         <View style={{zIndex: -1}}>
+        {toggle ? 
+        <View style={{zIndex: -1}}>
             {foodLeaderboard.map((food, index) => (
               <View>
                 <FoodRank rank={index} foodName={food.foodName} rating={food.averageRating}/>
                 {/* <Text>{index+1}. {food.foodName} - {food.averageRating}</Text> */}
               </View>
             ))}
-         </View>
+         </View>: <View/>}
+        {/* Drop down for filtering leaderboard by time */}
+        <View></View>
+
+
         <Navbar />
       </View>
 
