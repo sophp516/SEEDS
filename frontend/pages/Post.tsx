@@ -6,7 +6,7 @@ import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
 import CustomSlider from '../components/CustomSlider';
 import * as ImagePicker from 'expo-image-picker';
 import { db , storage } from '../services/firestore';
-import { collection, addDoc, updateDoc, getDoc, doc, arrayUnion, query, limit , getDocs, setDoc, count} from 'firebase/firestore';
+import { collection, addDoc, updateDoc, getDoc, doc, arrayUnion, query, limit , getDocs, setDoc, count, Timestamp} from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import { ref, uploadBytes,getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import { useAuth } from '../context/authContext.js';
@@ -22,7 +22,7 @@ import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 interface newPost{
     images: string[];
     comment: string;
-    timestamp?: string;
+    timestamp?: Timestamp;
     postId?: string;
     userId: string;
     likes?:string[];
@@ -43,7 +43,7 @@ interface newReview {
     allergens: string[] | null,
     comment: string|null,
     likes?:string[];
-    timestamp?: string;
+    timestamp?: Timestamp;
     subComments: [];
     isReview: boolean;
     uploadCount?: number;
@@ -91,6 +91,18 @@ const Post = () => {
         subComments: [],
     });
     const [modalVisible, setModalVisible] = useState(false);
+    const [tagsData, setTagsData] = useState(preferences.id.map((tag, index)=>{
+        return{
+            id: index.toString(),
+            title: tag
+        }
+    })); 
+    const [allergensData, setAllergensData] = useState(Allergens.id.map((allergen, index)=>{
+        return{
+            id: index.toString(),
+            title: allergen
+        }
+    }));
 
 
     const handleCreatePost = async() => {
@@ -102,7 +114,9 @@ const Post = () => {
             const images = [];
             let timestamp = new Date().getTime();
             let date = new Date(timestamp);
-            finalPost.timestamp = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
+            const updatedAtTime = Timestamp.fromDate(new Date()); // curr date and time as in firestore
+            finalPost.timestamp = updatedAtTime;
+            // finalPost.timestamp = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
 
             if (post.images.length > 0 ){
                 /* Tried to write a upload function, however that resulted in app crashing unless we keep path name the same*/
@@ -152,24 +166,20 @@ const Post = () => {
 
     const handleCreateReview = async () =>{
         try{
-          
+            // Verifies user
             const userData = await verifyUser();
             if (!userData) return; 
 
-            // current I can't get access to user's school without the full pathname
-            // const locationExist = await verifyLocation("Dartmouth College", review.location);
-            // if (!locationExist){
-            //     console.log(userSnapshot.data().schoolName)
-            //     console.error("Location does not exist");
-            //     return;
-            // }
-
             let finalReview = {...review};
             const imageURls = [];
+            // string version of time stamp
             let timestamp = new Date().getTime();
             let date = new Date(timestamp);
-            finalReview.timestamp = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
-
+            // finalReview.timestamp = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
+            // // object version of the timestamp for firebase filtering 
+            const updatedAtTime = Timestamp.fromDate(new Date()); // curr date and time as in firestore
+            finalReview.timestamp = updatedAtTime;
+            // proccesses the images 
             if (review.images.length > 0){
                 console.log("images in the array:", review.images);
                 for (let i = 0; i < review.images.length; i++){
@@ -187,16 +197,18 @@ const Post = () => {
             }else{  
                 delete finalReview.images;
             }
-            // Adding to review collection
-          
+
+            // Adding to review in the global collection where the information of each individual reviews are stored
             const reviewRef = await addDoc(collection(db, 'globalSubmissions'), finalReview);
             const reviewId = reviewRef.id;
             console.log("userID:", reviewId);
             const count = await getCount();
             if (count === -1) return;
             await updateDoc(doc(db, 'globalSubmissions', reviewId), {reviewId: reviewId, uploadCount: count});
+
             // UPDATES FOOD COLLECTION and FOODLIST 
-           
+            // checks whether the item is new and update document accordingly 
+            // for item that exist, updates will be made to reviews, time, and tags frequency 
             try{
                 //paths
                 const foodCollectionRef= collection(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName); // checks if food collection exist in location
@@ -208,19 +220,26 @@ const Post = () => {
                 const collegeFoodlistDocExist = await checkDocExist(collegeFoodListDoc); // if food already in global list
                 const foodlistExist = await checkDocExist(collegeFoodListDoc); // add if not there
                 
-                // if food is not already in the global list, then we will add it there
+                // if food is not already in the global list, then we will add it there. 
+                // Initializes the data with the review information 
                 if (collegeFoodlistDocExist === false){
                     await setDoc(collegeFoodListDoc, {foodName: review.foodName, location: review.location,likes: [], tags: review.tags, allergens: review.allergens,
-                        health:review.health, price: review.price, taste: review.taste, images: imageURls, averageRating: (review.taste + review.health)/2});}
+                        health:review.health, price: review.price, taste: review.taste, images: imageURls, averageRating: (review.taste + review.health)/2,
+                        createdAt: updatedAtTime, updatedAt: updatedAtTime
+                    });
+                }else{
+                    const [newAverage, newHealth, newTaste] = await calculateAverageRating(review.foodName, review.location, review.health, review.taste);
+                    console.log("new avg", newAverage)
+                    await updateDoc(collegeFoodListDoc, {averageRating: newAverage, health: newHealth, taste: newTaste, updatedAt: updatedAtTime});
+                }
+                
+                // Adds the foodID to the food collection 
                 if (exist === false){
                     console.log('exist??:', exist)
                     const foodDocRef = doc(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName, 'reviews');
                     await setDoc(foodDocRef,{reviewIds: [reviewId]});
                     await setDoc(localFoodListDoc, {foodName: review.foodName});
                 }
-                const [newAverage, newHealth, newTaste] = await calculateAverageRating(review.foodName, review.location, review.health, review.taste);
-                console.log("new avg", newAverage)
-                await updateDoc(doc(db, 'colleges', 'Dartmouth College', 'foodList', review.foodName), {averageRating: newAverage, health: newHealth, taste: newTaste});
                 await updateDoc(doc(db,'colleges', 'Dartmouth College','diningLocations',review.location, review.foodName, 'reviews'),{reviewIds: arrayUnion(reviewId)});
                 await updateTagFrequency(review.foodName, review.tags, review.allergens)
                
@@ -339,7 +358,7 @@ const Post = () => {
             }
             const reviewIds = reviews.data().reviewIds;
             const length = reviewIds.length
-            const newAverage = ((currAverage * length )+ ((health + taste)/2)) / (length + 1);
+            const newAverage = ((currAverage * length ) + ((health + taste)/2)) / (length + 1);
             const newHealth = ((currHealth * length) + health) / (length + 1);
             const newTaste = ((currTaste * length) + taste) / (length + 1);
             return [newAverage, newHealth, newTaste];
@@ -464,6 +483,8 @@ const Post = () => {
             subComments: []
         });
     }
+
+    /* HANDLE USER INTERACTION FUNCTIONS*/
     /* Later we can do food reccomendation from API if time */
     const handleChangeFoodName = (text: string) => {
         setReview(prevReview => ({ ...prevReview, foodName: text }));
@@ -507,11 +528,21 @@ const Post = () => {
             setTag('');
         }
     }
+    const handleSelectTag = (item) => {
+        if (item){
+            setReview(prevReview => ({...prevReview, tags: [...prevReview.tags, item.title]}));
+        }
+    }
     const handleSubmitAllergen = () => {
         if (allergen){
             review.allergens.push(allergen);
             setAllergen('');
     }}
+    const handleSelectAllergen = (item) => {
+        if (item){
+            setReview(prevReview => ({...prevReview, allergens: [...prevReview.allergens, item.title]}));
+        }
+    }
     const handleDeleteTag = (index) => {
         const newTags = review.tags.filter((tags, i) => i !== index);
         setReview((prev => ({...prev, tags: newTags})));
@@ -581,10 +612,10 @@ const Post = () => {
             <View style={styles.toggleContainer}>
                 
                 <TouchableOpacity onPress={()=>setToggle(true)} style={toggle ? styles.activeToggle : styles.inactiveToggle}>
-                    <Text style={toggle ? styles.btnText1 : styles.btnText2}>Post</Text>
+                    <Text style={toggle ? styles.btnText1 : styles.btnText1}>Post</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={()=>setToggle(false)} style={toggle ?  styles.inactiveToggle : styles.activeToggle }>
-                    <Text style={!toggle ? styles.btnText1 : styles.btnText2}>Review</Text>
+                    <Text style={!toggle ? styles.btnText1 : styles.btnText1}>Review</Text>
                 </TouchableOpacity>
             </View>
             
@@ -649,7 +680,7 @@ const Post = () => {
                    
                         <View style={{alignItems: 'center', justifyContent: 'center'}}>
                             <TouchableOpacity style={styles.addPostBtn} onPress={handleCreatePost}>
-                                <Text style={styles.btnText1}>Add post</Text>
+                                <Text style={styles.btnText2}>Add post</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -704,7 +735,6 @@ const Post = () => {
                         </View>
                            
                         <Text style={styles.text}> Location </Text>
-                           
                             <AutocompleteDropdown 
                                 dataSet={diningLocation}
                                 onChangeText={(text)=> {setLocationInput (text)}}
@@ -771,15 +801,35 @@ const Post = () => {
                          <View style={styles.tagsContainer}>
                          {tagsContainer("tags", review.tags, handleDeleteTag)}
                         </View>:<View/>}
-    
-                        <TextInput 
-                                style={styles.textbox}
-                                value={tag}
-                                onChangeText={(tag)=> setTag(tag)}
-                                placeholder='Enter a tag'
-                                onSubmitEditing={handleSubmitTag}
-                                returnKeyType='done'
-                        />
+                        <AutocompleteDropdown 
+                                dataSet={tagsData}
+                                onChangeText={(text)=> {setTag (text)}}
+                                onSelectItem={handleSelectTag}
+                                direction={Platform.select({ ios: 'down' })}
+                                onClear={() => setTag('')}
+                                initialValue={tag}
+                                textInputProps ={{
+                                    placeholder: 'Enter a tag',
+                                    value:tag,
+                                    autoCorrect: false,
+                                    autoCapitalize: 'none',
+                                    style: { 
+                                        color: 'black',
+                                        backgroundColor: '#E7E2DB',
+                                        width: 350,
+                                        height: 30,
+                                        borderRadius: 10,                           
+                                        alignSelf: 'center'
+                                    }
+                                }}
+                                inputContainerStyle={{
+                                    backgroundColor: '#E7E2DB',
+                                    width: 350,
+                                    height: 35,
+                                    borderRadius: 10,
+                                    
+                                }}
+                            />
 
                         <Text style={styles.text}> Add allergens</Text>
                         { review.allergens.length > 0 ?
@@ -787,14 +837,35 @@ const Post = () => {
                              {tagsContainer("allergens", review.allergens, handleDeleteAllergen)}
                             </View> 
                         :<View/>}
-                        <TextInput 
-                                style={styles.textbox}
-                                value={allergen}
-                                onChangeText={(allergen)=>setAllergen(allergen)}
-                                placeholder='Enter an allergen'
-                                onSubmitEditing={handleSubmitAllergen}
-                                returnKeyType='done'
-                        />
+                            <AutocompleteDropdown 
+                                dataSet={tagsData}
+                                onChangeText={(text)=> {setAllergen(text)}}
+                                onSelectItem={handleSelectAllergen}
+                                direction={Platform.select({ ios: 'down' })}
+                                onClear={() => setAllergen('')}
+                                initialValue={tag}
+                                textInputProps ={{
+                                    placeholder: 'Enter a allergen',
+                                    value:tag,
+                                    autoCorrect: false,
+                                    autoCapitalize: 'none',
+                                    style: { 
+                                        color: 'black',
+                                        backgroundColor: '#E7E2DB',
+                                        width: 350,
+                                        height: 30,
+                                        borderRadius: 10,                           
+                                        alignSelf: 'center'
+                                    }
+                                }}
+                                inputContainerStyle={{
+                                    backgroundColor: '#E7E2DB',
+                                    width: 350,
+                                    height: 35,
+                                    borderRadius: 10,
+                                    
+                                }}
+                            />
                        
 
                         <Text style={styles.text}> Comment </Text>
@@ -811,7 +882,7 @@ const Post = () => {
                            
                         </View>
                         <TouchableOpacity onPress={handleCreateReview} style={styles.addReviewBtn}>
-                            <Text style={styles.btnText1}>Add review</Text>
+                            <Text style={styles.btnText2}>Add review</Text>
                         </TouchableOpacity>
                     </View>   
                 </ScrollView>
@@ -872,7 +943,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     btnText2:{ // white
-        color: '#35353E',
+        color: '#FFFFFF',
         fontFamily: 'Satoshi', 
         fontSize: 14,
         fontStyle: 'normal',
@@ -881,6 +952,7 @@ const styles = StyleSheet.create({
         letterSpacing: -0.154,
         textAlign: 'center',
     },
+
     slider:{
         width: 200, 
         height: 40, 

@@ -1,18 +1,19 @@
 import Navbar from "../components/Navbar";
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View , Image} from 'react-native';
 import colors from "../styles.js";
 import { getDocs, collection, average, where, query,} from 'firebase/firestore'
 import { db } from '../services/firestore'
 import FoodRank from "../components/FoodRank.tsx";
-
-
+import TimeDropdown from "../components/TimeDropdown.tsx";
 const Ranking = () => {
     const [toggle, setToggle] = useState<boolean>(true); // true = post, false = review 
     const [foodNames, setFoodNames] = useState<String[]>([]);
     const [foodLeaderboard, setFoodLeaderboards] = useState<any[]>([]);
     const [foodData, setFoodData] = useState<any[]>([]); // can fetch by time, but for demo fetch per update?
-    
+    const [open, setOpen] = useState(false);
+    const [selectedValue, setSelectedValue] = useState("All-time");
+
 
    
     // fetches the list of food names to get rating data 
@@ -65,6 +66,7 @@ const Ranking = () => {
         <View style={{  alignItems: 'flex-start', flexDirection:'row', marginRight: '50%'}}>
           <Text style={styles.header}>Leaderboard</Text>
         </View>
+        
         <View style={styles.toggleContainer}>
                 <TouchableOpacity onPress={()=>setToggle(true)} style={toggle ? styles.activeToggle : styles.inactiveToggle}>
                     <Text style={toggle ? styles.btnText1 : styles.btnText2}>Food</Text>
@@ -73,7 +75,20 @@ const Ranking = () => {
                     <Text style={!toggle ? styles.btnText1 : styles.btnText2}>Review</Text>
                 </TouchableOpacity>
          </View>
-         <View>
+        {/* Drop down for filtering leaderboard by time */}
+        <View style={{justifyContent:'center'}}>
+          <View style={{backgroundColor: '#E7E2DB', marginBottom: 20, marginTop: 10, marginLeft: "60%",
+            borderRadius: 30, justifyContent:'center', alignContent: 'center', alignItems: "center", height: 40, width:100}}>
+              <TouchableOpacity onPress={()=>setOpen(!open)} style={{ paddingHorizontal: 10, paddingVertical: 10 ,flexDirection: 'row', justifyContent: 'space-between'} }>
+                <Text> {selectedValue} </Text>
+                <Image source={require('../assets/dropdown.png')} style={{width: 12, height: 12, marginLeft: 1}} />
+              </TouchableOpacity>
+          </View>
+          {open ?
+            <TimeDropdown setSelectedValue={setSelectedValue}/>:<View/>}
+        </View>
+        {/* Displays the leader board based off fetching  */}
+         <View style={{zIndex: -1}}>
             {foodLeaderboard.map((food, index) => (
               <View>
                 <FoodRank rank={index} foodName={food.foodName} rating={food.averageRating}/>
@@ -156,7 +171,28 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     lineHeight: 21, 
     letterSpacing: -0.154,
-      textAlign: 'center',
+    textAlign: 'center',
   },
+  dropdown:{
+    flexDirection: 'row',
+    padding: 5,
+    margin: 1,
+    // borderRadius: 5,
+    // backgroundColor: '#C6C6C5',
+    width:'100%',
+    justifyContent: 'center'
+  },
+  textStyle:{
+    textAlign:'center',
+    lineHeight: 15,
+    fontFamily: 'Satoshi',
+    fontSize: 14,
+  },
+  dropDownContainer:{
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 20,
+    height: 100,
+  }
   });
 export default Ranking;
