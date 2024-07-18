@@ -240,6 +240,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     taste={item.taste}
                                     tags={item.tags}
                                     allergens={item.allergens}
+                                    health={item.health}
                                   />
                                 ))}
                               </View>
@@ -274,6 +275,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                       taste={item.taste}
                                       tags={item.tags}
                                       allergens={item.allergens}
+                                      health={item.health}
+
                                     />
                                   ))}
                                 </View>
@@ -309,6 +312,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                       taste={item.taste}
                                       tags={item.tags}
                                       allergens={item.allergens}
+                                      health={item.health}
                                     />
                                   ))}
                                 </View>
