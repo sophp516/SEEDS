@@ -10,12 +10,13 @@ const Ranking = () => {
     const [toggle, setToggle] = useState<boolean>(true); // true = post, false = review 
     const [foodNames, setFoodNames] = useState<String[]>([]);
     const [foodLeaderboard, setFoodLeaderboards] = useState<any[]>([]);
+    const [filteredFoodLeaderboard, setFilteredFoodLeaderboard] = useState<any[]>([]);  
     const [foodData, setFoodData] = useState<any[]>([]); // can fetch by time, but for demo fetch per update?
     const [open, setOpen] = useState(false);
     const [selectedValue, setSelectedValue] = useState("All-time");
 
 
-    // fetches the list of food names to get rating data 
+    // fetches the list of food names to get rating data once the component mounts
     useEffect(()=>{
       const fetchFoodNames = async () => {
           try{
@@ -28,52 +29,75 @@ const Ranking = () => {
       fetchFoodNames();
     }, [])
 
-    useEffect(()=>{
-      const fetchFoodRating = async () => {
-        try{
-          let time = new Date();
-          if (selectedValue === "Month") {
-            time.setMonth(time.getMonth() - 1);
-          } else if (selectedValue === "Week") {
-            time.setDate(time.getDate() - 7);
-          } else if (selectedValue === "Year") {
-            time.setFullYear(time.getFullYear() - 1);
-          } else {
-            time = null; // No time filter for "All Time" or other cases
-          }
-
-          const queries = foodNames.map(foodName => {
-            let foodQuery = query(collection(db, "colleges", "Dartmouth College", "foodList"), where("foodName", "==", foodName));
-            if (time !== null) {
-              foodQuery = query(foodQuery, where("createdAt", ">=", Timestamp.fromDate(time)));
-            }
-            return getDocs(foodQuery);
-          });
-
-
-          const res = await Promise.all(queries); // consist all of the documents
-
-          // Mapping through several documents
-          // each document data is a array, but we only want one array of objects which is why flatMap is used (2D array -> 1D array)
-          // for each doc in docs, map the data to an object with foodName and averageRating
-          const datas = res.flatMap(res => res.docs.map(doc => ({
-            foodName: doc.data().foodName,
-            averageRating: doc.data().averageRating,
-            createdAt: doc.data().createdAt.toDate()
-          })));
-
-          datas.sort((a,b)=>b.averageRating-a.averageRating) // sort in ascending order
-          setFoodLeaderboards(datas)
-        }catch{
-          console.log("Error fetching food leaderboard")
-        }
+    const calculateStartDate = (selectedValue) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Start of today
+    
+      switch(selectedValue) {
+        case 'this week':
+          const dayOfWeek = today.getDay(); // Sunday - 0, Monday - 1, ..., Saturday - 6
+          const startOfWeek = new Date(today);
+          startOfWeek.setDate(today.getDate() - dayOfWeek); // Adjust to the start of this week
+          return startOfWeek;
+        case 'this month':
+          return new Date(today.getFullYear(), today.getMonth(), 1); // First day of this month
+        case 'this year':
+          return new Date(today.getFullYear(), 0, 1); // First day of this year
+        default:
+          return today;
       }
-      fetchFoodRating();
-    },[foodNames])
-
+    };
+  
+    useEffect(() => {
+        const fetchFoodRating = async () => {
+          try {
+    
+            const queries = foodNames.map(foodName => 
+              getDocs(query(collection(db, "colleges", "Dartmouth College", "foodList"), 
+                            where("foodName", "==", foodName),)));
+    
+            const res = await Promise.all(queries);
+    
+            const datas = res.flatMap(res => res.docs.map(doc => ({
+              foodName: doc.data().foodName,
+              averageRating: doc.data().averageRating,
+              createdAt: doc.data().createdAt
+            })));
+    
+            datas.sort((a, b) => b.averageRating - a.averageRating); // Sort in descending order
+            setFoodLeaderboards(datas);
+            setFilteredFoodLeaderboard(datas);
+          } catch (error) {
+            console.log("Error fetching food leaderboard:", error);
+          }
+        };
+    
+        fetchFoodRating();
+      }, [foodNames]);
+      
     console.log(foodLeaderboard)
 
+    const filterFoodLeaderboard = (text:string) =>{
+      const time = new Date();
+      setSelectedValue(text);
+      if (text === "All-time"){
+        setFilteredFoodLeaderboard(foodLeaderboard)
+      }else if(text == 'Week'){
+        const week = new Date(time.getFullYear(), time.getMonth(), time.getDate() - 7)
+        const filtered = foodLeaderboard.filter(food => food.createdAt > week)
+        setFilteredFoodLeaderboard(filtered)
 
+      }else if(text == 'Month'){
+        const month = new Date(time.getFullYear(), time.getMonth() - 1, time.getDate())
+        const filtered = foodLeaderboard.filter(food => food.createdAt > month)
+        setFilteredFoodLeaderboard(filtered)
+
+      }else if(text == 'Year'){
+        const year = new Date(time.getFullYear() - 1, time.getMonth(), time.getDate())
+        const filtered = foodLeaderboard.filter(food => food.createdAt > year)
+        setFilteredFoodLeaderboard(filtered)
+      }
+    }
 
 
     return (
@@ -100,12 +124,12 @@ const Ranking = () => {
               </TouchableOpacity>
           </View>
           {open ?
-            <TimeDropdown setSelectedValue={setSelectedValue}/>:<View/>}
+            <TimeDropdown setSelectedValue={setSelectedValue} filterFoodLeaderboard={filterFoodLeaderboard} />:<View/>}
         </View>
         {/* Displays the leader board based off fetching  */}
         {toggle ? 
         <View style={{zIndex: -1}}>
-            {foodLeaderboard.map((food, index) => (
+            {filteredFoodLeaderboard.map((food, index) => (
               <View>
                 <FoodRank rank={index} foodName={food.foodName} rating={food.averageRating}/>
               </View>
