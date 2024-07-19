@@ -80,12 +80,12 @@ const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, images, reviewIds, 
                 <View style={styles.ratingContainer}>
                   <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(health), marginRight: 3 }]}>
                    <Image source={require('../assets/health.png')} style={{width: 15, height: 15}}/>
-                      <Text style={styles.starText}> {health.toFixed(2)} </Text>
+                      <Text style={styles.starText}> {health.toFixed(1)} </Text>
 
                   </View>
                   <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(taste) }]}>
                       <Image source={require('../assets/taste.png')} style={{width: 15, height: 15}}/>
-                      <Text style={styles.starText}> {taste.toFixed(2)}</Text>
+                      <Text style={styles.starText}> {taste.toFixed(1)}</Text>
 
                   </View>
 

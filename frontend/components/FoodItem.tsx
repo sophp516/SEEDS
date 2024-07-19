@@ -9,6 +9,10 @@ type RootStackParamList = {
 };
 
 const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens }) => {
+  const defaultImage = require('../assets/image.png');
+  if (image.length === 0) {
+      image = defaultImage;
+  } 
 
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -21,7 +25,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
         <TouchableOpacity style={styles.foodItemContainer} onPress={navigateToReviews}>
             <View>
                 <Image 
-                    source={image || require('../assets/image.png')}
+                    source={image || defaultImage}
                     style={styles.image}
                 />
                 <View style={styles.priceOverlayContainer}>
@@ -35,8 +39,13 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                 </View>
                 <View style={styles.tagContainer}>
                     {tags.length > 0 && tags.map((tag, i) => (
-                        <View style={styles.tagBlob} key={i}>
-                            <Text>{tag}</Text>
+                        <View style={[styles.tagBlob, { backgroundColor: colors.highRating }]} key={i}>
+                            <Text style={styles.tagText}>{tag}</Text>
+                        </View>
+                    ))}
+                    {allergens.length > 0 && allergens.map((allergens, i) => (
+                        <View style={[styles.tagBlob, {backgroundColor: colors.warningPink}]} key={i}>
+                            <Text style={styles.tagText}>{allergens}</Text>
                         </View>
                     ))}
                 </View>
@@ -60,7 +69,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                       />
                     </View>
 
-                    <Text>  {health}</Text>
+                    <Text>  {health.toFixed(2)}</Text>
                   </View>
 
                   
@@ -79,7 +88,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                         
                       />
                     </View>
-                    <Text>  {taste}</Text>
+                    <Text>  {taste.toFixed(2)}</Text>
                   </View>
 
                 </View>
@@ -102,9 +111,13 @@ const styles = StyleSheet.create({
         paddingLeft: 18,
         paddingTop: 10,
         flex: 1,
+        flexDirection: 'column',
     },
     image: {
         position: 'relative',
+        width: 140,
+        height: 120,
+        borderRadius: 20,
     },
     priceOverlayContainer: {
         position: 'absolute',
@@ -146,13 +159,15 @@ const styles = StyleSheet.create({
 
     },
     tagBlob: {
-        paddingHorizontal: 10,
-        paddingVertical: 2,
-        borderRadius: 15,
-        marginRight: 3,
-        marginBottom: 3,
-        backgroundColor: colors.highRating,
-    },
+      paddingHorizontal: 6, // Reduced padding
+      paddingVertical: 2,   // Reduced padding
+      borderRadius: 12,     // Slightly smaller border radius
+      marginRight: 2,       // Reduced margin
+      marginBottom: 2,      // Reduced margin
+  },
+  tagText: {
+    fontSize: 12,  // Smaller text size
+  },
     tagContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -160,7 +175,6 @@ const styles = StyleSheet.create({
     },
     ratingContainer: {
       flexDirection: 'column',
-      marginTop: 20,
       
 
     },
