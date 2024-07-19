@@ -7,12 +7,9 @@ import Navbar from '../components/Navbar.jsx';
 import SearchBar from '../components/Searchbar.tsx';
 import SmallMenu from '../components/SmallMenu.tsx';
 import colors from '../styles.js';
-import ExampleMenu from '../services/ExampleMenu.json';
-import Review from '../components/Review.tsx';
 import FoodItem from '../components/FoodItem.tsx';
 import AllFilter from '../components/AllFilter.tsx';
 import FilterContent from '../components/FilterContent.tsx';
-import { panGestureHandlerCustomNativeProps } from 'react-native-gesture-handler/lib/typescript/handlers/PanGestureHandler';
 
 
 type RootStackParamList = {
@@ -29,26 +26,7 @@ type Props = {
 };
 
 const DiningHome: React.FC<Props> = ({ route }) => {
-    // For the filter
-    const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-    const [simpleFilter, setSimpleFilter] = useState(''); // State for simple filter
-    const [filters, setFilters] = useState<{ preferred: string[]; allergens: string[]; time: string[]; taste:number; health:number }>({
-      preferred: [],
-      allergens: [],
-      time: [],
-      taste: 1,
-      health: 1,
-    });
-    const [isDisabled, setIsDisabled] = useState(false); 
-    const [searchChange, setSearchChange] = useState('');
 
-
-  const toggleBottomSheet = () => {
-    setIsBottomSheetOpen(!isBottomSheetOpen);
-  };
-  const handleFilterClick = () => {
-    setIsDisabled((prev) => !prev); 
-  };
 
 
     const { placeName } = route.params;
@@ -109,6 +87,68 @@ const DiningHome: React.FC<Props> = ({ route }) => {
         console.log(onTheMenu);
     }, [placeName])
 
+        
+      //filtering
+      const applyFilters = (submissions) => {
+        return submissions.filter(item => {
+          const Tags = item.tags || [];
+          const Allergens = item.allergens || [];
+          const FoodName = item.foodName || '';
+          const Location = item.location || '';
+          const Taste = item.taste || 1;
+          const Health = item.health || 1;
+    
+          if (!isBottomSheetOpen && searchChange !== '' && !isDisabled) {
+            return Tags.includes(searchChange) || Allergens.includes(searchChange) ||
+              FoodName.includes(searchChange) || Location.includes(searchChange);
+          }
+    
+          if (!isBottomSheetOpen && simpleFilter !== '' && !isDisabled) {
+            return Tags.includes(simpleFilter) || Allergens.includes(simpleFilter);
+          }
+    
+          const isPreferred = filters.preferred.length === 0 ||
+            filters.preferred.every(preferred => Tags.includes(preferred) || Allergens.includes(preferred));
+    
+          const isAllergens = filters.allergens.length === 0 ||
+            !filters.allergens.every(allergen => Allergens.includes(allergen) || Tags.includes(allergen));
+    
+          const isValidTime = filters.time.length === 0 ||
+            filters.time.every(time => Tags.includes(time));
+    
+          const isTaste = filters.taste <= Taste;
+          const isHealth = filters.health <= Health;
+    
+          return isPreferred && isAllergens && isValidTime && isTaste && isHealth;
+        });
+      }
+      // For the filter
+      const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+      const [simpleFilter, setSimpleFilter] = useState(''); // State for simple filter
+      const [filters, setFilters] = useState<{ preferred: string[]; allergens: string[]; time: string[]; taste:number; health:number }>({
+        preferred: [],
+        allergens: [],
+        time: [],
+        taste: 1,
+        health: 1,
+      });
+      const [isDisabled, setIsDisabled] = useState(false); 
+      const [searchChange, setSearchChange] = useState('');
+      
+      const filterApplied = filters.preferred.length > 0 || filters.allergens.length > 0 || filters.time.length > 0 || filters.taste > 1 || filters.health > 1 || searchChange !== '' || simpleFilter !== '';
+      const filterOnTheMenu = useMemo(() => applyFilters(onTheMenu), [filters, simpleFilter, searchChange]);
+      const filterOrNone = filterApplied ? filterOnTheMenu : onTheMenu;
+
+
+    const toggleBottomSheet = () => {
+      setIsBottomSheetOpen(!isBottomSheetOpen);
+    };
+    const handleFilterClick = () => {
+      setIsDisabled((prev) => !prev); 
+    };
+
+  
+
     return (
         <View style={styles.container}>
             <View style={styles.diningHomeHeader}>
@@ -142,8 +182,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
               <Text>loading...</Text>
             </View>
             : <ScrollView style={styles.contentScrollContainer}>
-                {onTheMenu.length > 0 ? (
-                    onTheMenu.map((review, i) => {
+                {filterOrNone.length > 0 ? (
+                    filterOrNone.map((review, i) => {
                         // return <Review key={review.id} reviewId={review} />
                         return <FoodItem 
                                     key={i}
@@ -159,7 +199,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     />
                     })
                 ) : (
-                    <Text>No reviews found</Text>
+                  <Text style={styles.noResult}> No results found...</Text>
                 )}
             </ScrollView>}
         </View>
@@ -185,23 +225,12 @@ const styles = StyleSheet.create({
         marginLeft: 20,
         marginRight: 20,
     },
-    searchFilterRow: {
-        justifyContent: 'flex-start',
-        flex: 0,
-        flexDirection: 'row',
-        width: '100%',
-    },
     diningHomeBody: {
         width: '100%',
     },
     backButton: {
         paddingTop: 10,
         paddingBottom: 20,
-    },
-    searchAndFilterContainer: {
-        width: '100%',
-        flexDirection: 'row',
-        alignItems: 'center'
     },
     closingText: {
         fontSize: 12,
@@ -234,9 +263,6 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         paddingBottom: 20,
     },
-    searchBarContainer: {
-        flex: 1,
-    },
     recHeaderText: {
         fontSize: 20,
     },
@@ -265,6 +291,12 @@ const styles = StyleSheet.create({
     filter: {
       alignItems: 'center',
       marginTop: -60,
+  },
+  noResult: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    color: colors.textGray,
   },
 })
 

@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     },
     filter: {
         alignItems: 'center',
-        marginTop: -60,
+        marginTop: -70,
         width: '100%'
     },
     diningHomeBody: {
