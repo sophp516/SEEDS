@@ -12,6 +12,7 @@ import Review from '../components/Review.tsx';
 import FoodItem from '../components/FoodItem.tsx';
 import AllFilter from '../components/AllFilter.tsx';
 import FilterContent from '../components/FilterContent.tsx';
+import { panGestureHandlerCustomNativeProps } from 'react-native-gesture-handler/lib/typescript/handlers/PanGestureHandler';
 
 
 type RootStackParamList = {
@@ -67,19 +68,25 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                 const reviewsDocRef = doc(db, 'colleges', 'Dartmouth College', 'diningLocations', location, foodName, 'reviews');
                 const reviewsDocSnapshot = await getDoc(reviewsDocRef);
 
+                const averageReviewDocRef = doc(db, 'colleges', 'Dartmouth College', 'foodList', foodName);
+                const averageDocSnapshot = await getDoc(averageReviewDocRef);
+
                 if (reviewsDocSnapshot.exists()) {
                     const reviewsData = reviewsDocSnapshot.data();
                     const reviewIds = reviewsData.reviewIds || [];
+
+                    const globalData = averageDocSnapshot.data();
+
                     const foodItem = {
                         foodName,
                         reviewIds,
-                        image: reviewsData?.image ?? '', 
-                        location,
-                        price: reviewsData?.price ?? 'N/A', // Default value if price is missing
-                        taste: reviewsData?.taste ?? 'N/A', // Default value if taste is missing
-                        health: reviewsData?.health ?? 'N/A', // Default value if health is missing
-                        allergens: reviewsData?.allergens ?? [], // Default to an empty array if allergens are missing
-                        tags: reviewsData?.tags ?? [] // Default to an empty array if tags are missing
+                        image: globalData?.images ?? require('../assets/image.png'), // Default image if image is missing
+                        location: globalData?.location ?? 'N/A', // Default value if location is missing
+                        price: globalData?.price ?? 'N/A', // Default value if price is missing
+                        taste: globalData?.taste ?? 'N/A', // Default value if taste is missing
+                        health: globalData?.health ?? 'N/A', // Default value if health is missing
+                        allergens: globalData?.allergens ?? [], // Default to an empty array if allergens are missing
+                        tags: globalData?.tags ?? [] // Default to an empty array if tags are missing
                     };
                     foodItems.push(foodItem);
                 }
@@ -108,6 +115,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                 <View style={styles.diningHomeHeaderTop}>
                     <TouchableOpacity onPress={() => navigation.goBack()}>
                         <Text>Back</Text>
+                        
                     </TouchableOpacity>
                 </View>
                 <View style={styles.diningHomeHeaderBottom}>
@@ -124,6 +132,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
               onSimpleFilterChange={(filter) => {setSimpleFilter(filter);}}
               onSearchChange={(search) => {setSearchChange(search);}}
               />
+
                 
 
           </View>
