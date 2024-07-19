@@ -2,7 +2,7 @@ import Navbar from "../components/Navbar";
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View , Image} from 'react-native';
 import colors from "../styles.js";
-import { getDocs, collection, average, where, query,} from 'firebase/firestore'
+import { getDocs, collection, average, where, query, Timestamp} from 'firebase/firestore'
 import { db } from '../services/firestore'
 import FoodRank from "../components/FoodRank.tsx";
 import TimeDropdown from "../components/TimeDropdown.tsx";
@@ -15,7 +15,6 @@ const Ranking = () => {
     const [selectedValue, setSelectedValue] = useState("All-time");
 
 
-   
     // fetches the list of food names to get rating data 
     useEffect(()=>{
       const fetchFoodNames = async () => {
@@ -32,9 +31,25 @@ const Ranking = () => {
     useEffect(()=>{
       const fetchFoodRating = async () => {
         try{
-          const queries = foodNames.map(foodName => 
-            getDocs(query(collection(db, "colleges", "Dartmouth College", "foodList"), where("foodName", "==", foodName)))
-          );
+          let time = new Date();
+          if (selectedValue === "Month") {
+            time.setMonth(time.getMonth() - 1);
+          } else if (selectedValue === "Week") {
+            time.setDate(time.getDate() - 7);
+          } else if (selectedValue === "Year") {
+            time.setFullYear(time.getFullYear() - 1);
+          } else {
+            time = null; // No time filter for "All Time" or other cases
+          }
+
+          const queries = foodNames.map(foodName => {
+            let foodQuery = query(collection(db, "colleges", "Dartmouth College", "foodList"), where("foodName", "==", foodName));
+            if (time !== null) {
+              foodQuery = query(foodQuery, where("createdAt", ">=", Timestamp.fromDate(time)));
+            }
+            return getDocs(foodQuery);
+          });
+
 
           const res = await Promise.all(queries); // consist all of the documents
 
@@ -43,7 +58,8 @@ const Ranking = () => {
           // for each doc in docs, map the data to an object with foodName and averageRating
           const datas = res.flatMap(res => res.docs.map(doc => ({
             foodName: doc.data().foodName,
-            averageRating: doc.data().averageRating
+            averageRating: doc.data().averageRating,
+            createdAt: doc.data().createdAt.toDate()
           })));
 
           datas.sort((a,b)=>b.averageRating-a.averageRating) // sort in ascending order
@@ -92,11 +108,9 @@ const Ranking = () => {
             {foodLeaderboard.map((food, index) => (
               <View>
                 <FoodRank rank={index} foodName={food.foodName} rating={food.averageRating}/>
-                {/* <Text>{index+1}. {food.foodName} - {food.averageRating}</Text> */}
               </View>
             ))}
          </View>: <View/>}
-        {/* Drop down for filtering leaderboard by time */}
         <View></View>
 
 
