@@ -6,6 +6,8 @@ import { getDocs, collection, average, where, query, Timestamp} from 'firebase/f
 import { db } from '../services/firestore'
 import FoodRank from "../components/FoodRank.tsx";
 import TimeDropdown from "../components/TimeDropdown.tsx";
+
+
 const Ranking = () => {
     const [toggle, setToggle] = useState<boolean>(true); // true = post, false = review 
     const [foodNames, setFoodNames] = useState<String[]>([]);
@@ -61,7 +63,8 @@ const Ranking = () => {
             const datas = res.flatMap(res => res.docs.map(doc => ({
               foodName: doc.data().foodName,
               averageRating: doc.data().averageRating,
-              createdAt: doc.data().createdAt
+              createdAt: doc.data().createdAt,
+              location: doc.data().location,
             })));
     
             datas.sort((a, b) => b.averageRating - a.averageRating); // Sort in descending order
@@ -74,30 +77,36 @@ const Ranking = () => {
     
         fetchFoodRating();
       }, [foodNames]);
-      
-    console.log(foodLeaderboard)
 
-    const filterFoodLeaderboard = (text:string) =>{
+    //Test cases: Peanut butter sandwhich is created last year
+    // Test cases: roasted cabbage is created weeks ago, so does not show in the week
+    const filterFoodLeaderboard = (text: string) => {
       const time = new Date();
+      setOpen(false);
       setSelectedValue(text);
-      if (text === "All-time"){
-        setFilteredFoodLeaderboard(foodLeaderboard)
-      }else if(text == 'Week'){
-        const week = new Date(time.getFullYear(), time.getMonth(), time.getDate() - 7)
-        const filtered = foodLeaderboard.filter(food => food.createdAt > week)
-        setFilteredFoodLeaderboard(filtered)
-
-      }else if(text == 'Month'){
-        const month = new Date(time.getFullYear(), time.getMonth() - 1, time.getDate())
-        const filtered = foodLeaderboard.filter(food => food.createdAt > month)
-        setFilteredFoodLeaderboard(filtered)
-
-      }else if(text == 'Year'){
-        const year = new Date(time.getFullYear() - 1, time.getMonth(), time.getDate())
-        const filtered = foodLeaderboard.filter(food => food.createdAt > year)
-        setFilteredFoodLeaderboard(filtered)
+  
+      if (text === "All-time") {
+          setFilteredFoodLeaderboard(foodLeaderboard);
+      } else {
+          // Define the threshold date based on the selected time range
+          let thresholdDate;
+          if (text === 'Week') {
+              thresholdDate = new Date(time.getFullYear(), time.getMonth(), time.getDate() - 7);
+          } else if (text === 'Month') {
+              thresholdDate = new Date(time.getFullYear(), time.getMonth() - 1, time.getDate());
+          } else if (text === 'Year') {
+              thresholdDate = new Date(time.getFullYear() - 1, time.getMonth(), time.getDate());
+          }
+          // Filter the leaderboard
+          const filtered = foodLeaderboard.filter(food => {
+              // Convert Firestore Timestamp to JavaScript Date object
+              const foodDate = food.createdAt.toDate();
+              return foodDate > thresholdDate;
+          });
+  
+          setFilteredFoodLeaderboard(filtered);
       }
-    }
+  };
 
 
     return (
@@ -131,7 +140,7 @@ const Ranking = () => {
         <View style={{zIndex: -1}}>
             {filteredFoodLeaderboard.map((food, index) => (
               <View>
-                <FoodRank rank={index} foodName={food.foodName} rating={food.averageRating}/>
+                <FoodRank rank={index} foodName={food.foodName} rating={food.averageRating} location={food.location}/>
               </View>
             ))}
          </View>: <View/>}
