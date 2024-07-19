@@ -6,7 +6,7 @@ const SurpriseMe = () => {
     return (
         <View style={styles.container}>
           <View style= {styles.top}>
-          <Text style={styles.text}>Don't Know what to eat?</Text>
+          <Text style={styles.text}>Don't know what to eat?</Text>
           <Image source={require('../assets/present.gif')} style={styles.image} />
 
           </View>

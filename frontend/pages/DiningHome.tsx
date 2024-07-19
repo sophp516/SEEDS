@@ -10,7 +10,7 @@ import { db } from '../services/firestore.js';
 import colors from '../styles.js';
 import ExampleMenu from '../services/ExampleMenu.json';
 import ExampleTopRated from '../services/ExampleTopRated.json';
-import SurpriseMe from '../components/SurpriseMe.tsx';
+import FoodItem from '../components/FoodItem.tsx';
 
 
 type RootStackParamList = {
@@ -28,6 +28,9 @@ interface SelectedMenuProps {
     taste: number;
     tags: string[];
     allergens: string[];
+    averageRating: number;
+    createdAt: string;
+    images: string[];
 }
 
 type Props = {
@@ -60,6 +63,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [allMenus, setAllMenus] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [topRatedMenus, setTopRatedMenus] = useState([]);
   
 
   const fetchReviews = async (placeName) => {
@@ -73,19 +77,28 @@ const DiningHome: React.FC<Props> = ({ route }) => {
             const reviewsDocRef = doc(db, 'colleges', 'Dartmouth College', 'diningLocations', placeName, foodName, 'reviews');
             const reviewsDocSnapshot = await getDoc(reviewsDocRef);
 
-            if (reviewsDocSnapshot.exists()) {
+            const averageReviewDocRef = doc(db, 'colleges', 'Dartmouth College', 'foodList', foodName);
+            const averageDocSnapshot = await getDoc(averageReviewDocRef);
+
+            if (reviewsDocSnapshot.exists() && averageDocSnapshot.exists()) {
                 const reviewsData = reviewsDocSnapshot.data();
                 const reviewIds = reviewsData.reviewIds || [];
+
+                const globalData = averageDocSnapshot.data();
+
                 const foodItem = {
                     foodName,
                     reviewIds,
                     image: reviewsData?.image ?? '', 
                     location: placeName,
-                    price: reviewsData?.price ?? 'N/A', // Default value if price is missing
+                    price: globalData?.price ?? 'N/A', // Default value if price is missing
                     taste: reviewsData?.taste ?? 'N/A', // Default value if taste is missing
                     health: reviewsData?.health ?? 'N/A', // Default value if health is missing
                     allergens: reviewsData?.allergens ?? [], // Default to an empty array if allergens are missing
-                    tags: reviewsData?.tags ?? [] // Default to an empty array if tags are missing
+                    tags: reviewsData?.tags ?? [], // Default to an empty array if tags are missing
+                    averageRating: globalData?.averageRating ?? 'N/A',
+                    createdAt: globalData?.createdAt ?? 'N/A',
+                    images: globalData?.images ?? []
                 };
                 foodItems.push(foodItem);
             }
@@ -106,6 +119,21 @@ const DiningHome: React.FC<Props> = ({ route }) => {
         }
         retrieveReviews();
     }, [])
+
+    useEffect(() => {
+        if (allMenus.length === 0) return;
+        const sortedMenus = [...allMenus].sort((a, b) => {
+            // Convert averageRating to number, use 0 if 'N/A'
+            const ratingA = a.averageRating === 'N/A' ? 0 : Number(a.averageRating);
+            const ratingB = b.averageRating === 'N/A' ? 0 : Number(b.averageRating);
+            
+            // Sort in descending order
+            return ratingB - ratingA;
+        });
+
+        setTopRatedMenus(sortedMenus);
+
+    }, [allMenus])
 
   const applyFilters = (menu) => {
     return menu.filter(item => {
@@ -178,12 +206,15 @@ const DiningHome: React.FC<Props> = ({ route }) => {
   
     return debouncedValue;
   };
-
+    
+    
     // putting in the menu data and change data here: 
     //!!! important: topRated, onTheMenu, recommended are the data should be put in here
-    const topRated = useMemo(() => applyFilters(ExampleTopRated), [filters, simpleFilter, searchChange]); 
-    const onTheMenu = useMemo(() => applyFilters(ExampleMenu), [filters, simpleFilter, searchChange]); 
-    const recommended = useMemo(() => applyFilters(ExampleMenu), [filters, simpleFilter, searchChange]); 
+    
+    const topRated = useMemo(() => applyFilters(topRatedMenus), [filters, simpleFilter, searchChange]); 
+    const onTheMenu = useMemo(() => applyFilters(allMenus), [filters, simpleFilter, searchChange]); 
+    const recommended = useMemo(() => applyFilters(ExampleMenu), [filters, simpleFilter, searchChange]);
+    
 
     return (
         <View style={styles.container}>
@@ -210,13 +241,9 @@ const DiningHome: React.FC<Props> = ({ route }) => {
               />
             </View>
 
-
-
             <View style={styles.contentContainer}>
                 <ScrollView style={styles.contentScrollContainer} contentContainerStyle={{ paddingBottom: 100 }}>
-                    <SurpriseMe />
                     <View style={styles.recHolder}>
-                      
                         <View>
                             <View style={styles.recHeader}>
                                 <Text style={styles.recHeaderText}>Top rated</Text>
@@ -231,31 +258,32 @@ const DiningHome: React.FC<Props> = ({ route }) => {
 
 
                             </View>
-                          ) : topRated.length === 0 ? (
+                          ) : topRatedMenus.length === 0 ? (
                             <Text style={styles.placeNameText}>No meals match your filter...</Text>
                           ) : (
                             <ScrollView horizontal={true} style={styles.horizontalScrollView}>
                               <View style={styles.smallMenuContainer}>
-                                {topRated.map((item) => (
+                                {topRatedMenus.map((item, i) => (
                                   <SmallMenu
                                     reviewIds={item.reviewIds}
-                                    key={item.id}
+                                    key={`toprated-${i}`}
                                     id={item.id}
                                     foodName={item.foodName}
-                                    image={item.image}
                                     location={item.location}
                                     price={item.price}
                                     taste={item.taste}
                                     tags={item.tags}
                                     allergens={item.allergens}
                                     health={item.health}
+                                    averageRating={item.averageRating}
+                                    createdAt={item.createdAt}
+                                    images={item.images}
                                   />
                                 ))}
                               </View>
                             </ScrollView>
                           )}
                         </View>
-                        
                         <View>
                             <View style={styles.recHeader}>
                                 <Text style={styles.recHeaderText}>On the menu</Text>
@@ -268,25 +296,26 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                 <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
                                 <Text>Loading...</Text>
                               </View>
-                            ) : onTheMenu.length === 0 ? (
+                            ) : allMenus.length === 0 ? (
                               <Text style={styles.placeNameText}>No meals match your filter...</Text>
                             ) : (
                               <ScrollView horizontal={true} style={styles.horizontalScrollView}>
                                 <View style={styles.smallMenuContainer}>
-                                  {allMenus.map((item) => (
+                                  {allMenus.map((item, i) => (
                                     <SmallMenu
                                       reviewIds={item.reviewIds}
-                                      key={item.id}
+                                      key={`allmenu-${i}`}
                                       id={item.id}
                                       foodName={item.foodName}
-                                      image={item.image}
                                       location={item.location}
                                       price={item.price}
                                       taste={item.taste}
                                       tags={item.tags}
                                       allergens={item.allergens}
                                       health={item.health}
-
+                                      averageRating={item.averageRating}
+                                      createdAt={item.createdAt}
+                                      images={item.images}
                                     />
                                   ))}
                                 </View>
@@ -294,7 +323,6 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                             )}
 
                         </View>
-
                         <View>
                             <View style={styles.recHeader}>
                                 <Text style={styles.recHeaderText}>Recommended for you</Text>
@@ -307,24 +335,26 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
                                <Text>Loading...</Text>
                               </View>
-                            ) : recommended.length === 0 ? (
+                            ) : recommended?.length === 0 ? (
                               <Text style={styles.placeNameText}>No meals match your filter...</Text>
                             ) : (
                               <ScrollView horizontal={true} style={styles.horizontalScrollView}>
                                 <View style={styles.smallMenuContainer}>
-                                  {allMenus.map((item) => (
+                                  {allMenus.map((item, i) => (
                                     <SmallMenu
                                       reviewIds={item.reviewIds}
-                                      key={item.id}
+                                      key={`recommended-${i}`}
                                       id={item.id}
                                       foodName={item.foodName}
-                                      image={item.image}
                                       location={item.location}
                                       price={item.price}
                                       taste={item.taste}
                                       tags={item.tags}
                                       allergens={item.allergens}
                                       health={item.health}
+                                      averageRating={item.averageRating}
+                                      createdAt={item.createdAt}
+                                      images={item.images}
                                     />
                                   ))}
                                 </View>
@@ -351,10 +381,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.backgroundGray,
+        width: '100%'
     },
     filter: {
         alignItems: 'center',
         marginTop: -60,
+        width: '100%'
     },
     diningHomeBody: {
         width: '100%',

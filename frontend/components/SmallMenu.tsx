@@ -9,7 +9,7 @@ type RootStackParamList = {
         id: String,
         foodName: String,
         reviewIds: string[],
-        image: String,
+        image: string[],
         location: String,
         price: Number,
         taste: Number,
@@ -23,7 +23,7 @@ type RootStackParamList = {
 type SmallMenuProps = {
     id: string;
     foodName: string;
-    image?: string; // Optional image
+    images?: string[]; // Optional image
     location: string;
     price: number;
     taste: number;
@@ -31,16 +31,18 @@ type SmallMenuProps = {
     allergens: string[];
     reviewIds: string[]
     health: number;
+    averageRating: number;
+    createdAt: string;
 };
 
-const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, image, reviewIds, location, price, taste, tags, allergens, health }) => {
+const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, images, reviewIds, location, price, taste, tags, allergens, health, averageRating, createdAt }) => {
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const navigateTo = () => {
         navigation.navigate('SelectedMenu', {
             id,
             foodName,
-            image: image || '',
+            image: images || [],
             reviewIds,
             location,
             price,
@@ -68,8 +70,8 @@ const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, image, reviewIds, l
     return (
         <TouchableOpacity onPress={() => navigateTo()}>
             <View style={styles.smallMenuContainer}>
-            {image ? (
-                    <Image source={{ uri: image }} style={styles.image} />
+            {images.length > 0 ? (
+                    <Image source={{ uri: images[0] }} style={styles.image} />
                 ) : (
                     <View style={styles.image}>
                         <Text style={styles.placeholderText}>No Image</Text>
@@ -81,7 +83,7 @@ const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, image, reviewIds, l
                 </Text>
                 <View>
                   <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(getAverageRating(taste,health)) }]}>
-                      <Text style={styles.starText}>{getAverageRating(taste,health)} </Text>
+                      <Text style={styles.starText}>{averageRating} </Text>
                       <Image source={require('../assets/star.png')} style={{width: 13, height: 13}}/>
                   </View>
 
