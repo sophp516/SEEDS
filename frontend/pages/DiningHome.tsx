@@ -92,8 +92,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                     image: reviewsData?.image ?? '', 
                     location: placeName,
                     price: globalData?.price ?? 'N/A', // Default value if price is missing
-                    taste: reviewsData?.taste ?? 'N/A', // Default value if taste is missing
-                    health: reviewsData?.health ?? 'N/A', // Default value if health is missing
+                    taste: globalData?.taste ?? 'N/A', // Default value if taste is missing
+                    health: globalData?.health ?? 'N/A', // Default value if health is missing
                     allergens: reviewsData?.allergens ?? [], // Default to an empty array if allergens are missing
                     tags: reviewsData?.tags ?? [], // Default to an empty array if tags are missing
                     averageRating: globalData?.averageRating ?? 'N/A',

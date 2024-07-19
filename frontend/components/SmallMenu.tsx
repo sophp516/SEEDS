@@ -81,9 +81,13 @@ const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, images, reviewIds, 
                 <Text style={styles.nameText} numberOfLines={1} ellipsizeMode="tail">
                     {foodName}
                 </Text>
-                <View>
+                <View style={styles.ratingContainer}>
+                  <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(getAverageRating(taste,health)), marginRight: 3 }]}>
+                      <Text style={styles.starText}>health {health} </Text>
+                      <Image source={require('../assets/star.png')} style={{width: 13, height: 13}}/>
+                  </View>
                   <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(getAverageRating(taste,health)) }]}>
-                      <Text style={styles.starText}>{averageRating} </Text>
+                      <Text style={styles.starText}>taste {taste} </Text>
                       <Image source={require('../assets/star.png')} style={{width: 13, height: 13}}/>
                   </View>
 
@@ -131,6 +135,9 @@ const styles = StyleSheet.create({
     },
     starText: {
         fontSize: 12,
+    },
+    ratingContainer: {
+        flexDirection: 'row'
     }
 })
 
