@@ -10,7 +10,6 @@ import { db } from '../services/firestore.js';
 import colors from '../styles.js';
 import ExampleMenu from '../services/ExampleMenu.json';
 import ExampleTopRated from '../services/ExampleTopRated.json';
-import SurpriseMe from '../components/SurpriseMe.tsx';
 
 
 type RootStackParamList = {
@@ -28,6 +27,8 @@ interface SelectedMenuProps {
     taste: number;
     tags: string[];
     allergens: string[];
+    averageRating: number;
+    createdAt: string
 }
 
 type Props = {
@@ -73,9 +74,15 @@ const DiningHome: React.FC<Props> = ({ route }) => {
             const reviewsDocRef = doc(db, 'colleges', 'Dartmouth College', 'diningLocations', placeName, foodName, 'reviews');
             const reviewsDocSnapshot = await getDoc(reviewsDocRef);
 
-            if (reviewsDocSnapshot.exists()) {
+            const averageReviewDocRef = doc(db, 'colleges', 'Dartmouth College', 'foodList', foodName);
+            const averageDocSnapshot = await getDoc(averageReviewDocRef);
+
+            if (reviewsDocSnapshot.exists() && averageDocSnapshot.exists()) {
                 const reviewsData = reviewsDocSnapshot.data();
                 const reviewIds = reviewsData.reviewIds || [];
+
+                const globalData = averageDocSnapshot.data();
+
                 const foodItem = {
                     foodName,
                     reviewIds,
@@ -85,7 +92,9 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                     taste: reviewsData?.taste ?? 'N/A', // Default value if taste is missing
                     health: reviewsData?.health ?? 'N/A', // Default value if health is missing
                     allergens: reviewsData?.allergens ?? [], // Default to an empty array if allergens are missing
-                    tags: reviewsData?.tags ?? [] // Default to an empty array if tags are missing
+                    tags: reviewsData?.tags ?? [], // Default to an empty array if tags are missing
+                    averageRating: globalData?.averageRating ?? 'N/A',
+                    createdAt: globalData?.createdAt ?? 'N/A',
                 };
                 foodItems.push(foodItem);
             }
@@ -210,13 +219,9 @@ const DiningHome: React.FC<Props> = ({ route }) => {
               />
             </View>
 
-
-
             <View style={styles.contentContainer}>
                 <ScrollView style={styles.contentScrollContainer} contentContainerStyle={{ paddingBottom: 100 }}>
-                    <SurpriseMe />
                     <View style={styles.recHolder}>
-                      
                         <View>
                             <View style={styles.recHeader}>
                                 <Text style={styles.recHeaderText}>Top rated</Text>
@@ -239,7 +244,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                 {topRated.map((item) => (
                                   <SmallMenu
                                     reviewIds={item.reviewIds}
-                                    key={item.id}
+                                    key={`toprated-${item.id}`}
                                     id={item.id}
                                     foodName={item.foodName}
                                     image={item.image}
@@ -249,13 +254,14 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     tags={item.tags}
                                     allergens={item.allergens}
                                     health={item.health}
+                                    averageRating={item.averageRating}
+                                    createdAt={item.createdAt}
                                   />
                                 ))}
                               </View>
                             </ScrollView>
                           )}
                         </View>
-                        
                         <View>
                             <View style={styles.recHeader}>
                                 <Text style={styles.recHeaderText}>On the menu</Text>
@@ -276,7 +282,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                   {allMenus.map((item) => (
                                     <SmallMenu
                                       reviewIds={item.reviewIds}
-                                      key={item.id}
+                                      key={`allmenu-${item.id}`}
                                       id={item.id}
                                       foodName={item.foodName}
                                       image={item.image}
@@ -286,7 +292,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                       tags={item.tags}
                                       allergens={item.allergens}
                                       health={item.health}
-
+                                      averageRating={item.averageRating}
+                                      createdAt={item.createdAt}
                                     />
                                   ))}
                                 </View>
@@ -294,7 +301,6 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                             )}
 
                         </View>
-
                         <View>
                             <View style={styles.recHeader}>
                                 <Text style={styles.recHeaderText}>Recommended for you</Text>
@@ -315,7 +321,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                   {allMenus.map((item) => (
                                     <SmallMenu
                                       reviewIds={item.reviewIds}
-                                      key={item.id}
+                                      key={`recommended-${item.id}`}
                                       id={item.id}
                                       foodName={item.foodName}
                                       image={item.image}
@@ -325,6 +331,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                       tags={item.tags}
                                       allergens={item.allergens}
                                       health={item.health}
+                                      averageRating={item.averageRating}
+                                      createdAt={item.createdAt}
                                     />
                                   ))}
                                 </View>
@@ -351,10 +359,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.backgroundGray,
+        width: '100%'
     },
     filter: {
         alignItems: 'center',
         marginTop: -60,
+        width: '100%'
     },
     diningHomeBody: {
         width: '100%',

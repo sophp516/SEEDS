@@ -31,9 +31,11 @@ type SmallMenuProps = {
     allergens: string[];
     reviewIds: string[]
     health: number;
+    averageRating: number;
+    createdAt: string;
 };
 
-const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, image, reviewIds, location, price, taste, tags, allergens, health }) => {
+const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, image, reviewIds, location, price, taste, tags, allergens, health, averageRating, createdAt }) => {
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const navigateTo = () => {
@@ -81,7 +83,7 @@ const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, image, reviewIds, l
                 </Text>
                 <View>
                   <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(getAverageRating(taste,health)) }]}>
-                      <Text style={styles.starText}>{getAverageRating(taste,health)} </Text>
+                      <Text style={styles.starText}>{averageRating} </Text>
                       <Image source={require('../assets/star.png')} style={{width: 13, height: 13}}/>
                   </View>
 
