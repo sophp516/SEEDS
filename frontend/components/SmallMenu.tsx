@@ -9,7 +9,7 @@ type RootStackParamList = {
         id: String,
         foodName: String,
         reviewIds: string[],
-        image: String,
+        image: string[],
         location: String,
         price: Number,
         taste: Number,
@@ -23,7 +23,7 @@ type RootStackParamList = {
 type SmallMenuProps = {
     id: string;
     foodName: string;
-    image?: string; // Optional image
+    images?: string[]; // Optional image
     location: string;
     price: number;
     taste: number;
@@ -35,14 +35,14 @@ type SmallMenuProps = {
     createdAt: string;
 };
 
-const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, image, reviewIds, location, price, taste, tags, allergens, health, averageRating, createdAt }) => {
+const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, images, reviewIds, location, price, taste, tags, allergens, health, averageRating, createdAt }) => {
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const navigateTo = () => {
         navigation.navigate('SelectedMenu', {
             id,
             foodName,
-            image: image || '',
+            image: images || [],
             reviewIds,
             location,
             price,
@@ -53,25 +53,21 @@ const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, image, reviewIds, l
         });
     }
 
-    const getAverageRating = (taste:number, health:number) => {
-        return (taste + health) / 2;
-    }
-
     const getRatingBackgroundColor = (taste: number) => {
         if (taste >= 4) {
             return colors.highRating;
         } else if (taste >= 3) {
             return colors.mediumRating;
         } else {
-            return colors.grayStroke;
+            return colors.lowRating;
         }
     };
 
     return (
         <TouchableOpacity onPress={() => navigateTo()}>
             <View style={styles.smallMenuContainer}>
-            {image ? (
-                    <Image source={{ uri: image }} style={styles.image} />
+            {images.length > 0 ? (
+                    <Image source={{ uri: images[0] }} style={styles.image} />
                 ) : (
                     <View style={styles.image}>
                         <Text style={styles.placeholderText}>No Image</Text>
@@ -81,10 +77,16 @@ const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, image, reviewIds, l
                 <Text style={styles.nameText} numberOfLines={1} ellipsizeMode="tail">
                     {foodName}
                 </Text>
-                <View>
-                  <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(getAverageRating(taste,health)) }]}>
-                      <Text style={styles.starText}>{averageRating} </Text>
-                      <Image source={require('../assets/star.png')} style={{width: 13, height: 13}}/>
+                <View style={styles.ratingContainer}>
+                  <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(health), marginRight: 3 }]}>
+                   <Image source={require('../assets/health.png')} style={{width: 15, height: 15}}/>
+                      <Text style={styles.starText}> {health.toFixed(1)} </Text>
+
+                  </View>
+                  <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(taste) }]}>
+                      <Image source={require('../assets/taste.png')} style={{width: 15, height: 15}}/>
+                      <Text style={styles.starText}> {taste.toFixed(1)}</Text>
+
                   </View>
 
                 </View>
@@ -131,6 +133,9 @@ const styles = StyleSheet.create({
     },
     starText: {
         fontSize: 12,
+    },
+    ratingContainer: {
+        flexDirection: 'row'
     }
 })
 

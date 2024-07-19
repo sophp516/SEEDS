@@ -30,10 +30,12 @@ interface SelectedMenuProps {
 }
 
 const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
-    const { reviewIds, foodName, image, location, price, taste, tags, allergens } = route.params;
+    const { reviewIds, foodName, image, location, price, taste } = route.params;
     const navigation = useNavigation<NavigationProp<ParamListBase>>();
     const [toggleOverview, setToggleOverview] = useState(true);
     const [reviews, setReviews] = useState([])
+    const [allTags, setAllTags] = useState([]);
+    const [allAllergens, setAllAllergen] = useState([]);
 
     const getRatingBackgroundColor = (taste: number) => {
         if (taste >= 4) {
@@ -41,7 +43,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
         } else if (taste >= 3) {
             return colors.mediumRating;
         } else {
-            return colors.grayStroke;
+            return colors.lowRating;
         }
     };
 
@@ -57,7 +59,6 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                 const submissionSnapshot = await getDoc(submissionRef); // Use 'getDoc' to fetch a single document
     
                 if (submissionSnapshot.exists()) {
-                    console.log('yay')
                     const submissionData = submissionSnapshot.data();
                     fetchedReviews.push(submissionData); // Collect each review data
                 }
@@ -83,20 +84,33 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                 });
             });
 
-            reviews.forEach(review => {
-              review.allergens.forEach(allergens => {
-                  allTags.push(allergens);
-              });
-          });
-
             return allTags;
         };
 
+        const collectAllAllergens = () => {
+        
+            const allAllergens = [];
+
+            // Collect all tags from all reviews
+            reviews.forEach(review => {
+                review.allergens.forEach(tag => {
+                    allAllergens.push(tag);
+                });
+            });
+
+            return allAllergens;
+        };
+
+
+
         if (reviews.length > 0) {
             const tagsArray = collectAllTags();
-            console.log('All tags:', tagsArray);
+            const allergensArray = collectAllAllergens();
+            setAllTags(tagsArray)
+            setAllAllergen(allergensArray)
         }
     }, [reviews]);
+    
     
     return (
         <View style={styles.container}>
@@ -130,7 +144,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                 {toggleOverview ? 
                     <View style={styles.toggleContentContainer}>
                         {image ? (
-                            <Image source={{ uri: image }} style={styles.image} />
+                            <Image source={{ uri: image[0] }} style={styles.image} />
                         ) : (
                             <View style={styles.placeholderImage}>
                                 <Text style={styles.placeholderText}>No Image</Text>
@@ -146,7 +160,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                                     <Text style={styles.smallGrayText}>inputted by reviewers</Text>
                                 </View>
                                 <View style={styles.tagContent}> 
-                                    {tags.map((item, i) => {
+                                    {allTags.map((item, i) => {
                                         return (
                                             <View style={styles.tagBlob} key={i}>
                                                 <Text>{item}</Text>
@@ -159,7 +173,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                                     <Text style={styles.smallGrayText}>inputted by reviewers</Text>
                                 </View>
                                 <View style={styles.allergenContent}> 
-                                    {allergens.map((item, i) => {
+                                    {allAllergens.map((item, i) => {
                                         return (
                                             <View style={styles.allergenBlob} key={i}>
                                                 <Text>{item}</Text>
@@ -283,7 +297,7 @@ const styles = StyleSheet.create({
     toggleContentContainer: {
         flexDirection: 'column',
         justifyContent: 'center',
-        marginVertical: 20,
+        marginVertical: 5,
         marginHorizontal: 30,
         alignItems: 'center',
         paddingBottom: 100,
@@ -307,7 +321,7 @@ const styles = StyleSheet.create({
     },
     placeholderImage: {
         width: '100%',
-        height: 200,
+        height: 240,
         borderRadius: 10,
         backgroundColor: '#e0e0e0',
         justifyContent: 'center',
@@ -317,9 +331,9 @@ const styles = StyleSheet.create({
         color: '#7c7c7c',
     },
     image: {
-        width: '80%',
-        height: 200,
-        borderRadius: 10,
+        width: '100%',
+        height: 240,
+        borderRadius: 5,
     },
     tagContainer: {
         flexDirection: 'column',
