@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../context/authContext.js';
-import { collection, query, where, getDocs, doc, updateDoc, getDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../services/firestore.js';
 import Toast from 'react-native-toast-message';
-import * as ImagePicker from 'expo-image-picker';
 
 import Post from '../components/Post.tsx';
 import Review from '../components/Review.tsx';
@@ -31,6 +30,8 @@ type Submission = {
   userId?: string;
   image?: string;
   subComment?: string;
+  allergens?: string[];
+  uploadCount?: number;
 }
 
 const MyActivity = () => {
@@ -38,137 +39,111 @@ const MyActivity = () => {
   const { loggedInUser, displayName } = user;
   const [nameInput, setNameInput] = useState('');
   const [editingStatus, setEditingStatus] = useState(false);
-
   const [postHistory, setPostHistory] = useState(true); // state for toggling between My Posts and Favorites
-  const [postList, setPostList] = useState([]);
-  const [postIds, setPostIds] = useState([]);
-
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [favoriteList, setFavoriteList] = useState([]);
+  const [postList, setPostList] = useState<Submission[]>([]);
+  const [postIds, setPostIds] = useState<string[]>([]);
+  const [favoriteList, setFavoriteList] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   useEffect(() => {
     const fetchDisplayName = async () => {
-        try {
-            const userId = loggedInUser?.loggedInUser?.uid;
-            if (!userId) {
-                Toast.show({
-                    type: 'error',
-                    text1: 'Error',
-                    text2: 'User not found.'
-                });
-                return;
-            }
-            const usersRef = collection(db, 'users');
-            const q = query(usersRef, where('id', '==', userId));
-            const querySnapshot = await getDocs(q);
-            
-            if (!querySnapshot.empty) {
-                const userDoc = querySnapshot.docs[0];
-                const userData = userDoc.data();
-                setLoggedInUser({
-                    ...user,
-                    displayName: userData.displayName
-                });
-                setNameInput(userData.displayName); 
-            }
-        } catch (error) {
-            console.error('Error fetching displayName:', error);
+      try {
+        const userId = loggedInUser?.loggedInUser?.uid;
+        if (!userId) {
+          Toast.show({
+            type: 'error',
+            text1: 'Error',
+            text2: 'User not found.'
+          });
+          return;
         }
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where('id', '==', userId));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const userDoc = querySnapshot.docs[0];
+          const userData = userDoc.data();
+          setLoggedInUser({
+            ...user,
+            displayName: userData.displayName
+          });
+          setNameInput(userData.displayName); 
+        }
+      } catch (error) {
+        console.error('Error fetching displayName:', error);
+      }
     };
 
     if (!displayName && loggedInUser) {
-        fetchDisplayName();
+      fetchDisplayName();
     }
-}, [displayName, loggedInUser, setLoggedInUser]);
+  }, [displayName, loggedInUser, setLoggedInUser]);
 
   useEffect(() => {
-    if (!loggedInUser) return
+    if (!loggedInUser) return;
     const fetchHistory = async () => {
-        try {
-            const userId = loggedInUser?.loggedInUser?.uid;
-            console.log(userId)
-                if (!userId) {
-                    Toast.show({
-                        type: 'error',
-                        text1: 'Error',
-                        text2: 'User not found.'
-                    });
-                    return;
-                }
-            const usersRef = collection(db, 'users');
-            const q = query(usersRef, where('id', '==', userId));
-            const querySnapshot = await getDocs(q);
-
-            if (!querySnapshot.empty) {
-                const userDoc = querySnapshot.docs[0];
-                const userData = userDoc.data();
-                setPostIds(userData.submissions || [])
-            }
-
-        } catch (err) {
-            console.log(err)
-        } finally {
-            setLoading(false);
+      try {
+        const userId = loggedInUser?.loggedInUser?.uid;
+        if (!userId) {
+          Toast.show({
+            type: 'error',
+            text1: 'Error',
+            text2: 'User not found.'
+          });
+          return;
         }
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where('id', '==', userId));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const userDoc = querySnapshot.docs[0];
+          const userData = userDoc.data();
+          setPostIds(userData.submissions || []);
+        }
+
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
     }
     if (loggedInUser) {
-        fetchHistory();
+      fetchHistory();
     }
-  }, [loggedInUser])
-
+  }, [loggedInUser]);
 
   useEffect(() => {
     const fetchReviewWithId = async (id: string) => {
-        try {
-            const submissionRef = doc(db, 'globalSubmissions', id);
-            const submissionDoc = await getDoc(submissionRef);
-
-            if (submissionDoc.exists()) {
-                const submissionData = submissionDoc.data();
-                setPostList((currentPosts) => [...currentPosts, { ...submissionData, id }]);
-            } else {
-                console.log(`No submission found with ID ${id}`);
-            }
-        } catch (error) {
-            console.error("Error fetching submission:", error);
-        }
-    };
-
-    const fetchHistory = async () => {
-        setLoading(true);
-        for (const id of postIds) {
-            await fetchReviewWithId(id);
-        }
-        setLoading(false);
-    };
-
-    if (postIds.length > 0) {
-        fetchHistory();
-    }
-  }, [postIds]);
-
-
-
-
-const fetchReviewWithId = async (id) => {
-    try {
+      try {
         const submissionRef = doc(db, 'globalSubmissions', id);
         const submissionDoc = await getDoc(submissionRef);
 
         if (submissionDoc.exists()) {
-            const submissionData = submissionDoc.data();
-            setPostList((currentPosts) => [...currentPosts, { ...submissionData, id }]);
+          const submissionData = submissionDoc.data() as Submission;
+          setPostList((currentPosts) => [...currentPosts, { ...submissionData, id }]);
         } else {
-            console.log(`No submission found with ID ${id}`);
-            return null;
+          console.log(`No submission found with ID ${id}`);
         }
-    } catch (error) {
+      } catch (error) {
         console.error("Error fetching submission:", error);
-        return null;
+      }
+    };
+
+    const fetchHistory = async () => {
+      setLoading(true);
+      for (const id of postIds) {
+        await fetchReviewWithId(id);
+      }
+      setLoading(false);
+    };
+
+    if (postIds.length > 0) {
+      fetchHistory();
     }
-}
+  }, [postIds]);
 
   return (
     <View style={styles.container}>
@@ -204,49 +179,77 @@ const fetchReviewWithId = async (id) => {
               <View style={styles.noReview}>
                 <Text style={styles.noReviewText}>You haven't posted anything yet!</Text>
               </View>
-             ) : postList.map((submission, i) => {
-                if (submission.isReview) {
-                  // console.log(submission)
-                  return (
-                    <View>
-                      <Review
-                        key={`review_${i}`} 
-                        reviewId={submission.reviewId}
-                        foodName={submission.foodName}
-                        comment={submission.comment}
-                        health={submission.health}
-                        taste={submission.taste}
-                        likes={submission.likes}
-                        location={submission.location}
-                        price={submission.price}
-                        tags={submission.tags}
-                        timestamp={submission.timestamp}
-                        userId={submission.userId}
-                        image={submission.image}
-                        subcomment={submission.subComment}
-                        allergens={submission.allergens}
-                      />
-                    </View>
-                );
-              } else {
-                  return (
-                      <Post 
-                          key={`post_${i}`}
-                          postId={submission.postId}
-                          comment={submission.comment}
-                          timestamp={submission.timestamp}
-                          uploadCount={submission.uploadCount}
-                          userId={submission.userId}
-                          image={submission.image}
-                      />
-                  );
-              }
-          })
-      ) :
-
-      <View>
-        <Text>favorites</Text>
-    </View>))}
+            ) : (
+              postList.map((submission, i) => (
+                <View key={`submission_${i}`}>
+                  {submission.isReview ? (
+                    <Review
+                      reviewId={submission.reviewId}
+                      foodName={submission.foodName}
+                      comment={submission.comment}
+                      health={submission.health}
+                      taste={submission.taste}
+                      likes={submission.likes}
+                      location={submission.location}
+                      price={submission.price}
+                      tags={submission.tags}
+                      timestamp={submission.timestamp}
+                      userId={submission.userId}
+                      image={submission.image}
+                      subcomment={submission.subComment}
+                      allergens={submission.allergens}
+                    />
+                  ) : (
+                    <Post
+                      postId={submission.postId}
+                      comment={submission.comment}
+                      timestamp={submission.timestamp}
+                      uploadCount={submission.uploadCount}
+                      userId={submission.userId}
+                      image={submission.image}
+                    />
+                  )}
+                </View>
+              ))
+            )
+          ) : favoriteList.length === 0 ? (
+            <View style={styles.noReview}>
+              <Text style={styles.noReviewText}>You have no favorite posts yet!</Text>
+            </View>
+          ) : (
+            favoriteList.map((submission, i) => (
+              <View key={`submission_${i}`}>
+                {submission.isReview ? (
+                  <Review
+                    reviewId={submission.reviewId}
+                    foodName={submission.foodName}
+                    comment={submission.comment}
+                    health={submission.health}
+                    taste={submission.taste}
+                    likes={submission.likes}
+                    location={submission.location}
+                    price={submission.price}
+                    tags={submission.tags}
+                    timestamp={submission.timestamp}
+                    userId={submission.userId}
+                    image={submission.image}
+                    subcomment={submission.subComment}
+                    allergens={submission.allergens}
+                  />
+                ) : (
+                  <Post
+                    postId={submission.postId}
+                    comment={submission.comment}
+                    timestamp={submission.timestamp}
+                    uploadCount={submission.uploadCount}
+                    userId={submission.userId}
+                    image={submission.image}
+                  />
+                )}
+              </View>
+            ))
+          )
+        ))}
       </ScrollView>
 
       <Navbar />
