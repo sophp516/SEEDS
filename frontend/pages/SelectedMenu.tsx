@@ -43,7 +43,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
         } else if (taste >= 3) {
             return colors.mediumRating;
         } else {
-            return colors.grayStroke;
+            return colors.lowRating;
         }
     };
 
