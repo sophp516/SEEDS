@@ -3,17 +3,29 @@ import React, {useEffect} from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import colors from '../styles';
 import ProgressBar from 'react-native-progress-bar-horizontal';
+import Preferences from '../services/Preferences.json';
+import Allergens from '../services/Allergens.json';
 
 type RootStackParamList = {
     SelectedMenu: { foodName, reviewIds, image, location, price, taste, health, tags, allergens },
 };
 
+
 const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens }) => {
   const defaultImage = require('../assets/image.png');
   if (image.length === 0) {
-      image = defaultImage;
+    image = defaultImage;
   } 
 
+    // Helper function for ProgressBar
+    const normalizeValue = (value: any) => {
+      // Check if value is a number
+      if (typeof value !== 'number' || isNaN(value)) {
+          return 0;
+      }
+      const normalized = Math.min(Math.max(value / 10, 0), 1);
+      return Math.min(normalized * 2, 1);
+  };
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
@@ -21,7 +33,21 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
         navigation.navigate('SelectedMenu', { foodName, reviewIds, image, location, price, taste, health, tags, allergens });
     };
 
+    const getTagStyle = (tag) => {
+      if (["Breakfast", "Lunch", "Dinner"].includes(tag)) {
+          return styles.tagYellow;
+      } else if (Preferences.id.includes(tag)) {
+          return styles.tagGreen;
+      }
+      return styles.tagGray;
+  };
+
+  const getAllergenStyle = (allergen) => {
+      return Preferences.id.includes(allergen) ? styles.tagRed : styles.tagGray;
+  };
+
     return (
+      <View>
         <TouchableOpacity style={styles.foodItemContainer} onPress={navigateToReviews}>
             <View>
                 <Image 
@@ -39,12 +65,12 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                 </View>
                 <View style={styles.tagContainer}>
                     {tags.length > 0 && tags.map((tag, i) => (
-                        <View style={[styles.tagBlob, { backgroundColor: colors.highRating }]} key={i}>
+                        <View style={[styles.tagBlob, getTagStyle(tag)]} key={i}>
                             <Text style={styles.tagText}>{tag}</Text>
                         </View>
                     ))}
                     {allergens.length > 0 && allergens.map((allergens, i) => (
-                        <View style={[styles.tagBlob, {backgroundColor: colors.warningPink}]} key={i}>
+                        <View style={[styles.tagBlob, getAllergenStyle(allergens)]} key={i}>
                             <Text style={styles.tagText}>{allergens}</Text>
                         </View>
                     ))}
@@ -58,7 +84,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
 
                     <View style={styles.progressContainer}>
                       <ProgressBar
-                        progress={0.4}
+                        progress={normalizeValue(health)}
                         borderWidth={1}
                         fillColor={colors.lightOrange}
                         unfilledColor={colors.inputGray}
@@ -69,7 +95,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                       />
                     </View>
 
-                    <Text>  {health.toFixed(2)}</Text>
+                    <Text style={styles.number}>  {health.toFixed(1)}/5</Text>
                   </View>
 
                   
@@ -78,7 +104,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
 
                     <View style={styles.progressContainer}>
                       <ProgressBar
-                        progress={0.7}
+                        progress={normalizeValue(taste)}
                         borderWidth={1}
                         fillColor={colors.highRating}
                         unfilledColor= {colors.inputGray}
@@ -88,7 +114,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                         
                       />
                     </View>
-                    <Text>  {taste.toFixed(2)}</Text>
+                    <Text style={styles.number}>  {taste.toFixed(1)}/5</Text>
                   </View>
 
                 </View>
@@ -96,6 +122,8 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
 
             </View>
         </TouchableOpacity>
+
+      </View>
     );
 };
 
@@ -165,9 +193,21 @@ const styles = StyleSheet.create({
       marginRight: 2,       // Reduced margin
       marginBottom: 2,      // Reduced margin
   },
-  tagText: {
-    fontSize: 12,  // Smaller text size
-  },
+    tagText: {
+      fontSize: 12,  // Smaller text size
+    },
+    tagYellow: {
+      backgroundColor: colors.yellow,
+    },
+    tagGreen: {
+      backgroundColor: colors.highRating,
+    },
+    tagRed: {
+      backgroundColor: colors.warningPink,
+    },
+    tagGray: {
+      backgroundColor: colors.inputGray,
+    },
     tagContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
@@ -175,8 +215,11 @@ const styles = StyleSheet.create({
     },
     ratingContainer: {
       flexDirection: 'column',
-      
-
+    },
+    number: {
+      fontSize: 12,
+      marginLeft: 5,
+      color: colors.grayStroke,
     },
     tasteAndHealthContainer: {
         flexDirection: 'row',

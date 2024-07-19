@@ -7,12 +7,9 @@ import Navbar from '../components/Navbar.jsx';
 import SearchBar from '../components/Searchbar.tsx';
 import SmallMenu from '../components/SmallMenu.tsx';
 import colors from '../styles.js';
-import ExampleMenu from '../services/ExampleMenu.json';
-import Review from '../components/Review.tsx';
 import FoodItem from '../components/FoodItem.tsx';
 import AllFilter from '../components/AllFilter.tsx';
 import FilterContent from '../components/FilterContent.tsx';
-import { panGestureHandlerCustomNativeProps } from 'react-native-gesture-handler/lib/typescript/handlers/PanGestureHandler';
 
 
 type RootStackParamList = {
@@ -185,23 +182,12 @@ const styles = StyleSheet.create({
         marginLeft: 20,
         marginRight: 20,
     },
-    searchFilterRow: {
-        justifyContent: 'flex-start',
-        flex: 0,
-        flexDirection: 'row',
-        width: '100%',
-    },
     diningHomeBody: {
         width: '100%',
     },
     backButton: {
         paddingTop: 10,
         paddingBottom: 20,
-    },
-    searchAndFilterContainer: {
-        width: '100%',
-        flexDirection: 'row',
-        alignItems: 'center'
     },
     closingText: {
         fontSize: 12,
@@ -233,9 +219,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         paddingTop: 10,
         paddingBottom: 20,
-    },
-    searchBarContainer: {
-        flex: 1,
     },
     recHeaderText: {
         fontSize: 20,
