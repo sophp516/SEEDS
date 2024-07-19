@@ -80,7 +80,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
 
                   <View style={styles.tasteAndHealthContainer}>
                       
-                    <Text>Health</Text>
+                    <Text style={styles.ratingText}>Health</Text>
 
                     <View style={styles.progressContainer}>
                       <ProgressBar
@@ -100,7 +100,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
 
                   
                   <View style={styles.tasteAndHealthContainer}>
-                    <Text>Taste  </Text>
+                    <Text style={styles.ratingText}>Taste  </Text>
 
                     <View style={styles.progressContainer}>
                       <ProgressBar
@@ -230,6 +230,11 @@ const styles = StyleSheet.create({
         marginLeft: 5,
         flex: 1,
     },
+    ratingText: {
+        fontSize: 12,
+        color: '#35353E',
+    },
+
 
     
 });
