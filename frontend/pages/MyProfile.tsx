@@ -7,16 +7,12 @@ type RootStackParamList = {
 };
 const MyProfile = () => {
 
-  const navigateToProfile = () => {
-    navigation.navigate('Profile'); // Navigate to the 'Profile' screen
-  };
-
 const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   return (
     <View style={styles.container}>
       <View style={styles.homeHeaderTop}>
-        <TouchableOpacity onPress={navigateToProfile}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text>Back</Text>
         </TouchableOpacity>
       </View>

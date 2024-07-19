@@ -137,6 +137,7 @@ const Profile = () => {
 
     return (
         <View style={styles.container}>
+            
             {displayName ? (
                 <View style={styles.profileBox}>
                     <TouchableOpacity onPress={pickImage}>
