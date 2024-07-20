@@ -228,6 +228,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                     <Text style={styles.addReviewText}>Add Review</Text>
                 </TouchableOpacity>
             </View>
+            <View style={styles.bottomPadding}></View>
             <Navbar />
         </View>
     );
@@ -407,6 +408,9 @@ const styles = StyleSheet.create({
     },
     reviewsContainer: {
         paddingHorizontal: 20,
+    },
+    bottomPadding:{
+        height: 40,
     }
 });
 
