@@ -64,7 +64,13 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                         taste: globalData?.taste ?? 'N/A', // Default value if taste is missing
                         health: globalData?.health ?? 'N/A', // Default value if health is missing
                         allergens: globalData?.allergens ?? [], // Default to an empty array if allergens are missing
-                        tags: globalData?.tags ?? [] // Default to an empty array if tags are missing
+                        tags: globalData?.tags ?? [], // Default to an empty array if tags are missing
+                        serving: globalData?.serving ?? 'N/A', // Default value if serving is missing 
+                        calories: globalData?.calories ?? 'N/A', // Default value if calories is missing
+                        carbs: globalData?.carbs ?? 'N/A', // Default value if carbs is missing
+                        protein: globalData?.protein ?? 'N/A', // Default value if protein is missing
+                        fat: globalData?.fat ?? 'N/A', // Default value if fat is missing  
+
                     };
                     foodItems.push(foodItem);
                 }
@@ -196,6 +202,11 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     health={review.health}
                                     tags={review.tags}
                                     allergens={review.allergens}
+                                    serving={review.serving}
+                                    calories={review.calories}
+                                    carbs={review.carbs}
+                                    protein={review.protein}
+                                    fat={review.fat}
                                     />
                     })
                 ) : (

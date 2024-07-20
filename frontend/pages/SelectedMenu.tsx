@@ -19,6 +19,10 @@ export type RootStackParamList = {
         tags: string[];
         allergens: string[];
         health: number;
+        serving: string;
+        calories: string;
+        protein: string;
+        fat: string;
     },
     Post: { toggle: boolean; foodName: string };
 };
@@ -30,7 +34,7 @@ interface SelectedMenuProps {
 }
 
 const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
-    const { reviewIds, foodName, image, location, price, taste } = route.params;
+    const { reviewIds, foodName, image, location, price, taste , serving, calories, protein, fat, carbs } = route.params;
     const navigation = useNavigation<NavigationProp<ParamListBase>>();
     const [toggleOverview, setToggleOverview] = useState(true);
     const [reviews, setReviews] = useState([])

@@ -17,8 +17,7 @@ import ImageSlider from '../components/ImageSlider.tsx';
 import preferences from '../services/Preferences.json';
 import Allergens from '../services/Allergens.json';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
-// import storage from '@react-native-firebase/storage';
-
+import {ACCESS_TOKEN} from "@env";
 interface newPost{
     images: string[];
     comment: string;
@@ -202,7 +201,7 @@ const Post = () => {
             // UPDATES FOOD COLLECTION and FOODLIST 
             // checks whether the item is new and update document accordingly 
             // for item that exist, updates will be made to reviews, time, and tags frequency 
-            await updateFoodCollection(review, reviewId, imageURls, updatedAtTime);
+            await updateFoodCollection(review, reviewId, updatedAtTime, imageURls);
             await updateTagFrequency(review.foodName, review.tags, review.allergens);
             await submitDiscover(review.location, reviewId);
             // Add ID to user 
@@ -276,10 +275,10 @@ const Post = () => {
             // Initializes the data with the review information 
             // Initalize nutrient data from api if available 
             if (collegeFoodlistDocExist === false){
+                const [serving, calories, fat, carbs, protein] = await fetchNutrients(review.foodName);
                 await setDoc(collegeFoodListDoc, {foodName: review.foodName, location: review.location,likes: [], tags: review.tags, allergens: review.allergens,
                     health:review.health, price: review.price, taste: review.taste, images: imageURls, averageRating: (review.taste + review.health)/2,
-                    createdAt: updatedAtTime, updatedAt: updatedAtTime
-                });
+                    createdAt: updatedAtTime, updatedAt: updatedAtTime, serving: serving, calories: calories, fat: fat, carbs: carbs, protein: protein});
             }else{
                 const [newAverage, newHealth, newTaste] = await calculateAverageRating(review.foodName, review.location, review.health, review.taste);
                 console.log("new avg", newAverage)
@@ -300,6 +299,81 @@ const Post = () => {
             return;
         }
     }
+
+    const fetchNutrients = async (foodName) => {
+        const baseUrl = 'https://platform.fatsecret.com/rest/server.api';
+        const params = new URLSearchParams({
+            method: 'foods.search',
+            search_expression: foodName,
+            max_results: '1',
+            format: 'json'
+        }).toString();
+    
+        const headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Bearer ${ACCESS_TOKEN}` 
+        };
+    
+        try {
+            const response = await fetch(baseUrl, {
+                method: 'POST',
+                headers: headers,
+                body: params  // Send parameters as the request body
+            });
+    
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Data:", data);
+                if (!data || !data.foods || !data.foods.food) {
+                    console.log("Food data is missing or incomplete");
+                    return ["N/A", "N/A", "N/A", "N/A", "N/A"];
+                }
+                const fetchedName = data.foods.food.food_name;
+                const nutrients = data.foods.food.food_description;
+                // \d+ means matching more than one digit, | divides the nutrients string into 4 categories
+                // \. means optional decimal
+                // \d* will match zero or more digits
+                // parentheses are used to capture the values
+                const nutritionRegex = /Per (\d+) ?(g| bowl| package| cup|oz| serving) - Calories: (\d+)kcal \| Fat: (\d+\.?\d*)g \| Carbs: (\d+\.?\d*)g \| Protein: (\d+\.?\d*)g/;
+                const matches = nutrients.match(nutritionRegex);
+                const serving = matches[1] + matches[2];     // Serving size
+                const calories = matches[3];   // Calories value
+                const fat = matches[4];       // Fat value
+                const carbs = matches[5];     // Carbs value
+                const protein = matches[6];   // Protein value
+    
+                console.log(`Serving size: ${serving}`);
+                console.log(`Calories: ${calories} kcal`);
+                console.log(`Fat: ${fat} g`);
+                console.log(`Carbs: ${carbs} g`);
+                console.log(`Protein: ${protein} g`);
+                console.log(nutrients);
+
+                return [serving, calories, fat, carbs, protein];
+            } else {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+        } catch (error) {
+            console.error("Error fetching nutrient data", error);
+        }
+    };
+
+
+    //code for updating nutrients for a specific food item 
+    const [test, setTest] = useState(false);
+    const edit = async()=>{
+        if (test === true){
+            const [serving, calories, fat, carbs, protein] = await fetchNutrients('Roasted Cauliflower');
+            const collegeFoodListDoc = doc(db, 'colleges', 'Dartmouth College', 'foodList','Roasted Cauliflower' ); // used for checking if food already in global list
+            await updateDoc(collegeFoodListDoc, {serving: serving, calories: calories, fat: fat, carbs: carbs, protein: protein});
+        }
+        setTest(false);
+    }
+    useEffect(()=>{
+        edit();
+    }, [])
+
+
 
 
 
