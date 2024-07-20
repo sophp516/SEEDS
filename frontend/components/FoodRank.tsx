@@ -32,7 +32,7 @@ const FoodRank = ({rank, foodName, rating, location}) => {
         allergens: [],
         tags: []
     });
-    const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+    const navigation = useNavigation<NavigationProp<ParamListBase>>();
 
     const getFoodReview = async () => {
         try{

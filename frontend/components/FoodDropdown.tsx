@@ -43,12 +43,12 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
                  onClear={onClear}
                 //  initialValue={locationInput}
                  textInputProps ={{
-                     placeholder: 'Ex. Apple',
+                     placeholder: 'Select or Enter a food',
                      value: value,
                      autoCorrect: false,
                      autoCapitalize: 'none',
                      style: { 
-                         color: 'black',
+                         color: '#35353E',
                          backgroundColor: '#E7E2DB',
                          width: 350,
                          height: 30,
