@@ -7,11 +7,11 @@ import Preferences from '../services/Preferences.json';
 import Allergens from '../services/Allergens.json';
 
 type RootStackParamList = {
-    SelectedMenu: { foodName, reviewIds, image, location, price, taste, health, tags, allergens },
+    SelectedMenu: { foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs },
 };
 
 
-const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens }) => {
+const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs}) => {
   const defaultImage = require('../assets/image.png');
   if (image.length === 0) {
     image = defaultImage;
@@ -30,7 +30,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     const navigateToReviews = () => {
-        navigation.navigate('SelectedMenu', { foodName, reviewIds, image, location, price, taste, health, tags, allergens });
+        navigation.navigate('SelectedMenu', { foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs });
     };
 
     const getTagStyle = (tag) => {
