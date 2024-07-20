@@ -11,9 +11,7 @@ type RootStackParamList = {
 };
 
 
-const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens, 
-    serving, calories, protein, fat, carbs
- }) => {
+const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs}) => {
   const defaultImage = require('../assets/image.png');
   if (image.length === 0) {
     image = defaultImage;

@@ -6,6 +6,7 @@ import { db } from '../services/firestore.js';
 import Navbar from '../components/Navbar.jsx';
 import Review from '../components/Review.tsx';
 import colors from '../styles.js';
+import NutrientsDisplay from '../components/NutrientsDisplay.tsx';
 
 export type RootStackParamList = {
     SelectedMenu: {
@@ -23,6 +24,7 @@ export type RootStackParamList = {
         calories: string;
         protein: string;
         fat: string;
+        carbs: string;
     },
     Post: { toggle: boolean; foodName: string };
 };
@@ -40,7 +42,6 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
     const [reviews, setReviews] = useState([])
     const [allTags, setAllTags] = useState([]);
     const [allAllergens, setAllAllergen] = useState([]);
-
     const getRatingBackgroundColor = (taste: number) => {
         if (taste >= 4) {
             return colors.highRating;
@@ -186,6 +187,13 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                                     })}
                                 </View>
                                 <Text style={styles.tagText}>Nutrition</Text>
+                                <NutrientsDisplay 
+                                    serving={serving}
+                                    calories={calories}
+                                    protein={protein}
+                                    fat={fat}
+                                    carbs={carbs}
+                                />
                             </View>
                         </View>
                     </View>
