@@ -6,6 +6,7 @@ import { db } from '../services/firestore.js';
 import Navbar from '../components/Navbar.jsx';
 import Review from '../components/Review.tsx';
 import colors from '../styles.js';
+import NutrientsDisplay from '../components/NutrientsDisplay.tsx';
 
 export type RootStackParamList = {
     SelectedMenu: {
@@ -19,6 +20,11 @@ export type RootStackParamList = {
         tags: string[];
         allergens: string[];
         health: number;
+        serving: string;
+        calories: string;
+        protein: string;
+        fat: string;
+        carbs: string;
     },
     Post: { toggle: boolean; foodName: string };
 };
@@ -30,20 +36,19 @@ interface SelectedMenuProps {
 }
 
 const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
-    const { reviewIds, foodName, image, location, price, taste } = route.params;
+    const { reviewIds, foodName, image, location, price, taste , serving, calories, protein, fat, carbs } = route.params;
     const navigation = useNavigation<NavigationProp<ParamListBase>>();
     const [toggleOverview, setToggleOverview] = useState(true);
     const [reviews, setReviews] = useState([])
     const [allTags, setAllTags] = useState([]);
     const [allAllergens, setAllAllergen] = useState([]);
-
     const getRatingBackgroundColor = (taste: number) => {
         if (taste >= 4) {
             return colors.highRating;
         } else if (taste >= 3) {
             return colors.mediumRating;
         } else {
-            return colors.grayStroke;
+            return colors.lowRating;
         }
     };
 
@@ -182,6 +187,13 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                                     })}
                                 </View>
                                 <Text style={styles.tagText}>Nutrition</Text>
+                                <NutrientsDisplay 
+                                    serving={serving}
+                                    calories={calories}
+                                    protein={protein}
+                                    fat={fat}
+                                    carbs={carbs}
+                                />
                             </View>
                         </View>
                     </View>
@@ -216,6 +228,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                     <Text style={styles.addReviewText}>Add Review</Text>
                 </TouchableOpacity>
             </View>
+            <View style={styles.bottomPadding}></View>
             <Navbar />
         </View>
     );
@@ -395,6 +408,9 @@ const styles = StyleSheet.create({
     },
     reviewsContainer: {
         paddingHorizontal: 20,
+    },
+    bottomPadding:{
+        height: 40,
     }
 });
 

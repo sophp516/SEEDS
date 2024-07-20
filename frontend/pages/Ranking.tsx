@@ -2,21 +2,23 @@ import Navbar from "../components/Navbar";
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View , Image} from 'react-native';
 import colors from "../styles.js";
-import { getDocs, collection, average, where, query,} from 'firebase/firestore'
+import { getDocs, collection, average, where, query, Timestamp} from 'firebase/firestore'
 import { db } from '../services/firestore'
 import FoodRank from "../components/FoodRank.tsx";
 import TimeDropdown from "../components/TimeDropdown.tsx";
+
+
 const Ranking = () => {
     const [toggle, setToggle] = useState<boolean>(true); // true = post, false = review 
     const [foodNames, setFoodNames] = useState<String[]>([]);
     const [foodLeaderboard, setFoodLeaderboards] = useState<any[]>([]);
+    const [filteredFoodLeaderboard, setFilteredFoodLeaderboard] = useState<any[]>([]);  
     const [foodData, setFoodData] = useState<any[]>([]); // can fetch by time, but for demo fetch per update?
     const [open, setOpen] = useState(false);
     const [selectedValue, setSelectedValue] = useState("All-time");
 
 
-   
-    // fetches the list of food names to get rating data 
+    // fetches the list of food names to get rating data once the component mounts
     useEffect(()=>{
       const fetchFoodNames = async () => {
           try{
@@ -29,35 +31,82 @@ const Ranking = () => {
       fetchFoodNames();
     }, [])
 
-    useEffect(()=>{
-      const fetchFoodRating = async () => {
-        try{
-          const queries = foodNames.map(foodName => 
-            getDocs(query(collection(db, "colleges", "Dartmouth College", "foodList"), where("foodName", "==", foodName)))
-          );
-
-          const res = await Promise.all(queries); // consist all of the documents
-
-          // Mapping through several documents
-          // each document data is a array, but we only want one array of objects which is why flatMap is used (2D array -> 1D array)
-          // for each doc in docs, map the data to an object with foodName and averageRating
-          const datas = res.flatMap(res => res.docs.map(doc => ({
-            foodName: doc.data().foodName,
-            averageRating: doc.data().averageRating
-          })));
-
-          datas.sort((a,b)=>b.averageRating-a.averageRating) // sort in ascending order
-          setFoodLeaderboards(datas)
-        }catch{
-          console.log("Error fetching food leaderboard")
-        }
+    const calculateStartDate = (selectedValue) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Start of today
+    
+      switch(selectedValue) {
+        case 'this week':
+          const dayOfWeek = today.getDay(); // Sunday - 0, Monday - 1, ..., Saturday - 6
+          const startOfWeek = new Date(today);
+          startOfWeek.setDate(today.getDate() - dayOfWeek); // Adjust to the start of this week
+          return startOfWeek;
+        case 'this month':
+          return new Date(today.getFullYear(), today.getMonth(), 1); // First day of this month
+        case 'this year':
+          return new Date(today.getFullYear(), 0, 1); // First day of this year
+        default:
+          return today;
       }
-      fetchFoodRating();
-    },[foodNames])
+    };
+  
+    useEffect(() => {
+        const fetchFoodRating = async () => {
+          try {
+    
+            const queries = foodNames.map(foodName => 
+              getDocs(query(collection(db, "colleges", "Dartmouth College", "foodList"), 
+                            where("foodName", "==", foodName),)));
+    
+            const res = await Promise.all(queries);
+    
+            const datas = res.flatMap(res => res.docs.map(doc => ({
+              foodName: doc.data().foodName,
+              averageRating: doc.data().averageRating,
+              createdAt: doc.data().createdAt,
+              location: doc.data().location,
+            })));
+    
+            datas.sort((a, b) => b.averageRating - a.averageRating); // Sort in descending order
+            setFoodLeaderboards(datas);
+            setFilteredFoodLeaderboard(datas);
+          } catch (error) {
+            console.log("Error fetching food leaderboard:", error);
+          }
+        };
+    
+        fetchFoodRating();
+      }, [foodNames]);
 
-    console.log(foodLeaderboard)
-
-
+    //Test cases: Peanut butter sandwhich is created last year
+    // Test cases: roasted cabbage is created weeks ago, so does not show in the week
+    const filterFoodLeaderboard = (text: string) => {
+      const time = new Date();
+      setOpen(false);
+      setSelectedValue(text);
+  
+      if (text === "All-time") {
+          setFilteredFoodLeaderboard(foodLeaderboard);
+      } else {
+          // Define the threshold date based on the selected time range
+          let thresholdDate;
+          if (text === 'Week') {
+              thresholdDate = new Date(time.getFullYear(), time.getMonth(), time.getDate() - 7);
+          } else if (text === 'Month') {
+              thresholdDate = new Date(time.getFullYear(), time.getMonth() - 1, time.getDate());
+          } else if (text === 'Year') {
+              thresholdDate = new Date(time.getFullYear() - 1, time.getMonth(), time.getDate());
+          }
+          // Filter the leaderboard
+          const filtered = foodLeaderboard.filter(food => {
+              // Convert Firestore Timestamp to JavaScript Date object
+              const foodDate = food.createdAt.toDate();
+              return foodDate > thresholdDate;
+          });
+  
+          setFilteredFoodLeaderboard(filtered);
+      }
+  };
 
 
     return (
@@ -75,8 +124,7 @@ const Ranking = () => {
                     <Text style={!toggle ? styles.btnText1 : styles.btnText2}>Review</Text>
                 </TouchableOpacity>
          </View>
-        {/* Drop down for filtering leaderboard by time */}
-        <View style={{justifyContent:'center'}}>
+         <View style={{justifyContent:'center'}}>
           <View style={{backgroundColor: '#E7E2DB', marginBottom: 20, marginTop: 10, marginLeft: "60%",
             borderRadius: 30, justifyContent:'center', alignContent: 'center', alignItems: "center", height: 40, width:100}}>
               <TouchableOpacity onPress={()=>setOpen(!open)} style={{ paddingHorizontal: 10, paddingVertical: 10 ,flexDirection: 'row', justifyContent: 'space-between'} }>
@@ -85,17 +133,20 @@ const Ranking = () => {
               </TouchableOpacity>
           </View>
           {open ?
-            <TimeDropdown setSelectedValue={setSelectedValue}/>:<View/>}
+            <TimeDropdown setSelectedValue={setSelectedValue} filterFoodLeaderboard={filterFoodLeaderboard} />:<View/>}
         </View>
         {/* Displays the leader board based off fetching  */}
-         <View style={{zIndex: -1}}>
-            {foodLeaderboard.map((food, index) => (
+        {toggle ? 
+        <View style={{zIndex: -1}}>
+            {filteredFoodLeaderboard.map((food, index) => (
               <View>
-                <FoodRank rank={index} foodName={food.foodName} rating={food.averageRating}/>
-                {/* <Text>{index+1}. {food.foodName} - {food.averageRating}</Text> */}
+                <FoodRank rank={index} foodName={food.foodName} rating={food.averageRating} location={food.location}/>
               </View>
             ))}
-         </View>
+         </View>: <View/>}
+        <View></View>
+
+
         <Navbar />
       </View>
 

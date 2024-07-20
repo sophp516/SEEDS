@@ -17,8 +17,7 @@ import ImageSlider from '../components/ImageSlider.tsx';
 import preferences from '../services/Preferences.json';
 import Allergens from '../services/Allergens.json';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
-// import storage from '@react-native-firebase/storage';
-
+import {ACCESS_TOKEN} from "@env";
 interface newPost{
     images: string[];
     comment: string;
@@ -103,8 +102,6 @@ const Post = () => {
             title: allergen
         }
     }));
-
-
     const handleCreatePost = async() => {
         try{
             const userData = await verifyUser();
@@ -116,7 +113,6 @@ const Post = () => {
             let date = new Date(timestamp);
             const updatedAtTime = Timestamp.fromDate(new Date()); // curr date and time as in firestore
             finalPost.timestamp = updatedAtTime;
-            // finalPost.timestamp = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
 
             if (post.images.length > 0 ){
                 /* Tried to write a upload function, however that resulted in app crashing unless we keep path name the same*/
@@ -172,10 +168,6 @@ const Post = () => {
 
             let finalReview = {...review};
             const imageURls = [];
-            // string version of time stamp
-            let timestamp = new Date().getTime();
-            let date = new Date(timestamp);
-            // finalReview.timestamp = `${date.getFullYear()}-${('0' + (date.getMonth() + 1)).slice(-2)}-${('0' + date.getDate()).slice(-2)} ${('0' + date.getHours()).slice(-2)}:${('0' + date.getMinutes()).slice(-2)}:${('0' + date.getSeconds()).slice(-2)}`;
             // // object version of the timestamp for firebase filtering 
             const updatedAtTime = Timestamp.fromDate(new Date()); // curr date and time as in firestore
             finalReview.timestamp = updatedAtTime;
@@ -209,46 +201,8 @@ const Post = () => {
             // UPDATES FOOD COLLECTION and FOODLIST 
             // checks whether the item is new and update document accordingly 
             // for item that exist, updates will be made to reviews, time, and tags frequency 
-            try{
-                //paths
-                const foodCollectionRef= collection(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName); // checks if food collection exist in location
-                const localFoodlistRef = collection(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, 'foodList'); // path for local foodlist within the dining hall
-                const localFoodListDoc = doc(localFoodlistRef, review.foodName); // local foodlist doc, for ex. is smoothie in collis yet?
-                const collegeFoodListDoc = doc(db, 'colleges', 'Dartmouth College', 'foodList', review.foodName); // used for checking if food already in global list
-                // check for edge cases for if the food collection/doc exist or not
-                const exist = await checkCollectionExist(foodCollectionRef); // if food collection exist
-                const collegeFoodlistDocExist = await checkDocExist(collegeFoodListDoc); // if food already in global list
-                const foodlistExist = await checkDocExist(collegeFoodListDoc); // add if not there
-                
-                // if food is not already in the global list, then we will add it there. 
-                // Initializes the data with the review information 
-                if (collegeFoodlistDocExist === false){
-                    await setDoc(collegeFoodListDoc, {foodName: review.foodName, location: review.location,likes: [], tags: review.tags, allergens: review.allergens,
-                        health:review.health, price: review.price, taste: review.taste, images: imageURls, averageRating: (review.taste + review.health)/2,
-                        createdAt: updatedAtTime, updatedAt: updatedAtTime
-                    });
-                }else{
-                    const [newAverage, newHealth, newTaste] = await calculateAverageRating(review.foodName, review.location, review.health, review.taste);
-                    console.log("new avg", newAverage)
-                    await updateDoc(collegeFoodListDoc, {averageRating: newAverage, health: newHealth, taste: newTaste, updatedAt: updatedAtTime});
-                }
-                
-                // Adds the foodID to the food collection 
-                if (exist === false){
-                    console.log('exist??:', exist)
-                    const foodDocRef = doc(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName, 'reviews');
-                    await setDoc(foodDocRef,{reviewIds: [reviewId]});
-                    await setDoc(localFoodListDoc, {foodName: review.foodName});
-                }
-                await updateDoc(doc(db,'colleges', 'Dartmouth College','diningLocations',review.location, review.foodName, 'reviews'),{reviewIds: arrayUnion(reviewId)});
-                await updateTagFrequency(review.foodName, review.tags, review.allergens)
-               
-            }catch{
-                console.error("Error adding review to food collection");
-                return;
-            }
-
-            // UPDATES DISOCVER COLLECTION
+            await updateFoodCollection(review, reviewId, updatedAtTime, imageURls);
+            await updateTagFrequency(review.foodName, review.tags, review.allergens);
             await submitDiscover(review.location, reviewId);
             // Add ID to user 
             try{
@@ -297,12 +251,132 @@ const Post = () => {
             return false;
         }
     };
+
     const checkDocExist = async(ref) => {
         try{
             const docSnap = await getDoc(ref);
             return docSnap.exists();
         }catch(e){console.log("There is error with checking the existence of the document"); return}
     }
+
+    const updateFoodCollection = async(review, reviewId, updatedAtTime, imageURls) => {
+        try{
+            //paths
+            const foodCollectionRef= collection(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName); // checks if food collection exist in location
+            const localFoodlistRef = collection(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, 'foodList'); // path for local foodlist within the dining hall
+            const localFoodListDoc = doc(localFoodlistRef, review.foodName); // local foodlist doc, for ex. is smoothie in collis yet?
+            const collegeFoodListDoc = doc(db, 'colleges', 'Dartmouth College', 'foodList', review.foodName); // used for checking if food already in global list
+            // check for edge cases for if the food collection/doc exist or not
+            const exist = await checkCollectionExist(foodCollectionRef); // if food collection exist
+            const collegeFoodlistDocExist = await checkDocExist(collegeFoodListDoc); // if food already in global list
+            const foodlistExist = await checkDocExist(collegeFoodListDoc); // add if not there
+            
+            // if food is not already in the global list, then we will add it there. 
+            // Initializes the data with the review information 
+            // Initalize nutrient data from api if available 
+            if (collegeFoodlistDocExist === false){
+                const [serving, calories, fat, carbs, protein] = await fetchNutrients(review.foodName);
+                await setDoc(collegeFoodListDoc, {foodName: review.foodName, location: review.location,likes: [], tags: review.tags, allergens: review.allergens,
+                    health:review.health, price: review.price, taste: review.taste, images: imageURls, averageRating: (review.taste + review.health)/2,
+                    createdAt: updatedAtTime, updatedAt: updatedAtTime, serving: serving, calories: calories, fat: fat, carbs: carbs, protein: protein});
+            }else{
+                const [newAverage, newHealth, newTaste] = await calculateAverageRating(review.foodName, review.location, review.health, review.taste);
+                console.log("new avg", newAverage)
+                await updateDoc(collegeFoodListDoc, {averageRating: newAverage, health: newHealth, taste: newTaste, updatedAt: updatedAtTime});
+            }
+            
+            // Adds the foodID to the food collection 
+            if (exist === false){
+                console.log('exist??:', exist)
+                const foodDocRef = doc(db,'colleges', 'Dartmouth College', 'diningLocations', review.location, review.foodName, 'reviews');
+                await setDoc(foodDocRef,{reviewIds: [reviewId]});
+                await setDoc(localFoodListDoc, {foodName: review.foodName});
+            }
+            await updateDoc(doc(db,'colleges', 'Dartmouth College','diningLocations',review.location, review.foodName, 'reviews'),{reviewIds: arrayUnion(reviewId)});
+           
+        }catch{
+            console.error("Error adding review to food collection");
+            return;
+        }
+    }
+
+    const fetchNutrients = async (foodName) => {
+        const baseUrl = 'https://platform.fatsecret.com/rest/server.api';
+        const params = new URLSearchParams({
+            method: 'foods.search',
+            search_expression: foodName,
+            max_results: '1',
+            format: 'json'
+        }).toString();
+    
+        const headers = {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Bearer ${ACCESS_TOKEN}` 
+        };
+    
+        try {
+            const response = await fetch(baseUrl, {
+                method: 'POST',
+                headers: headers,
+                body: params  // Send parameters as the request body
+            });
+    
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Data:", data);
+                if (!data || !data.foods || !data.foods.food) {
+                    console.log("Food data is missing or incomplete");
+                    return ["N/A", "N/A", "N/A", "N/A", "N/A"];
+                }
+                const fetchedName = data.foods.food.food_name;
+                const nutrients = data.foods.food.food_description;
+                // \d+ means matching more than one digit, | divides the nutrients string into 4 categories
+                // \. means optional decimal
+                // \d* will match zero or more digits
+                // parentheses are used to capture the values
+                const nutritionRegex = /Per (\d+) ?(g| bowl| package| cup|oz| serving) - Calories: (\d+)kcal \| Fat: (\d+\.?\d*)g \| Carbs: (\d+\.?\d*)g \| Protein: (\d+\.?\d*)g/;
+                const matches = nutrients.match(nutritionRegex);
+                const serving = matches[1] + matches[2];     // Serving size
+                const calories = matches[3];   // Calories value
+                const fat = matches[4];       // Fat value
+                const carbs = matches[5];     // Carbs value
+                const protein = matches[6];   // Protein value
+    
+                console.log(`Serving size: ${serving}`);
+                console.log(`Calories: ${calories} kcal`);
+                console.log(`Fat: ${fat} g`);
+                console.log(`Carbs: ${carbs} g`);
+                console.log(`Protein: ${protein} g`);
+                console.log(nutrients);
+
+                return [serving, calories, fat, carbs, protein];
+            } else {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+        } catch (error) {
+            console.error("Error fetching nutrient data", error);
+        }
+    };
+
+
+    //code for updating nutrients for a specific food item 
+    const [test, setTest] = useState(false);
+    const edit = async()=>{
+        if (test === true){
+            const [serving, calories, fat, carbs, protein] = await fetchNutrients('Roasted Cauliflower');
+            const collegeFoodListDoc = doc(db, 'colleges', 'Dartmouth College', 'foodList','Roasted Cauliflower' ); // used for checking if food already in global list
+            await updateDoc(collegeFoodListDoc, {serving: serving, calories: calories, fat: fat, carbs: carbs, protein: protein});
+        }
+        setTest(false);
+    }
+    useEffect(()=>{
+        edit();
+    }, [])
+
+
+
+
+
     const updateTagFrequency = async(foodName, tags, allergens) =>{
         const tagCollectionRef = collection(db,'colleges', 'Dartmouth College', "foodList", foodName, "tagsCollection")
         const allergenCollectionRef = collection(db,'colleges', 'Dartmouth College', "foodList", foodName, "allergensCollection");
@@ -395,10 +469,11 @@ const Post = () => {
         }
     }
 
-    
-    console.log(review.allergens)
+
+
     /******* FUNCTIONS FOR UPLOAD IMAGES ******/
-    // Read more about documentation here: https://docs.expo.dev/versions/latest/sdk/imagepicker/ 
+    // Read more about documentation here: https://docs.expo.dev/versions/latest/sdk/imagepicker/
+    // If have time, can set as a component 
     const getPermission = async() =>{
         if (Platform.OS === 'ios'){
             const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -467,21 +542,8 @@ const Post = () => {
     const handleExit = () => {
         navigation.goBack();
         navigation.addListener
-        setReview({ 
-            userId: userId,
-            foodName: '',
-            location: '',
-            price: null,
-            taste: 0,
-            health: 0,
-            images: [],
-            tags: [],
-            allergens:[],
-            comment: '',
-            likes: [],
-            isReview: true,
-            subComments: []
-        });
+        setReview({ userId: userId, foodName: '',location: '',price: null, taste: 0, health: 0, images: [],tags: [],allergens:[],
+            comment: '',likes: [],isReview: true,subComments: []});
     }
 
     /* HANDLE USER INTERACTION FUNCTIONS*/
@@ -700,14 +762,6 @@ const Post = () => {
                     <View style={styles.reviewContainer}>
                 
                     {review.images.length > 0 ?   
-                    //     <ScrollView horizontal showsHorizontalScrollIndicator={true} style={{}}>
-                    //        {review.images.map((image, index) =>(
-                    //             <Image source={{uri: review.images[index] || null}} style={styles.uploadedImageContainer} />
-                    //         ))}
-                    //         <TouchableOpacity onPress={selectImage} style={styles.imagebox} >
-                    //             <Image source={require('../assets/image.png')} style={styles.cameraIcon}/>
-                    //         </TouchableOpacity>
-                    //    </ScrollView>
                         <View>
                         <ImageSlider 
                             images={review.images}
@@ -814,6 +868,9 @@ const Post = () => {
                                     value:tag,
                                     autoCorrect: false,
                                     autoCapitalize: 'none',
+                                    onSubmitEditing(e) {
+                                        handleSubmitTag();
+                                    },
                                     style: { 
                                         color: 'black',
                                         backgroundColor: '#E7E2DB',
@@ -844,12 +901,15 @@ const Post = () => {
                                 onSelectItem={handleSelectAllergen}
                                 direction={Platform.select({ ios: 'down' })}
                                 onClear={() => setAllergen('')}
-                                initialValue={tag}
+                                initialValue={allergen}
                                 textInputProps ={{
                                     placeholder: 'Enter a allergen',
-                                    value:tag,
+                                    value:allergen,
                                     autoCorrect: false,
                                     autoCapitalize: 'none',
+                                    onSubmitEditing(e) {
+                                        handleSubmitAllergen();
+                                    },
                                     style: { 
                                         color: 'black',
                                         backgroundColor: '#E7E2DB',

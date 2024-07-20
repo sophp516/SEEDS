@@ -53,17 +53,13 @@ const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, images, reviewIds, 
         });
     }
 
-    const getAverageRating = (taste:number, health:number) => {
-        return (taste + health) / 2;
-    }
-
     const getRatingBackgroundColor = (taste: number) => {
         if (taste >= 4) {
             return colors.highRating;
         } else if (taste >= 3) {
             return colors.mediumRating;
         } else {
-            return colors.grayStroke;
+            return colors.lowRating;
         }
     };
 
@@ -81,10 +77,16 @@ const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, images, reviewIds, 
                 <Text style={styles.nameText} numberOfLines={1} ellipsizeMode="tail">
                     {foodName}
                 </Text>
-                <View>
-                  <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(getAverageRating(taste,health)) }]}>
-                      <Text style={styles.starText}>{averageRating} </Text>
-                      <Image source={require('../assets/star.png')} style={{width: 13, height: 13}}/>
+                <View style={styles.ratingContainer}>
+                  <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(health), marginRight: 3 }]}>
+                   <Image source={require('../assets/health.png')} style={{width: 15, height: 15}}/>
+                      <Text style={styles.starText}> {health.toFixed(1)} </Text>
+
+                  </View>
+                  <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(taste) }]}>
+                      <Image source={require('../assets/taste.png')} style={{width: 15, height: 15}}/>
+                      <Text style={styles.starText}> {taste.toFixed(1)}</Text>
+
                   </View>
 
                 </View>
@@ -131,6 +133,9 @@ const styles = StyleSheet.create({
     },
     starText: {
         fontSize: 12,
+    },
+    ratingContainer: {
+        flexDirection: 'row'
     }
 })
 
