@@ -70,6 +70,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                         carbs: globalData?.carbs ?? 'N/A', // Default value if carbs is missing
                         protein: globalData?.protein ?? 'N/A', // Default value if protein is missing
                         fat: globalData?.fat ?? 'N/A', // Default value if fat is missing  
+                        averageRating: globalData?.averageRating ?? 0,
 
                     };
                     foodItems.push(foodItem);
@@ -207,6 +208,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     carbs={review.carbs}
                                     protein={review.protein}
                                     fat={review.fat}
+                                    averageRating={review.averageRating}
                                     />
                     })
                 ) : (
@@ -284,7 +286,7 @@ const styles = StyleSheet.create({
     contentScrollContainer: {
         flexDirection: 'column',
         width: '100%',
-        marginTop: 30,
+        marginTop: 10,
         flex: 1,
     },
     recHolder: {

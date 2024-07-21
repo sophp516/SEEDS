@@ -7,7 +7,7 @@ import Navbar from '../components/Navbar.jsx';
 import Review from '../components/Review.tsx';
 import colors from '../styles.js';
 import NutrientsDisplay from '../components/NutrientsDisplay.tsx';
-
+import ImageSlider from '../components/ImageSlider.tsx';
 export type RootStackParamList = {
     SelectedMenu: {
         id: string;
@@ -25,6 +25,7 @@ export type RootStackParamList = {
         protein: string;
         fat: string;
         carbs: string;
+        averageRating: number;
     },
     Post: { toggle: boolean; foodName: string };
 };
@@ -36,12 +37,13 @@ interface SelectedMenuProps {
 }
 
 const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
-    const { reviewIds, foodName, image, location, price, taste , serving, calories, protein, fat, carbs } = route.params;
+    const { reviewIds, foodName, image, location, price, taste ,serving, calories, protein, fat, carbs, averageRating } = route.params;
     const navigation = useNavigation<NavigationProp<ParamListBase>>();
     const [toggleOverview, setToggleOverview] = useState(true);
     const [reviews, setReviews] = useState([])
     const [allTags, setAllTags] = useState([]);
     const [allAllergens, setAllAllergen] = useState([]);
+    let parsedAverageRating = parseFloat(averageRating.toString()).toFixed(1);
     const getRatingBackgroundColor = (taste: number) => {
         if (taste >= 4) {
             return colors.highRating;
@@ -127,7 +129,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                     <View style={styles.headerContent}>
                         <Text style={styles.foodNameText}>{foodName}</Text>
                         <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(taste) }]}>
-                            <Text style={styles.starText}>{taste} stars</Text>
+                            <Text style={styles.starText}>{parsedAverageRating} stars</Text>
                         </View>
                     </View>
                     <Text style={styles.locationText}>{location}</Text>
@@ -149,6 +151,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                 {toggleOverview ? 
                     <View style={styles.toggleContentContainer}>
                         {image ? (
+                            // <ImageSlider images={[image]} />
                             <Image source={{ uri: image[0] }} style={styles.image} />
                         ) : (
                             <View style={styles.placeholderImage}>
@@ -187,13 +190,15 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                                     })}
                                 </View>
                                 <Text style={styles.tagText}>Nutrition</Text>
-                                <NutrientsDisplay 
-                                    serving={serving}
-                                    calories={calories}
-                                    protein={protein}
-                                    fat={fat}
-                                    carbs={carbs}
-                                />
+                                <View style={styles.nutritionDisplayContainer}>
+                                    <NutrientsDisplay 
+                                        serving={serving}
+                                        calories={calories}
+                                        protein={protein}
+                                        fat={fat}
+                                        carbs={carbs}
+                                    />
+                                </View>
                             </View>
                         </View>
                     </View>
@@ -409,9 +414,14 @@ const styles = StyleSheet.create({
     reviewsContainer: {
         paddingHorizontal: 20,
     },
+    nutritionDisplayContainer:{
+        alignItems: 'center',
+        marginTop: 5,
+    },
     bottomPadding:{
         height: 40,
     }
+    
 });
 
 export default SelectedMenu;
