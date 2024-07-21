@@ -7,7 +7,7 @@ import Navbar from '../components/Navbar.jsx';
 import Review from '../components/Review.tsx';
 import colors from '../styles.js';
 import NutrientsDisplay from '../components/NutrientsDisplay.tsx';
-
+import ImageSlider from '../components/ImageSlider.tsx';
 export type RootStackParamList = {
     SelectedMenu: {
         id: string;
@@ -149,6 +149,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                 {toggleOverview ? 
                     <View style={styles.toggleContentContainer}>
                         {image ? (
+                            // <ImageSlider images={[image]} />
                             <Image source={{ uri: image[0] }} style={styles.image} />
                         ) : (
                             <View style={styles.placeholderImage}>
@@ -187,13 +188,15 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                                     })}
                                 </View>
                                 <Text style={styles.tagText}>Nutrition</Text>
-                                <NutrientsDisplay 
-                                    serving={serving}
-                                    calories={calories}
-                                    protein={protein}
-                                    fat={fat}
-                                    carbs={carbs}
-                                />
+                                <View style={styles.nutritionDisplayContainer}>
+                                    <NutrientsDisplay 
+                                        serving={serving}
+                                        calories={calories}
+                                        protein={protein}
+                                        fat={fat}
+                                        carbs={carbs}
+                                    />
+                                </View>
                             </View>
                         </View>
                     </View>
@@ -409,9 +412,14 @@ const styles = StyleSheet.create({
     reviewsContainer: {
         paddingHorizontal: 20,
     },
+    nutritionDisplayContainer:{
+        alignItems: 'center',
+        marginTop: 5,
+    },
     bottomPadding:{
         height: 40,
     }
+    
 });
 
 export default SelectedMenu;

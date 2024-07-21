@@ -5,6 +5,7 @@ import colors from '../styles';
 import ProgressBar from 'react-native-progress-bar-horizontal';
 import Preferences from '../services/Preferences.json';
 import Allergens from '../services/Allergens.json';
+import ImageSlider from './ImageSlider';
 
 type RootStackParamList = {
     SelectedMenu: { foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs },
