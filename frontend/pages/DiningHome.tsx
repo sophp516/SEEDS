@@ -98,7 +98,13 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                     tags: reviewsData?.tags ?? [], // Default to an empty array if tags are missing
                     averageRating: globalData?.averageRating ?? 'N/A',
                     createdAt: globalData?.createdAt ?? 'N/A',
-                    images: globalData?.images ?? []
+                    images: globalData?.images ?? [],
+                    serving: globalData?.serving ?? 'N/A', // Default value if serving is missing 
+                    calories: globalData?.calories ?? 'N/A', // Default value if calories is missing
+                    carbs: globalData?.carbs ?? 'N/A', // Default value if carbs is missing
+                    protein: globalData?.protein ?? 'N/A', // Default value if protein is missing
+                    fat: globalData?.fat ?? 'N/A', // Default value if fat is missing  
+
                 };
                 foodItems.push(foodItem);
             }
@@ -278,6 +284,12 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     averageRating={item.averageRating}
                                     createdAt={item.createdAt}
                                     images={item.images}
+                                    serving={item.serving}
+                                    calories={item.calories}
+                                    carbs={item.carbs}
+                                    fat={item.fat}
+                                    protein={item.protein}
+
                                   />
                                 ))}
                               </View>
@@ -316,6 +328,11 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                       averageRating={item.averageRating}
                                       createdAt={item.createdAt}
                                       images={item.images}
+                                      serving={item.serving}
+                                      calories={item.calories}
+                                      carbs={item.carbs}
+                                      fat={item.fat}
+                                      protein={item.protein}
                                     />
                                   ))}
                                 </View>
@@ -355,6 +372,11 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                       averageRating={item.averageRating}
                                       createdAt={item.createdAt}
                                       images={item.images}
+                                      serving={item.serving}
+                                      calories={item.calories}
+                                      carbs={item.carbs}
+                                      fat={item.fat}
+                                      protein={item.protein}
                                     />
                                   ))}
                                 </View>

@@ -15,7 +15,12 @@ type RootStackParamList = {
         taste: Number,
         health: Number,
         tags: String[],
-        allergens: String[]
+        allergens: String[],
+        serving: string;
+        calories: string;
+        protein: string;
+        fat: string;
+        carbs: string;
     };
     
 };
@@ -33,9 +38,14 @@ type SmallMenuProps = {
     health: number;
     averageRating: number;
     createdAt: string;
+    serving: string;
+    calories: string;
+    protein: string;
+    fat: string;
+    carbs: string;
 };
 
-const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, images, reviewIds, location, price, taste, tags, allergens, health, averageRating, createdAt }) => {
+const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, images, reviewIds, location, price, taste, tags, allergens, health, averageRating, createdAt,  serving, calories, protein, fat, carbs }) => {
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const navigateTo = () => {
@@ -49,7 +59,12 @@ const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, images, reviewIds, 
             taste,
             tags,
             allergens, 
-            health
+            health,
+            serving,
+            calories,
+            protein,
+            fat,
+            carbs
         });
     }
 
