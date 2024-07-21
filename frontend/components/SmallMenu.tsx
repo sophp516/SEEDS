@@ -21,6 +21,7 @@ type RootStackParamList = {
         protein: string;
         fat: string;
         carbs: string;
+        averageRating: number;
     };
     
 };
@@ -36,13 +37,13 @@ type SmallMenuProps = {
     allergens: string[];
     reviewIds: string[]
     health: number;
-    averageRating: number;
     createdAt: string;
     serving: string;
     calories: string;
     protein: string;
     fat: string;
     carbs: string;
+    averageRating: number
 };
 
 const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, images, reviewIds, location, price, taste, tags, allergens, health, averageRating, createdAt,  serving, calories, protein, fat, carbs }) => {
@@ -64,7 +65,8 @@ const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, images, reviewIds, 
             calories,
             protein,
             fat,
-            carbs
+            carbs,
+            averageRating,
         });
     }
 

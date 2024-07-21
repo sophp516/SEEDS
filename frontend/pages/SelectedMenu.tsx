@@ -25,6 +25,7 @@ export type RootStackParamList = {
         protein: string;
         fat: string;
         carbs: string;
+        averageRating: number;
     },
     Post: { toggle: boolean; foodName: string };
 };
@@ -36,12 +37,13 @@ interface SelectedMenuProps {
 }
 
 const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
-    const { reviewIds, foodName, image, location, price, taste , serving, calories, protein, fat, carbs } = route.params;
+    const { reviewIds, foodName, image, location, price, taste ,serving, calories, protein, fat, carbs, averageRating } = route.params;
     const navigation = useNavigation<NavigationProp<ParamListBase>>();
     const [toggleOverview, setToggleOverview] = useState(true);
     const [reviews, setReviews] = useState([])
     const [allTags, setAllTags] = useState([]);
     const [allAllergens, setAllAllergen] = useState([]);
+    let parsedAverageRating = parseFloat(averageRating.toString()).toFixed(1);
     const getRatingBackgroundColor = (taste: number) => {
         if (taste >= 4) {
             return colors.highRating;
@@ -127,7 +129,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                     <View style={styles.headerContent}>
                         <Text style={styles.foodNameText}>{foodName}</Text>
                         <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(taste) }]}>
-                            <Text style={styles.starText}>{taste} stars</Text>
+                            <Text style={styles.starText}>{parsedAverageRating} stars</Text>
                         </View>
                     </View>
                     <Text style={styles.locationText}>{location}</Text>
