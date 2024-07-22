@@ -54,21 +54,29 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
                 const userId = loggedInUser.loggedInUser.uid;
                 const commentRef = doc(db, 'comments', commentId);
                 const commentDoc = await getDoc(commentRef);
+
+                const userRef = doc(db, 'users', userId)
+                const userDoc = await getDoc(userRef)
     
-                if (commentDoc.exists()) {
+                if (commentDoc.exists() && userDoc.exists()) {
                     const commentData = commentDoc.data();
+                    const userData = userDoc.data();
                     let commentLikes = commentData.likes || [];
+                    let userLikes = userData.likes || [];
     
                     if (commentLikes.includes(userId)) {
                         commentLikes = commentLikes.filter(id => id !== userId);
+                        userLikes = userLikes.filter(id => id !== postId);
                         setIsLiked(false);
                     } else {
                         commentLikes.push(userId);
+                        userLikes.push(postId);
                         setIsLiked(true);
                     }
     
                     setSubLikes(commentLikes);
                     await updateDoc(commentRef, { likes: commentLikes });
+                    await updateDoc(userRef, { likes: userLikes });
                 }
             } catch (err) {
                 console.error('Error updating like status:', err);
