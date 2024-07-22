@@ -21,6 +21,7 @@ type RootStackParamList = {
 };
 
 
+
 const Profile = () => {
     const { user, setLoggedInUser } = useAuth();
     const { loggedInUser, displayName } = user;
@@ -36,6 +37,7 @@ const Profile = () => {
         const fetchDisplayName = async () => {
             try {
                 const userId = loggedInUser?.uid;
+                // console.log(loggedInUser.loggedInUser.uid)
                 if (!userId) {
                     Toast.show({
                         type: 'error',
@@ -70,6 +72,8 @@ const Profile = () => {
         const fetchTags = async () => {
             try {
                 const userId = loggedInUser?.uid;
+                console.log(loggedInUser.loggedInUser.uid)
+
                 if (!userId) {
                     Toast.show({
                         type: 'error',

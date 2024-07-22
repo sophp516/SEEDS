@@ -18,6 +18,7 @@ import preferences from '../services/Preferences.json';
 import Allergens from '../services/Allergens.json';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import {ACCESS_TOKEN} from "@env";
+
 interface newPost{
     images: string[];
     comment: string;

@@ -5,7 +5,6 @@ import { useAuth } from '../context/authContext.js';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../services/firestore.js';
 import Toast from 'react-native-toast-message';
-
 import Post from '../components/Post.tsx';
 import Review from '../components/Review.tsx';
 import Navbar from '../components/Navbar.jsx';

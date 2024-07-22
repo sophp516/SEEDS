@@ -110,7 +110,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
     >
       <View style={styles.bottomSheetUpper}>
         <TouchableOpacity style={styles.bottomSheetButton} onPress={handleReset}>
-          <Text style={styles.buttonText}>Rest</Text>
+          <Text style={styles.buttonText}>Reset</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomSheetButton} onPress={() => console.log("perform Preferences")}>
           <Text style={[styles.buttonText, styles.fancy]}>My Preferences</Text>
