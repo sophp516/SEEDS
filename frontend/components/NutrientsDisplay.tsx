@@ -58,18 +58,20 @@ const styles = StyleSheet.create({
         borderWidth:2,
         borderColor: '#91836E',
         backgroundColor: colors.primaryWhite,
-        margin: 10
+        margin: 10,
+        width: '100%', 
     },
     nutrientHeader:{
         flexDirection: 'row',
-        marginTop: 10,
+        marginTop: 20,
+        marginBottom: 10,
     },
     circleContainer:{
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'space-evenly',
         alignItems: 'center',
         margin: 10,
-        width: 250,
+        width: '100%', 
     },
     circle:{
         borderColor: '#BCBCBC',
@@ -80,6 +82,7 @@ const styles = StyleSheet.create({
         width: 80,
         justifyContent: 'center',
         alignItems: 'center',
+        marginBottom: 25,
     },
     text1:{
         color: '#35353E',

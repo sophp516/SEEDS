@@ -5,14 +5,18 @@ import colors from '../styles';
 import ProgressBar from 'react-native-progress-bar-horizontal';
 import Preferences from '../services/Preferences.json';
 import Allergens from '../services/Allergens.json';
+import ImageSlider from './ImageSlider';
 
 type RootStackParamList = {
-    SelectedMenu: { foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs },
+    SelectedMenu: { foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs , averageRating },
 };
 
 
-const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs}) => {
+const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs, averageRating}) => {
   const defaultImage = require('../assets/image.png');
+    let parsedRating = parseFloat(averageRating).toFixed(1);
+    let parsedPrice = parseFloat(price).toFixed(2);
+
   if (image.length === 0) {
     image = defaultImage;
   } 
@@ -30,7 +34,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     const navigateToReviews = () => {
-        navigation.navigate('SelectedMenu', { foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs });
+        navigation.navigate('SelectedMenu', { foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs, averageRating });
     };
 
     const getTagStyle = (tag) => {
@@ -50,17 +54,37 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
       <View>
         <TouchableOpacity style={styles.foodItemContainer} onPress={navigateToReviews}>
             <View>
-                <Image 
+                {/* <View style={styles.priceOverlayContainer}>
+                    <Text style={styles.priceOverlay}>$ {price}</Text>
+                    <Text>{averageRating}</Text>
+                </View> */}
+                {/* Modified background to be consistent with previous page, and so that it's easier to 
+                    see the numbers  */}
+                {image.length > 0 ?
+                 <Image 
                     source={image || defaultImage}
                     style={styles.image}
                 />
-                <View style={styles.priceOverlayContainer}>
-                    <Text style={styles.priceOverlay}>$ {price}</Text>
+                 :
+                <View style={styles.image2}>
+                     <Text style={styles.placeholderText}>No Image</Text>
+                 </View>
+                }
+
+                <View style={styles.generalInfoContainer}>
+                    <View style={[styles.generalInfo, {flexDirection: 'row'}]}>
+                        <Text style={styles.generalInfotext}>{parsedRating}</Text>
+                        <Image source={require('../assets/star.png')} style={styles.star}/>
+                    </View>
+                    <View  style={styles.generalInfo}>
+                        <Text style={styles.generalInfotext}>${parsedPrice}</Text>
+                    </View>
                 </View>
             </View>
             <View style={styles.foodInfoContainer}>
                 <View style={styles.foodInfoHeader}>
-                    <Text>{foodName}</Text>
+                    {/* Modified foodname, so it doesn't push other element off of page */}
+                    <Text numberOfLines={1} ellipsizeMode='tail' style={{ flex: 1,}}>{foodName}</Text>
                     <Text style={styles.reviewCount}>({reviewIds.length} reviews)</Text>
                 </View>
                 <View style={styles.tagContainer}>
@@ -91,7 +115,6 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                         height={10}
                         borderColor={colors.inputGray}
                         duration={100}
-                        
                       />
                     </View>
 
@@ -118,11 +141,9 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                   </View>
 
                 </View>
-
-
             </View>
         </TouchableOpacity>
-
+        <View style={styles.bottonLine}></View>
       </View>
     );
 };
@@ -130,7 +151,6 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
 const styles = StyleSheet.create({
     foodItemContainer: {
         flexDirection: 'row',
-        paddingHorizontal: 5,
         paddingVertical: 5,
         marginLeft: 20,
         marginRight: 20,
@@ -141,11 +161,58 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
     },
+    generalInfo: {
+        backgroundColor: 'white',
+        textAlign: 'center',
+        margin: 1,
+        borderRadius: 15,
+        borderWidth: 2,
+        borderColor: colors.primaryWhite,
+        alignItems: 'center',
+        paddingVertical: 1,
+        paddingHorizontal: 5,
+        marginRight: 4,
+    },
+    generalInfoContainer:{
+        position: 'absolute',
+        bottom: 10,
+        right: 5,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'flex-end',
+    },
+    generalInfotext:{
+        color: '#35353E',             
+        textAlign: 'center',          
+        fontFamily: 'Satoshi',        
+        fontSize: 12,                 
+        fontStyle: 'normal',          
+        fontWeight: '500',            
+        lineHeight: 15,              
+        letterSpacing: -0.11, 
+    },
+    star:{
+        width: 12,
+        height: 12,
+        alignContent: 'center',
+        marginLeft: 2,
+    },
     image: {
         position: 'relative',
         width: 140,
-        height: 120,
-        borderRadius: 20,
+        height: 125,
+        borderRadius: 15,
+    },
+    image2: {
+        width: 140,
+        height: 125,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#e0e0e0',
+        borderRadius: 15,
+    },
+    placeholderText: {
+        color: '#7c7c7c',
     },
     priceOverlayContainer: {
         position: 'absolute',
@@ -234,6 +301,12 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#35353E',
     },
+    bottonLine:{
+        width: '100%',
+        borderBottomColor: '#91836E',
+        borderBottomWidth: 1.5,
+        marginVertical: 12,
+    }
 
 
     

@@ -302,6 +302,7 @@ const Post = () => {
 
     const fetchNutrients = async (foodName) => {
         const baseUrl = 'https://platform.fatsecret.com/rest/server.api';
+        // takes the first search result, which is the most relevant and match closest to the search query
         const params = new URLSearchParams({
             method: 'foods.search',
             search_expression: foodName,
@@ -359,7 +360,7 @@ const Post = () => {
     };
 
 
-    //code for updating nutrients for a specific food item 
+    //code for updating nutrients for a specific food item, turn test as false when no need to make any updates
     const [test, setTest] = useState(false);
     const edit = async()=>{
         if (test === true){
