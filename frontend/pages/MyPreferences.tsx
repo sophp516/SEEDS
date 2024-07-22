@@ -142,6 +142,7 @@ const MyPreferences = () => {
       </TouchableOpacity>
 
       <Text style={styles.text}>My Preferences</Text>
+      <Text style={styles.subheader}>Track your dietary preferences and allergies.</Text>
 
       <View>
         <Text style={styles.sectionHeader}>Preferences</Text>
@@ -265,6 +266,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'left',
     marginBottom: 10,
+  },
+  subheader: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#666', // Gray color for subheader
+    marginBottom: 20,
   },
   editingContainer: {
     marginBottom: 20,
