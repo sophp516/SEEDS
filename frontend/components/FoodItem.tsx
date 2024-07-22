@@ -3,40 +3,99 @@ import React, {useEffect} from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import colors from '../styles';
 import ProgressBar from 'react-native-progress-bar-horizontal';
+import Preferences from '../services/Preferences.json';
+import Allergens from '../services/Allergens.json';
+import ImageSlider from './ImageSlider';
 
 type RootStackParamList = {
-    SelectedMenu: { foodName, reviewIds, image, location, price, taste, health, tags, allergens },
+    SelectedMenu: { foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs , averageRating },
 };
 
-const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens }) => {
 
+const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs, averageRating}) => {
+  const defaultImage = require('../assets/image.png');
+    let parsedRating = parseFloat(averageRating).toFixed(1);
+    let parsedPrice = parseFloat(price).toFixed(2);
+
+  if (image.length === 0) {
+    image = defaultImage;
+  } 
+
+    // Helper function for ProgressBar
+    const normalizeValue = (value: any) => {
+      // Check if value is a number
+      if (typeof value !== 'number' || isNaN(value)) {
+          return 0;
+      }
+      const normalized = Math.min(Math.max(value / 10, 0), 1);
+      return Math.min(normalized * 2, 1);
+  };
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     const navigateToReviews = () => {
-        navigation.navigate('SelectedMenu', { foodName, reviewIds, image, location, price, taste, health, tags, allergens });
+        navigation.navigate('SelectedMenu', { foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs, averageRating });
     };
 
+    const getTagStyle = (tag) => {
+      if (["Breakfast", "Lunch", "Dinner"].includes(tag)) {
+          return styles.tagYellow;
+      } else if (Preferences.id.includes(tag)) {
+          return styles.tagGreen;
+      }
+      return styles.tagGray;
+  };
+
+  const getAllergenStyle = (allergen) => {
+      return Preferences.id.includes(allergen) ? styles.tagRed : styles.tagGray;
+  };
+
     return (
+      <View>
         <TouchableOpacity style={styles.foodItemContainer} onPress={navigateToReviews}>
             <View>
-                <Image 
-                    source={image || require('../assets/image.png')}
+                {/* <View style={styles.priceOverlayContainer}>
+                    <Text style={styles.priceOverlay}>$ {price}</Text>
+                    <Text>{averageRating}</Text>
+                </View> */}
+                {/* Modified background to be consistent with previous page, and so that it's easier to 
+                    see the numbers  */}
+                {image.length > 0 ?
+                 <Image 
+                    source={image || defaultImage}
                     style={styles.image}
                 />
-                <View style={styles.priceOverlayContainer}>
-                    <Text style={styles.priceOverlay}>$ {price}</Text>
+                 :
+                <View style={styles.image2}>
+                     <Text style={styles.placeholderText}>No Image</Text>
+                 </View>
+                }
+
+                <View style={styles.generalInfoContainer}>
+                    <View style={[styles.generalInfo, {flexDirection: 'row'}]}>
+                        <Text style={styles.generalInfotext}>{parsedRating}</Text>
+                        <Image source={require('../assets/star.png')} style={styles.star}/>
+                    </View>
+                    <View  style={styles.generalInfo}>
+                        <Text style={styles.generalInfotext}>${parsedPrice}</Text>
+                    </View>
                 </View>
             </View>
             <View style={styles.foodInfoContainer}>
                 <View style={styles.foodInfoHeader}>
-                    <Text>{foodName}</Text>
+                    {/* Modified foodname, so it doesn't push other element off of page */}
+                    <Text numberOfLines={1} ellipsizeMode='tail' style={{ flex: 1,}}>{foodName}</Text>
                     <Text style={styles.reviewCount}>({reviewIds.length} reviews)</Text>
                 </View>
                 <View style={styles.tagContainer}>
                     {tags.length > 0 && tags.map((tag, i) => (
-                        <View style={styles.tagBlob} key={i}>
-                            <Text>{tag}</Text>
+                        <View style={[styles.tagBlob, getTagStyle(tag)]} key={i}>
+                            <Text style={styles.tagText}>{tag}</Text>
+                        </View>
+                    ))}
+                    {allergens.length > 0 && allergens.map((allergens, i) => (
+                        <View style={[styles.tagBlob, getAllergenStyle(allergens)]} key={i}>
+                            <Text style={styles.tagText}>{allergens}</Text>
                         </View>
                     ))}
                 </View>
@@ -45,31 +104,30 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
 
                   <View style={styles.tasteAndHealthContainer}>
                       
-                    <Text>Health</Text>
+                    <Text style={styles.ratingText}>Health</Text>
 
                     <View style={styles.progressContainer}>
                       <ProgressBar
-                        progress={0.4}
+                        progress={normalizeValue(health)}
                         borderWidth={1}
                         fillColor={colors.lightOrange}
                         unfilledColor={colors.inputGray}
                         height={10}
                         borderColor={colors.inputGray}
                         duration={100}
-                        
                       />
                     </View>
 
-                    <Text>  {health}</Text>
+                    <Text style={styles.number}>  {health.toFixed(1)}/5</Text>
                   </View>
 
                   
                   <View style={styles.tasteAndHealthContainer}>
-                    <Text>Taste  </Text>
+                    <Text style={styles.ratingText}>Taste  </Text>
 
                     <View style={styles.progressContainer}>
                       <ProgressBar
-                        progress={0.7}
+                        progress={normalizeValue(taste)}
                         borderWidth={1}
                         fillColor={colors.highRating}
                         unfilledColor= {colors.inputGray}
@@ -79,21 +137,20 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                         
                       />
                     </View>
-                    <Text>  {taste}</Text>
+                    <Text style={styles.number}>  {taste.toFixed(1)}/5</Text>
                   </View>
 
                 </View>
-
-
             </View>
         </TouchableOpacity>
+        <View style={styles.bottonLine}></View>
+      </View>
     );
 };
 
 const styles = StyleSheet.create({
     foodItemContainer: {
         flexDirection: 'row',
-        paddingHorizontal: 5,
         paddingVertical: 5,
         marginLeft: 20,
         marginRight: 20,
@@ -102,9 +159,60 @@ const styles = StyleSheet.create({
         paddingLeft: 18,
         paddingTop: 10,
         flex: 1,
+        flexDirection: 'column',
+    },
+    generalInfo: {
+        backgroundColor: 'white',
+        textAlign: 'center',
+        margin: 1,
+        borderRadius: 15,
+        borderWidth: 2,
+        borderColor: colors.primaryWhite,
+        alignItems: 'center',
+        paddingVertical: 1,
+        paddingHorizontal: 5,
+        marginRight: 4,
+    },
+    generalInfoContainer:{
+        position: 'absolute',
+        bottom: 10,
+        right: 5,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'flex-end',
+    },
+    generalInfotext:{
+        color: '#35353E',             
+        textAlign: 'center',          
+        fontFamily: 'Satoshi',        
+        fontSize: 12,                 
+        fontStyle: 'normal',          
+        fontWeight: '500',            
+        lineHeight: 15,              
+        letterSpacing: -0.11, 
+    },
+    star:{
+        width: 12,
+        height: 12,
+        alignContent: 'center',
+        marginLeft: 2,
     },
     image: {
         position: 'relative',
+        width: 140,
+        height: 125,
+        borderRadius: 15,
+    },
+    image2: {
+        width: 140,
+        height: 125,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#e0e0e0',
+        borderRadius: 15,
+    },
+    placeholderText: {
+        color: '#7c7c7c',
     },
     priceOverlayContainer: {
         position: 'absolute',
@@ -146,12 +254,26 @@ const styles = StyleSheet.create({
 
     },
     tagBlob: {
-        paddingHorizontal: 10,
-        paddingVertical: 2,
-        borderRadius: 15,
-        marginRight: 3,
-        marginBottom: 3,
-        backgroundColor: colors.highRating,
+      paddingHorizontal: 6, // Reduced padding
+      paddingVertical: 2,   // Reduced padding
+      borderRadius: 12,     // Slightly smaller border radius
+      marginRight: 2,       // Reduced margin
+      marginBottom: 2,      // Reduced margin
+  },
+    tagText: {
+      fontSize: 12,  // Smaller text size
+    },
+    tagYellow: {
+      backgroundColor: colors.yellow,
+    },
+    tagGreen: {
+      backgroundColor: colors.highRating,
+    },
+    tagRed: {
+      backgroundColor: colors.warningPink,
+    },
+    tagGray: {
+      backgroundColor: colors.inputGray,
     },
     tagContainer: {
         flexDirection: 'row',
@@ -160,9 +282,11 @@ const styles = StyleSheet.create({
     },
     ratingContainer: {
       flexDirection: 'column',
-      marginTop: 20,
-      
-
+    },
+    number: {
+      fontSize: 12,
+      marginLeft: 5,
+      color: colors.grayStroke,
     },
     tasteAndHealthContainer: {
         flexDirection: 'row',
@@ -173,6 +297,17 @@ const styles = StyleSheet.create({
         marginLeft: 5,
         flex: 1,
     },
+    ratingText: {
+        fontSize: 12,
+        color: '#35353E',
+    },
+    bottonLine:{
+        width: '100%',
+        borderBottomColor: '#91836E',
+        borderBottomWidth: 1.5,
+        marginVertical: 12,
+    }
+
 
     
 });

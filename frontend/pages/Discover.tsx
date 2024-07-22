@@ -143,6 +143,7 @@ const Discover = () => {
         isVisible={isBottomSheetOpen}
         setIsVisible={setIsBottomSheetOpen}
       />
+      <View style={styles.bottomPadding}></View>
       <Navbar />
     </View>
   );
@@ -164,6 +165,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textGray,
   },
+  bottomPadding:{
+    height: 100,
+  }
 });
 
 export default Discover;
