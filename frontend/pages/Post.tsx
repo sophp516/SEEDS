@@ -18,6 +18,7 @@ import preferences from '../services/Preferences.json';
 import Allergens from '../services/Allergens.json';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import {ACCESS_TOKEN} from "@env";
+
 interface newPost{
     images: string[];
     comment: string;
@@ -694,7 +695,8 @@ const Post = () => {
                         numberOfLines={100}
                         multiline={true}
                         onChangeText={(text)=> setPost(prevPost => ({...prevPost, comment: text}))}
-                        placeholder='enter comment'
+                        placeholder='Share thoughts, updates, or questions about your campus dining'
+                        autoCapitalize="none"
                     />
                     <View >
                         {post.images.length > 0 ? 

@@ -9,6 +9,13 @@ const fonts = async () => {
     'SpaceGrotesk-SemiBold': require('./fonts/SpaceGrotesk-SemiBold.ttf'),
     'SpaceGrotesk-Bold': require('./fonts/SpaceGrotesk-Bold.ttf'),
     'SpaceGrotesk-Variable': require('./fonts/SpaceGrotesk-Variable.ttf'),
+
+    // 'Satoshi-Light': require('./fonts/Satoshi-Light.ttf'),
+    // 'Satoshi-Regular': require('./fonts/Satoshi-Regular.ttf'),
+    // 'Satoshi-Medium': require('./fonts/Satoshi-Medium.ttf'),
+    // 'Satoshi-SemiBold': require('./fonts/Satoshi-SemiBold.ttf'),
+    // 'Satoshi-Bold': require('./fonts/Satoshi-Bold.ttf'),
+    // 'Satoshi-Variable': require('./fonts/Satoshi-Variable.ttf'),
   });
 };
 
