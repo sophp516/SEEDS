@@ -83,7 +83,6 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
       } catch (e) {
         console.error('Error fetching tags:', e);
       } finally {
-        console.log(loggedInUser.loggedInUser.uid);
         
         // Ensure preferences.id has a default value if not logged in
         const items = (preferences.id || []).map(item => ({
