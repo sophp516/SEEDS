@@ -15,7 +15,11 @@ type RootStackParamList = {
 const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs, averageRating}) => {
   const defaultImage = require('../assets/image.png');
     let parsedRating = parseFloat(averageRating).toFixed(1);
-    let parsedPrice = parseFloat(price).toFixed(2);
+    let parsedPrice = '$' + parseFloat(price).toFixed(2);
+    if (Number.isNaN(parseFloat(price))) {
+        parsedPrice = '$ N/A';
+    }
+
 
   if (image.length === 0) {
     image = defaultImage;
@@ -77,7 +81,8 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                         <Image source={require('../assets/star.png')} style={styles.star}/>
                     </View>
                     <View  style={styles.generalInfo}>
-                        <Text style={styles.generalInfotext}>${parsedPrice}</Text>
+                        
+                        <Text style={styles.generalInfotext}>{parsedPrice}</Text>
                     </View>
                 </View>
             </View>

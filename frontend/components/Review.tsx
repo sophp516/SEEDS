@@ -1,11 +1,12 @@
 import React, { useEffect, useState, memo } from "react";
-import { collection, query, where, getDocs, getDoc, doc, updateDoc, addDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, getDoc, doc, updateDoc, addDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../services/firestore.js';
 import { useAuth } from "../context/authContext.js";
 import { View, Text, Image, StyleSheet, TextInput } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import colors from "../styles.js";
 import Preferences from "../services/Preferences.json";
+import TimeDisplay from "./TimeDisplay.tsx";
 
 interface Comment {
     id: string;
@@ -36,6 +37,28 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
     const { user } = useAuth();
     const { loggedInUser } = user;
     const [commentTarget, setCommentTarget] = useState(reviewId);
+    const [uploadTime, setUploadTime] = useState('');
+
+    useEffect(() => {
+        // time are store as nano seconds 
+        const currTime = new Date();
+        const timeDifference = currTime.getTime() -timestamp.toDate().getTime();
+        const minutes = Math.floor(timeDifference / 60000);
+        const hours = Math.floor(timeDifference / 3600000);
+        const days = Math.floor(timeDifference / 86400000);
+        const weeks = Math.floor(timeDifference / (86400000 * 7));
+        if (minutes < 60) {
+            setUploadTime(`${minutes} minutes ago`);
+        } else if (hours < 24) {
+            setUploadTime(`${hours} hours ago`);
+        } else if (days < 7) {
+            setUploadTime(`${days} days ago`);
+        } else if (weeks < 4) {
+            setUploadTime(`${weeks} weeks ago`);
+        }else{ // just show the actual time 
+            setUploadTime(timestamp.toDate().toString());
+        }
+    }, [])
 
     const SubComment: React.FC<SubCommentProps> = memo(({ content, userId, commentId, reviewId, sublikes }) => {
         const commentUser = usersCache[userId];
@@ -292,6 +315,7 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
                                 style={{ width: 30, height: 30, borderRadius: 25, marginRight: 10 }}
                             />
                             <Text style={styles.userInfoText}>{userInfo.displayName}</Text>
+                            <TimeDisplay timestamp={timestamp} textStyle={styles.timestampText}/>
                         </View>
                     )}
                     <View style={styles.reviewHeader}>
@@ -370,7 +394,7 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
 const styles = StyleSheet.create({
     profileBox: {
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     loadingContainer: {
         width: '100%',
@@ -386,6 +410,15 @@ const styles = StyleSheet.create({
     },
     userInfoText: {
         fontSize: 13,
+    },
+    timestampText:{
+        color: '#7C7C7C',               
+        fontFamily: 'Manrope',           
+        fontSize: 10,                    
+        fontStyle: 'normal',           
+        fontWeight: '400',              
+        // lineHeight: 14,                
+        alignContent: 'center',
     },
     reviewHeader: {
         paddingTop: 10,
