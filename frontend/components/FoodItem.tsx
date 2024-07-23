@@ -104,11 +104,11 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
 
                   <View style={styles.tasteAndHealthContainer}>
                       
-                    <Text style={styles.ratingText}>Health</Text>
+                    <Text style={styles.ratingText}>Taste  </Text>
 
                     <View style={styles.progressContainer}>
                       <ProgressBar
-                        progress={normalizeValue(health)}
+                        progress={normalizeValue(taste)}
                         borderWidth={1}
                         fillColor={colors.lightOrange}
                         unfilledColor={colors.inputGray}
@@ -118,16 +118,16 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                       />
                     </View>
 
-                    <Text style={styles.number}>  {health.toFixed(1)}/5</Text>
+                    <Text style={styles.number}>  {taste.toFixed(1)}/5</Text>
                   </View>
 
                   
                   <View style={styles.tasteAndHealthContainer}>
-                    <Text style={styles.ratingText}>Taste  </Text>
+                    <Text style={styles.ratingText}>Health</Text>
 
                     <View style={styles.progressContainer}>
                       <ProgressBar
-                        progress={normalizeValue(taste)}
+                        progress={normalizeValue(health)}
                         borderWidth={1}
                         fillColor={colors.highRating}
                         unfilledColor= {colors.inputGray}
@@ -137,7 +137,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                         
                       />
                     </View>
-                    <Text style={styles.number}>  {taste.toFixed(1)}/5</Text>
+                    <Text style={styles.number}>  {health.toFixed(1)}/5</Text>
                   </View>
 
                 </View>
