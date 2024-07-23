@@ -71,6 +71,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                         protein: globalData?.protein ?? 'N/A', // Default value if protein is missing
                         fat: globalData?.fat ?? 'N/A', // Default value if fat is missing  
                         averageRating: globalData?.averageRating ?? 0,
+                        updatedTime: globalData?.updatedAt ?? 'N/A',
 
                     };
                     foodItems.push(foodItem);
@@ -209,6 +210,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     protein={review.protein}
                                     fat={review.fat}
                                     averageRating={review.averageRating}
+                                    updatedTime={review.updatedTime}
                                     />
                     })
                 ) : (

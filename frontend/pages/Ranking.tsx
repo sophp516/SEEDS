@@ -139,7 +139,7 @@ const Ranking = () => {
         {toggle ? 
         <View style={{zIndex: -1}}>
             {filteredFoodLeaderboard.map((food, index) => (
-              <View>
+              <View key={index}>
                 <FoodRank rank={index} foodName={food.foodName} rating={food.averageRating} location={food.location}/>
               </View>
             ))}

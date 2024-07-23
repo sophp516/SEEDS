@@ -5,6 +5,7 @@ import { useAuth } from "../context/authContext.js";
 import { View, Text, Image, StyleSheet, TextInput } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import colors from "../styles.js";
+import TimeDisplay from "./TimeDisplay.tsx";
 
 interface Comment {
     id: string;
@@ -35,6 +36,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
     const [commentInput, setCommentInput] = useState("");
     const { user } = useAuth();
     const { loggedInUser } = user;
+
 
     const SubComment: React.FC<SubCommentProps> = memo(({ content, userId, commentId, postId, sublikes }) => {
         const commentUser = usersCache[userId];
@@ -259,6 +261,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
                                 style={{ width: 30, height: 30, borderRadius: 25, marginRight: 10 }}
                             />
                             <Text style={styles.userInfoText}>{userInfo.displayName}</Text>
+                            <TimeDisplay isMenu={false} timestamp={timestamp}  textStyle={styles.timestampText}/>
                         </View>
                     )}
                     <View style={styles.reviewContent}>
@@ -465,7 +468,16 @@ const styles =  StyleSheet.create({
     subCommentMain: {
         paddingHorizontal: 3,
         paddingBottom: 15,
-    }
+    },
+    timestampText:{
+        color: '#7C7C7C',               
+        fontFamily: 'Manrope',           
+        fontSize: 10,                    
+        fontStyle: 'normal',           
+        fontWeight: '400',              
+        // lineHeight: 14,                
+        alignContent: 'center',
+    },
 })
 
 export default Post;
