@@ -315,7 +315,7 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
                                 style={{ width: 30, height: 30, borderRadius: 25, marginRight: 10 }}
                             />
                             <Text style={styles.userInfoText}>{userInfo.displayName}</Text>
-                            <TimeDisplay timestamp={timestamp} textStyle={styles.timestampText}/>
+                            <TimeDisplay isMenu={false} timestamp={timestamp} textStyle={styles.timestampText}/>
                         </View>
                     )}
                     <View style={styles.reviewHeader}>

@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 
-const TimeDisplay = ({timestamp, textStyle}) => {
+const TimeDisplay = ({isMenu, timestamp, textStyle}) => {
     const [uploadTime, setUploadTime] = useState('');
 
     useEffect(() => {
@@ -26,7 +26,10 @@ const TimeDisplay = ({timestamp, textStyle}) => {
     }, [])
   return (
     <View>
-      <Text style={textStyle}>  {uploadTime}</Text>
+        {
+            isMenu ? <Text style={textStyle}> last updated {uploadTime}</Text> : 
+            <Text style={textStyle}>  {uploadTime}</Text>
+        }
     </View>
   )
 }
