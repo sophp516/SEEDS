@@ -78,20 +78,28 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
                 const userId = loggedInUser.loggedInUser.uid;
                 const commentRef = doc(db, 'comments', commentId);
                 const commentDoc = await getDoc(commentRef);
+
+                const userRef = doc(db, 'users', userId);
+                const userDoc = await getDoc(userRef)
     
-                if (commentDoc.exists()) {
+                if (commentDoc.exists() && userDoc.exists()) {
                     const commentData = commentDoc.data();
+                    const userData = userDoc.data();
                     let commentLikes = commentData.likes || [];
+                    let userLikes = userData.likes || []
     
                     if (commentLikes.includes(userId)) {
                         commentLikes = commentLikes.filter(id => id !== userId);
+                        userLikes = userLikes.filter(id => id !=- reviewId);
                         setIsLiked(false);
                     } else {
                         commentLikes.push(userId);
+                        userLikes.push(reviewId);
                         setIsLiked(true);
                     }
     
                     setSubLikes(commentLikes);
+                    await updateDoc(userRef, { likes: userLikes });
                     await updateDoc(commentRef, { likes: commentLikes });
                 }
             } catch (err) {

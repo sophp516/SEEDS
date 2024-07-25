@@ -50,7 +50,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
   useEffect(() => {
     const fetchTags = async () => {
       try {
-        const userId = loggedInUser.loggedInUser.uid 
+        const userId = loggedInUser?.loggedInUser.uid 
 
         if (userId) {
           const usersRef = collection(db, 'users');
