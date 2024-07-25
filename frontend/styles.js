@@ -12,8 +12,8 @@ const colors = {
     userInput: '#EFEFEF',
     yellow: '#F2C897',
     commentContainer: '#E7E2DB',
-    lightOrange: '#F9A05F'
-
+    lightOrange: '#F9A05F',
+    textGray: '#35353e'
 };
 
 export default colors;

@@ -527,8 +527,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between'
     },
     placeNameText: {
-        fontSize: 20,
-        fontWeight: '500',
+        fontSize: 26,
+        fontFamily: 'SpaceGrotesk-SemiBold',
     },
     diningHomeHeader: {
         paddingTop: 60,

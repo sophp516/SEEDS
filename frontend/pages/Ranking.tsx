@@ -78,7 +78,7 @@ const Ranking = () => {
         fetchFoodRating();
       }, [foodNames]);
 
-    //Test cases: Peanut butter sandwhich is created last year
+    //Test cases: Peanut butter sandwich is created last year
     // Test cases: roasted cabbage is created weeks ago, so does not show in the week
     const filterFoodLeaderboard = (text: string) => {
       const time = new Date();
@@ -121,7 +121,7 @@ const Ranking = () => {
                     <Text style={toggle ? styles.btnText1 : styles.btnText2}>Food</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={()=>setToggle(false)} style={toggle ?  styles.inactiveToggle : styles.activeToggle }>
-                    <Text style={!toggle ? styles.btnText1 : styles.btnText2}>Review</Text>
+                    <Text style={!toggle ? styles.btnText1 : styles.btnText2}>Reviews</Text>
                 </TouchableOpacity>
          </View>
          <View style={{justifyContent:'center'}}>
@@ -166,11 +166,9 @@ const styles = StyleSheet.create({
       fontSize: 20,
     },
     header:{
-      color: '#35353E',
-      fontFamily: 'Space Grotesk', 
+      color: colors.textGray,
+      fontFamily: 'SpaceGrotesk-SemiBold', 
       fontSize: 24,
-      fontStyle: 'normal',
-      fontWeight: '500', 
       lineHeight: 36,
       letterSpacing: -0.264,
       textAlign: 'left',
