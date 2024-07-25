@@ -40,10 +40,16 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
                  onChangeText={onChangeText}
                  onSelectItem={onSelectItem}
                  direction={Platform.select({ ios: 'down' })}
-                 onClear={onClear}
-                //  initialValue={locationInput}
+                 onClear={()=> {
+                        onClear();
+                        setFoodlist([]);
+                 }}
+                 renderItem={(item) => (
+                    <Text style={{ color: '#35353E', padding: 15 }}>{item.title}</Text>
+                )}
                  textInputProps ={{
                      placeholder: 'Select or Enter a food',
+                     placeholderTextColor: '#888',
                      value: value,
                      autoCorrect: false,
                      autoCapitalize: 'none',

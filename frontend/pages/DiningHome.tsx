@@ -5,12 +5,15 @@ import Navbar from '../components/Navbar.jsx';
 import SmallMenu from '../components/SmallMenu.tsx';
 import AllFilter from '../components/AllFilter.tsx';
 import FilterContent from '../components/FilterContent.tsx'; 
-import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, query, updateDoc, where } from 'firebase/firestore';
 import { db } from '../services/firestore.js';
 import colors from '../styles.js';
 import ExampleMenu from '../services/ExampleMenu.json';
 import ExampleTopRated from '../services/ExampleTopRated.json';
 import FoodItem from '../components/FoodItem.tsx';
+import { useAuth } from '../context/authContext.js';
+import { tags } from 'react-native-svg/lib/typescript/xml';
+
 
 
 type RootStackParamList = {
@@ -47,7 +50,7 @@ type Props = {
 const DiningHome: React.FC<Props> = ({ route }) => {
   // For the filter
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  const [simpleFilter, setSimpleFilter] = useState(''); // State for simple filter
+  const [simpleFilter, setSimpleFilter] = useState(''); 
   const [filters, setFilters] = useState<{ preferred: string[]; allergens: string[]; time: string[]; taste:number; health:number }>({
     preferred: [],
     allergens: [],
@@ -58,12 +61,20 @@ const DiningHome: React.FC<Props> = ({ route }) => {
   const [isDisabled, setIsDisabled] = useState(false); 
   const [searchChange, setSearchChange] = useState('');
 
+  // for the user preferences filter
+  const { user } = useAuth();
+  const { loggedInUser, displayName } = user;
+  const [fetchTags, setFetchTags] = useState<string[]>([]);
+  const [fetchAllergies, setFetchAllergies] = useState<string[]>([]);
+  const [guestRecommendations, setGuestRecommendations] = useState(true);
+
   // For the content
   const { placeName, closingHour } = route.params;
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [allMenus, setAllMenus] = useState([]);
   const [loading, setLoading] = useState(true);
   const [topRatedMenus, setTopRatedMenus] = useState([]);
+  const [recommendedMenus, setRecommendedMenus] = useState([]);
   
 
   const fetchReviews = async (placeName) => {
@@ -94,8 +105,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                     price: globalData?.price ?? 'N/A', // Default value if price is missing
                     taste: globalData?.taste ?? 'N/A', // Default value if taste is missing
                     health: globalData?.health ?? 'N/A', // Default value if health is missing
-                    allergens: reviewsData?.allergens ?? [], // Default to an empty array if allergens are missing
-                    tags: reviewsData?.tags ?? [], // Default to an empty array if tags are missing
+                    allergens: globalData?.allergens ?? [], // Default to an empty array if allergens are missing
+                    tags: globalData?.tags ?? [], // Default to an empty array if tags are missing
                     averageRating: globalData?.averageRating ?? 'N/A',
                     createdAt: globalData?.createdAt ?? 'N/A',
                     images: globalData?.images ?? [],
@@ -117,6 +128,50 @@ const DiningHome: React.FC<Props> = ({ route }) => {
         setLoading(false)
     }
 };
+
+useEffect(() => {
+  const fetchTags = async () => {
+    try {
+      const userId = loggedInUser.loggedInUser.uid;
+
+      if (userId) {
+        setGuestRecommendations(false);
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where('id', '==', userId));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const userDoc = querySnapshot.docs[0];
+          const userData = userDoc.data();
+
+          if (userData.tags && Array.isArray(userData.tags)) {
+            setFetchTags(userData.tags);
+          } else {
+            setFetchTags([]);
+          }
+          if (userData.allergies && Array.isArray(userData.allergies)) {
+            setFetchAllergies(userData.allergies);
+          } else {
+            setFetchAllergies([]);
+          }
+        } else {
+          setFetchTags([]);
+          setFetchAllergies([]);
+        }
+      } else {
+        // Handle the case where the user is not logged in
+        setFetchTags([]);
+        setFetchAllergies([]);
+      }
+    } catch (e) {
+
+    } 
+  };
+
+  fetchTags();
+}, [loggedInUser]);
+
+
 
     useEffect(() => {
         const retrieveReviews = async () => {
@@ -140,6 +195,38 @@ const DiningHome: React.FC<Props> = ({ route }) => {
         setTopRatedMenus(sortedMenus);
 
     }, [allMenus])
+
+useEffect(() => {
+  if (allMenus.length === 0) return;
+
+  if (fetchTags.length === 0 && fetchAllergies.length === 0) {
+    // If no tags and allergens are set, return all menus
+    setRecommendedMenus(allMenus);
+    return;
+  }
+
+  const sortedMenus = allMenus.filter(item => {
+    // Check if item has any of the preferred tags or allergens
+    const hasPreferredTags = fetchTags.length === 0 || 
+      fetchTags.some(tag => item.tags.includes(tag));
+
+    // Check if item does not contain any of the allergens
+    const hasNoAllergens = fetchAllergies.length === 0 || 
+      !fetchAllergies.some(allergen => item.allergens.includes(allergen));
+
+    return hasPreferredTags && hasNoAllergens;
+  });
+
+  setRecommendedMenus(sortedMenus);
+
+  console.log("fetchTags", fetchTags);
+  console.log("fetchAllergies", fetchAllergies);
+  console.log("sortedMenus", sortedMenus);
+  console.log("allMenus", allMenus);
+}, [allMenus, fetchTags, fetchAllergies]);
+
+    
+    
 
   const applyFilters = (menu) => {
     return menu.filter(item => {
@@ -265,7 +352,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
 
                             </View>
                           ) : topRatedMenus.length === 0 ? (
-                            <Text style={styles.placeNameText}>No meals match your filter...</Text>
+                            <Text style={styles.noResultText}>No meals match your filter...</Text>
                           ) : (
                             <ScrollView horizontal={true} style={styles.horizontalScrollView}>
                               <View style={styles.smallMenuContainer}>
@@ -309,7 +396,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                 <Text>Loading...</Text>
                               </View>
                             ) : allMenus.length === 0 ? (
-                              <Text style={styles.placeNameText}>No meals match your filter...</Text>
+                              <Text style={styles.noResultText}>No meals match your filter...</Text>
                             ) : (
                               <ScrollView horizontal={true} style={styles.horizontalScrollView}>
                                 <View style={styles.smallMenuContainer}>
@@ -347,17 +434,21 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                                     <Text style={styles.seeAllText}>See all</Text>
                                 </TouchableOpacity>
                             </View>
-                            {loading ? (
+                            {loading ? ( 
                               <View style={styles.loadingScreen}>
                                <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
                                <Text>Loading...</Text>
                               </View>
-                            ) : recommended?.length === 0 ? (
-                              <Text style={styles.placeNameText}>No meals match your filter...</Text>
+                            ) : guestRecommendations? (
+                              <Text style={styles.noResultText}>Please log in to see {'\n'} personalized recommendations</Text>
+                            ) : recommendedMenus?.length === 0 ?(
+                              <Text style={styles.noResultText}>No meals match your filter...</Text>
                             ) : (
+                             
+                              
                               <ScrollView horizontal={true} style={styles.horizontalScrollView}>
                                 <View style={styles.smallMenuContainer}>
-                                  {allMenus.map((item, i) => (
+                                  {recommendedMenus.map((item, i) => (
                                     <SmallMenu
                                       reviewIds={item.reviewIds}
                                       key={`recommended-${i}`}
@@ -482,6 +573,12 @@ const styles = StyleSheet.create({
     },
     filterContainer: {
         marginRight: 20,
+    },
+    noResultText: {
+      textAlign: 'center',
+      marginTop: 20,
+      fontSize: 16,
+      color: colors.textGray,
     },
 })
 
