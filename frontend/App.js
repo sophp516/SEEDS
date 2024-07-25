@@ -32,6 +32,11 @@ export default function App() {
     'SpaceGrotesk-SemiBold': require('./assets/fonts/SpaceGrotesk-SemiBold.ttf'),
     'SpaceGrotesk-Bold': require('./assets/fonts/SpaceGrotesk-Bold.ttf'),
     'SpaceGrotesk-Variable': require('./assets/fonts/SpaceGrotesk-Variable.ttf'),
+    'Satoshi-Light': require('./assets/fonts/Satoshi-Light.otf'),
+    'Satoshi-Regular': require('./assets/fonts/Satoshi-Regular.otf'),
+    'Satoshi-Medium': require('./assets/fonts/Satoshi-Medium.otf'),
+    'Satoshi-Bold': require('./assets/fonts/Satoshi-Bold.otf'),
+    // 'Satoshi-Variable': require('./assets/fonts/Satoshi-Variable.ttf'),
   });
 
   if (!fontsLoaded) {
