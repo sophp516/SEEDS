@@ -79,6 +79,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
 
   const fetchReviews = async (placeName) => {
     try {
+        if (loggedInUser) return [];
         const foodItems = [];
         const locationDocRef = collection(db, 'colleges', 'Dartmouth College', 'diningLocations', placeName, 'foodList');
         const collectionsSnapshot = await getDocs(locationDocRef);
@@ -132,7 +133,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
 useEffect(() => {
   const fetchTags = async () => {
     try {
-      const userId = loggedInUser.loggedInUser.uid;
+      const userId = loggedInUser?.loggedInUser.uid;
 
       if (userId) {
         setGuestRecommendations(false);
