@@ -88,7 +88,6 @@ const styles = StyleSheet.create({
     welcomeText: {
         fontSize: 28,
         fontFamily: 'SpaceGrotesk-Bold',
-        fontWeight: 'bold',
         marginBottom: 5, 
     },
     placeComponentContainer: {

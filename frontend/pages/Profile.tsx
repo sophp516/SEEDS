@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, Image, TextInput, ScrollView 
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../context/authContext.js';
 import { signOut } from "firebase/auth";
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, } from 'firebase/firestore';
 import { db, auth, storage } from '../services/firestore.js';
 import Toast from 'react-native-toast-message';
 import * as ImagePicker from 'expo-image-picker';
@@ -136,6 +136,83 @@ const Profile = () => {
 
         if (!result.canceled && result.assets && result.assets.length > 0) {
             setProfileImage(result.assets[0].uri);
+        }
+    };
+
+    const handleSaveProfile = async () => {
+        try {
+            const userId = loggedInUser.loggedInUser.uid;
+    
+            if (!userId) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error',
+                    text2: 'No user is currently logged in.'
+                });
+                return;
+            }
+
+            if (!nameInput) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Display Name Missing',
+                });
+                return;
+            }
+    
+            const usersRef = collection(db, 'users');
+            const q = query(usersRef, where('id', '==', userId));
+            const querySnapshot = await getDocs(q);
+
+            if (querySnapshot.empty) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error',
+                    text2: 'user not found.'
+                });
+                return;
+            }
+
+            const userDoc = querySnapshot.docs[0];
+            const userDocRef = userDoc.ref;
+
+            let imageURL = null;
+            if (profileImage) {
+                imageURL = await uploadImageAsync(profileImage);
+            }
+    
+            let updates;
+    
+            if (imageURL) {
+                updates = {
+                    displayName: nameInput,
+                    tags: tags,
+                    profileImage: imageURL,
+                };
+            } else {
+                updates = {
+                    displayName: nameInput,
+                    tags: tags,
+                };
+            }
+    
+            await updateDoc(userDocRef, updates);
+    
+            Toast.show({
+                type: 'success',
+                text1: 'Profile Updated',
+                text2: 'Your profile has been updated successfully!'
+            });
+    
+        } catch (e) {
+            console.error('Error updating profile:', e);
+            Toast.show({
+                type: 'error',
+                text1: 'Update Failed',
+                text2: 'There was an error updating your profile. Please try again later.'
+            });
+        } finally {
+            setEditingStatus(false);
         }
     };
 
