@@ -53,7 +53,6 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
             return colors.lowRating;
         }
     };
-
     const navigateToReview = () => {
         navigation.navigate('Post', { toggle: false, foodName: foodName });
     }

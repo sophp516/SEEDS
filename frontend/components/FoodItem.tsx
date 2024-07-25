@@ -6,16 +6,22 @@ import ProgressBar from 'react-native-progress-bar-horizontal';
 import Preferences from '../services/Preferences.json';
 import Allergens from '../services/Allergens.json';
 import ImageSlider from './ImageSlider';
+import { Timestamp } from 'firebase/firestore';
+import TimeDisplay from './TimeDisplay';
 
 type RootStackParamList = {
     SelectedMenu: { foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs , averageRating },
 };
 
 
-const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs, averageRating}) => {
+const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs, averageRating,  updatedTime}) => {
   const defaultImage = require('../assets/image.png');
     let parsedRating = parseFloat(averageRating).toFixed(1);
-    let parsedPrice = parseFloat(price).toFixed(2);
+    let parsedPrice = '$' + parseFloat(price).toFixed(2);
+    if (Number.isNaN(parseFloat(price))) {
+        parsedPrice = '$ N/A';
+    }
+
 
   if (image.length === 0) {
     image = defaultImage;
@@ -34,7 +40,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
     const navigateToReviews = () => {
-        navigation.navigate('SelectedMenu', { foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs, averageRating });
+        navigation.navigate('SelectedMenu', { foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs, averageRating});
     };
 
     const getTagStyle = (tag) => {
@@ -77,7 +83,8 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                         <Image source={require('../assets/star.png')} style={styles.star}/>
                     </View>
                     <View  style={styles.generalInfo}>
-                        <Text style={styles.generalInfotext}>${parsedPrice}</Text>
+                        
+                        <Text style={styles.generalInfotext}>{parsedPrice}</Text>
                     </View>
                 </View>
             </View>
@@ -139,10 +146,13 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                     </View>
                     <Text style={styles.number}>  {health.toFixed(1)}/5</Text>
                   </View>
-
                 </View>
+
             </View>
         </TouchableOpacity>
+        <View style={styles.timeContainer}> 
+            <TimeDisplay isMenu={true}timestamp={updatedTime} textStyle={styles.timeText}/>
+        </View>
         <View style={styles.bottonLine}></View>
       </View>
     );
@@ -306,6 +316,23 @@ const styles = StyleSheet.create({
         borderBottomColor: '#91836E',
         borderBottomWidth: 1.5,
         marginVertical: 12,
+    },
+    timeContainer:{
+        width: '100%',
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        marginTop: -10,
+    },
+    timeText:{
+        color: '#7C7C7C',
+        textAlign: 'right',
+        fontFamily: 'Satoshi', 
+        fontSize: 12,
+        fontStyle: 'normal',
+        fontWeight: '400',
+        lineHeight: 13.5, 
+        letterSpacing: -0.099,
+        marginRight: 20,
     }
 
 
