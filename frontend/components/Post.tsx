@@ -260,6 +260,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
         <View style={styles.reviewContainer}>
             {loading ? (
                 <View style={styles.loadingContainer}>
+                    <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
                     <Text>loading...</Text>
                 </View>
             ) : (
