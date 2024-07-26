@@ -13,7 +13,9 @@ const colors = {
     yellow: '#F2C897',
     commentContainer: '#E7E2DB',
     lightOrange: '#F9A05F',
-    textGray: '#35353e'
+
+    textGray: '#35353e',
+    outlineBrown: '#BFB6A8',
 };
 
 export default colors;
