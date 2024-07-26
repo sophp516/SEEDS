@@ -16,58 +16,53 @@ type RootStackParamList = {
 
 const MyPreferences = () => {
   const { user } = useAuth();
-  const { loggedInUser, displayName } = user;
+  const [loading, setLoading] = useState(true);
   const [editingPreferences, setEditingPreferences] = useState(false);
   const [editingAllergies, setEditingAllergies] = useState(false);
   const [tagInput, setTagInput] = useState('');
   const [tags, setTags] = useState<string[]>([]);
-  const [allergyInput, setAllergyInput] = useState('');
-  const [allergies, setAllergies] = useState<string[]>([]);
+  const [allergensInput, setAllergensInput] = useState('');
+  const [allergens, setAllergens] = useState<string[]>([]);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
+  console.log(tags)
+
   useEffect(() => {
-    const fetchTags = async () => {
-      try {
-        const userId = loggedInUser.uid;
-        if (!userId) {
-          Toast.show({
-            type: 'error',
-            text1: 'Error',
-            text2: 'User not found.',
-          });
-          return;
-        }
-        const usersRef = collection(db, 'users');
-        const q = query(usersRef, where('id', '==', userId));
-        const querySnapshot = await getDocs(q);
+    const fetchUserData = async () => {
+        try {
+            if (!user) return;
+            const usersRef = collection(db, 'users');
+            const q = query(usersRef, where('id', '==', user?.id));
+            const querySnapshot = await getDocs(q);
 
-        if (!querySnapshot.empty) {
-          const userDoc = querySnapshot.docs[0];
-          const userData = userDoc.data();
+            if (!querySnapshot.empty) {
+                const userDoc = querySnapshot.docs[0];
+                const userData = userDoc.data();
+                console.log(userData)
 
-          if (userData.tags && Array.isArray(userData.tags)) {
-            setTags(userData.tags);
-          } else {
-            setTags([]);
-          }
-          if (userData.allergies && Array.isArray(userData.allergies)) {
-            setAllergies(userData.allergies);
-          } else {
-            setAllergies([]);
-          }
-        } else {
-          setTags([]);
-          setAllergies([]);
+                if (userData.tags && Array.isArray(userData.tags)) {
+                  setTags(userData.tags);
+                } else {
+                  setTags([]);
+                }
+                if (userData.allergens && Array.isArray(userData.allergens)) {
+                  setAllergens(userData.allergens);
+                } else {
+                  setAllergens([]);
+                }
+            } else {
+              setTags([]);
+              setAllergens([]);
+            }
+        } catch (err) {
+            console.log(err);
+        } finally {
+          setLoading(false)
         }
-      } catch (e) {
-        console.error('Error fetching tags:', e);
-      }
     };
 
-    if (loggedInUser) {
-      fetchTags();
-    }
-  }, [loggedInUser]);
+    fetchUserData();
+}, []);
 
   const handleAddTag = () => {
     if (tagInput.trim()) {
@@ -82,20 +77,21 @@ const MyPreferences = () => {
   };
 
   const handleAddAllergy = () => {
-    if (allergyInput.trim()) {
-      setAllergies([...allergies, allergyInput.trim()]);
-      setAllergyInput('');
+    if (allergensInput.trim()) {
+      setAllergens([...allergens, allergensInput.trim()]);
+      setAllergensInput('');
     }
   };
 
   const handleDeleteAllergy = (index: number) => {
-    const newAllergies = allergies.filter((_, i) => i !== index);
-    setAllergies(newAllergies);
+    const newAllergies = allergens.filter((_, i) => i !== index);
+    setAllergens(newAllergies);
   };
 
   const handleSavePreferences = async () => {
+    if (!user) return;
     try {
-      const userId = loggedInUser.uid;
+      const userId = user.id;
       if (!userId) {
         Toast.show({
           type: 'error',
@@ -116,7 +112,7 @@ const MyPreferences = () => {
 
   const handleSaveAllergies = async () => {
     try {
-      const userId = loggedInUser.uid;
+      const userId = user?.id;
       if (!userId) {
         Toast.show({
           type: 'error',
@@ -127,7 +123,7 @@ const MyPreferences = () => {
       }
       const userRef = doc(db, 'users', userId);
       await updateDoc(userRef, {
-        allergies: allergies,
+        allergens: allergens,
       });
       setEditingAllergies(false);
     } catch (e) {
@@ -197,7 +193,7 @@ const MyPreferences = () => {
         {editingAllergies ? (
           <View style={styles.editingContainer}>
             <View style={styles.tagList}>
-              {allergies.map((allergy, i) => (
+              {allergens.map((allergy, i) => (
                 <View style={styles.tagWithDelete} key={i}>
                   <Text>{allergy}</Text>
                   <TouchableOpacity onPress={() => handleDeleteAllergy(i)}>
@@ -209,8 +205,8 @@ const MyPreferences = () => {
             <View style={styles.tagContainer}>
               <TextInput
                 style={styles.tagInput}
-                value={allergyInput}
-                onChangeText={setAllergyInput}
+                value={allergensInput}
+                onChangeText={setAllergensInput}
                 placeholder="Add a new allergy"
               />
               <TouchableOpacity onPress={handleAddAllergy} style={styles.editProfileButton}>
@@ -229,7 +225,7 @@ const MyPreferences = () => {
         ) : (
           <View style={styles.displayContainer}>
             <View style={styles.tagList}>
-              {allergies.map((allergy, i) => (
+              {allergens.map((allergy, i) => (
                 <View style={styles.tagWithDelete} key={i}>
                   <Text>{allergy}</Text>
                 </View>
@@ -241,6 +237,7 @@ const MyPreferences = () => {
           </View>
         )}
       </View>
+      <Navbar />
     </View>
   );
 };
@@ -250,6 +247,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 60, // Adjust the top padding as needed
     paddingHorizontal: 20,
+    backgroundColor: colors.backgroundGray,
   },
   backButton: {
     position: 'absolute',

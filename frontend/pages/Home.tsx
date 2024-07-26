@@ -17,10 +17,11 @@ const Home = () => {
 
     useEffect(() => {
         const fetchDisplayName = async () => {
+            if (!user.id) return;
             try {
                 if (!displayName && loggedInUser) {
                     const usersRef = collection(db, 'users');
-                    const q = query(usersRef, where('id', '==', loggedInUser.uid));
+                    const q = query(usersRef, where('id', '==', user.id));
                     const querySnapshot = await getDocs(q);
                     
                     if (!querySnapshot.empty) {
@@ -37,7 +38,9 @@ const Home = () => {
             }
         };
 
-        fetchDisplayName();
+        if (user.id) {
+            fetchDisplayName();
+        }
     }, [displayName, loggedInUser, user]);
 
 

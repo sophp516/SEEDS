@@ -131,8 +131,9 @@ const DiningHome: React.FC<Props> = ({ route }) => {
 
 useEffect(() => {
   const fetchTags = async () => {
+    if (!user.id) return;
     try {
-      const userId = loggedInUser?.loggedInUser.uid;
+      const userId = user.id;
 
       if (userId) {
         setGuestRecommendations(false);
@@ -169,7 +170,7 @@ useEffect(() => {
   };
 
   fetchTags();
-}, [loggedInUser]);
+}, [user]);
 
 
 useEffect(() => {

@@ -44,16 +44,16 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
         const [isLiked, setIsLiked] = useState(false);
     
         useEffect(() => {
-            if (loggedInUser && sublikes) {
-                setIsLiked(sublikes.includes(loggedInUser.loggedInUser.uid));
+            if (user.id && sublikes) {
+                setIsLiked(sublikes.includes(user.id));
             }
         }, [sublikes, loggedInUser]);
     
         const handleSubLike = async () => {
-            if (!loggedInUser) return;
+            if (!user.id) return;
     
             try {
-                const userId = loggedInUser.loggedInUser.uid;
+                const userId = user.id;
                 const commentRef = doc(db, 'comments', commentId);
                 const commentDoc = await getDoc(commentRef);
 
@@ -107,6 +107,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
     });
 
     useEffect(() => {
+        if (!loggedInUser) return;
         const fetchPostData = async () => {
             try {
                 const postRef = doc(db, 'posts', postId);
@@ -116,7 +117,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
                     const postData = postDoc.data();
                     setPost(postData);
                     setLikes(postData.likes || []);
-                    setLikeStatus(postData.likes?.includes(loggedInUser?.loggedInUser.uid) || false);
+                    setLikeStatus(postData.likes?.includes(user.id) || false);
                 }
             } catch (err) {
                 console.log(err);
@@ -188,11 +189,12 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
     }, [postId]);
 
     const handleLike = async () => {
-        if (!loggedInUser) return;
+        if (!user.id) return;
 
         try {
-            const userId = loggedInUser.loggedInUser.uid;
+            const userId = user.id;
             const postRef = doc(db, 'globalSubmissions', postId);
+            
             
             if (likeStatus) {
                 await updateDoc(postRef, {
@@ -225,7 +227,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
             const newCommentRef = await addDoc(commentCollectionRef, {
                 content: commentInput,
                 timestamp,
-                userId: loggedInUser.loggedInUser.uid,
+                userId: user.id,
                 postedUnder: postId,
                 likes: [],
                 subComments: []
@@ -237,7 +239,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
             setComments([...comments, { 
                 id: docId, 
                 content: commentInput, 
-                userId: loggedInUser.loggedInUser.uid, 
+                userId: user.id, 
                 postedUnder: postId, 
                 likes: [], 
                 subComments: [] 

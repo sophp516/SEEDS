@@ -192,8 +192,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textGray,
   },
-  bottomPadding: {
-    height: 100,
+  bottomPadding:{
+    height: 70,
   }
 });
 
