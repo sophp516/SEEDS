@@ -51,6 +51,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
     const fetchTags = async () => {
 
       // Ensure preferences.id has a default value if not logged in
+      //!! this has to be before the user.id check, or else guest account will not have the default preferences
       const items = (preferences.id || []).map(item => ({
         label: item,
         value: item,
