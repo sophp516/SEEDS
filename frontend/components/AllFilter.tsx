@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
     flex: 8,
   },
   simpleFilterContainer: {
-    marginTop: 10,
+    marginTop: 16,
     width: '100%',
   },
 });

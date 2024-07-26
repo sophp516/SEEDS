@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     },
     guideText: {
         fontSize: 16,
-        fontFamily: 'SpaceGrotesk-Regular',
+        fontFamily: 'SpaceGrotesk-Medium',
         color: colors.textGray,
         marginBottom: 20,
     }

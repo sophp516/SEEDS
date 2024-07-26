@@ -315,7 +315,7 @@ useEffect(() => {
             <View style={styles.diningHomeHeader}>
                 <View style={styles.diningHomeHeaderTop}>
                     <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-                        <Text>Back</Text>
+                        <Text style={styles.backButtonText}>Back</Text>
                     </TouchableOpacity>
                     <Text style={styles.closingText}>Closes at {closingHour}</Text>
                 </View>
@@ -509,6 +509,10 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         paddingBottom: 20,
     },
+    backButtonText: {
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 16,
+    },
     closingText: {
         fontSize: 12,
         color: '#7C7C7C'
@@ -531,7 +535,7 @@ const styles = StyleSheet.create({
         fontFamily: 'SpaceGrotesk-SemiBold',
     },
     diningHomeHeader: {
-        paddingTop: 60,
+        paddingTop: 90,
         width: '100%',
         paddingHorizontal: 20,
         justifyContent: 'center',
