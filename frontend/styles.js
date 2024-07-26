@@ -16,7 +16,8 @@ const colors = {
 
     textGray: '#35353e',
     outlineBrown: '#BFB6A8',
-    textFaintBrown: 'AEA59A',
+    outlineDarkBrown: '#91836E',
+    textFaintBrown: '#AEA59A',
 };
 
 export default colors;
