@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Text, View, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../context/authContext.js';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
@@ -8,6 +8,7 @@ import Toast from 'react-native-toast-message';
 import Post from '../components/Post.tsx';
 import Review from '../components/Review.tsx';
 import Navbar from '../components/Navbar.jsx';
+import colors from '../styles.js';
 
 type RootStackParamList = {
   Profile: undefined;
@@ -41,108 +42,83 @@ const MyActivity = () => {
   const [postHistory, setPostHistory] = useState(true); // state for toggling between My Posts and Favorites
   const [postList, setPostList] = useState<Submission[]>([]);
   const [postIds, setPostIds] = useState<string[]>([]);
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
   const [favoriteList, setFavoriteList] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loading2, setLoading2] = useState(true);
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  useEffect(() => {
-    const fetchDisplayName = async () => {
-      try {
-        const userId = loggedInUser?.loggedInUser?.uid;
-        if (!userId) {
-          Toast.show({
-            type: 'error',
-            text1: 'Error',
-            text2: 'User not found.'
-          });
-          return;
-        }
-        const usersRef = collection(db, 'users');
-        const q = query(usersRef, where('id', '==', userId));
-        const querySnapshot = await getDocs(q);
 
-        if (!querySnapshot.empty) {
-          const userDoc = querySnapshot.docs[0];
-          const userData = userDoc.data();
-          setLoggedInUser({
-            ...user,
-            displayName: userData.displayName
-          });
-          setNameInput(userData.displayName); 
-        }
-      } catch (error) {
-        console.error('Error fetching displayName:', error);
+  const fetchHistory = useCallback(async () => {
+    if (!user.id) return;
+    try {
+      const userId = user.id;
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('id', '==', userId));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0];
+        const userData = userDoc.data();
+        setPostIds(userData.submissions || []);
+        setFavoriteIds(userData.likes || []);
       }
-    };
-
-    if (!displayName && loggedInUser) {
-      fetchDisplayName();
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
     }
-  }, [displayName, loggedInUser, setLoggedInUser]);
+  }, [user.id]);
 
   useEffect(() => {
-    if (!loggedInUser) return;
-    const fetchHistory = async () => {
-      try {
-        const userId = loggedInUser?.loggedInUser?.uid;
-        if (!userId) {
-          Toast.show({
-            type: 'error',
-            text1: 'Error',
-            text2: 'User not found.'
-          });
-          return;
-        }
-        const usersRef = collection(db, 'users');
-        const q = query(usersRef, where('id', '==', userId));
-        const querySnapshot = await getDocs(q);
+    fetchHistory();
+  }, [fetchHistory]);
 
-        if (!querySnapshot.empty) {
-          const userDoc = querySnapshot.docs[0];
-          const userData = userDoc.data();
-          setPostIds(userData.submissions || []);
-        }
-
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    if (loggedInUser) {
-      fetchHistory();
-    }
-  }, [loggedInUser]);
-
-  useEffect(() => {
-    const fetchReviewWithId = async (id: string) => {
-      try {
+  const fetchSubmissions = useCallback(async (ids: string[], isFavorites: boolean) => {
+    try {
+      const submissions = isFavorites ? favoriteList : postList;
+      for (const id of ids) {
         const submissionRef = doc(db, 'globalSubmissions', id);
         const submissionDoc = await getDoc(submissionRef);
 
         if (submissionDoc.exists()) {
           const submissionData = submissionDoc.data() as Submission;
-          setPostList((currentPosts) => [...currentPosts, { ...submissionData, id }]);
+          setPostList(currentPosts => {
+            if (!isFavorites) {
+              const postExists = currentPosts.some(post => post.postId === id || post.reviewId === id);
+              if (!postExists) {
+                return [...currentPosts, { ...submissionData, id }];
+              }
+            }
+            return currentPosts;
+          });
+          setFavoriteList(currentFavorites => {
+            if (isFavorites) {
+              const postExists = currentFavorites.some(post => post.postId === id || post.reviewId === id);
+              if (!postExists) {
+                return [...currentFavorites, { ...submissionData, id }];
+              }
+            }
+            return currentFavorites;
+          });
         } else {
           console.log(`No submission found with ID ${id}`);
         }
-      } catch (error) {
-        console.error("Error fetching submission:", error);
       }
-    };
-
-    const fetchHistory = async () => {
-      setLoading(true);
-      for (const id of postIds) {
-        await fetchReviewWithId(id);
-      }
-      setLoading(false);
-    };
-
-    if (postIds.length > 0) {
-      fetchHistory();
+    } catch (error) {
+      console.error("Error fetching submissions:", error);
     }
-  }, [postIds]);
+  }, [favoriteList, postList]);
+
+  useEffect(() => {
+    if (postHistory) {
+      setLoading(true);
+      fetchSubmissions(postIds, false).finally(() => setLoading(false));
+    } else {
+      setLoading2(true);
+      fetchSubmissions(favoriteIds, true).finally(() => setLoading2(false));
+    }
+  }, [postHistory, postIds, favoriteIds, fetchSubmissions]);
 
   return (
     <View style={styles.container}>
@@ -170,53 +146,17 @@ const MyActivity = () => {
       </View>
 
       <ScrollView style={styles.postHistoryScroll}>
-        {loggedInUser && (loading ? (
-          <Text>Loading...</Text>
+        {loading || loading2 ? (
+          <ActivityIndicator size="large" color={colors.primary} />
         ) : (
-          postHistory ? 
-            (postList.length === 0 ? (
-              <View style={styles.noReview}>
-                <Text style={styles.noReviewText}>You haven't posted anything yet!</Text>
-              </View>
-            ) : (
-              postList.map((submission, i) => (
-                <View key={`submission_${i}`}>
-                  {submission.isReview ? (
-                    <Review
-                      reviewId={submission.reviewId}
-                      foodName={submission.foodName}
-                      comment={submission.comment}
-                      health={submission.health}
-                      taste={submission.taste}
-                      likes={submission.likes}
-                      location={submission.location}
-                      price={submission.price}
-                      tags={submission.tags}
-                      timestamp={submission.timestamp}
-                      userId={submission.userId}
-                      image={submission.image}
-                      subcomment={submission.subComment}
-                      allergens={submission.allergens}
-                    />
-                  ) : (
-                    <Post
-                      postId={submission.postId}
-                      comment={submission.comment}
-                      timestamp={submission.timestamp}
-                      uploadCount={submission.uploadCount}
-                      userId={submission.userId}
-                      image={submission.image}
-                    />
-                  )}
-                </View>
-              ))
-            )
-          ) : favoriteList.length === 0 ? (
+          (postHistory ? postList : favoriteList).length === 0 ? (
             <View style={styles.noReview}>
-              <Text style={styles.noReviewText}>You have no favorite posts yet!</Text>
+              <Text style={styles.noReviewText}>
+                {postHistory ? "You haven't posted anything yet!" : "You have no favorite posts yet!"}
+              </Text>
             </View>
           ) : (
-            favoriteList.map((submission, i) => (
+            (postHistory ? postList : favoriteList).map((submission, i) => (
               <View key={`submission_${i}`}>
                 {submission.isReview ? (
                   <Review
@@ -248,7 +188,7 @@ const MyActivity = () => {
               </View>
             ))
           )
-        ))}
+        )}
       </ScrollView>
 
       <Navbar />
@@ -259,7 +199,7 @@ const MyActivity = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white', // Ensure background color is set
+    backgroundColor: colors.backgroundGray,
   },
   text: {
     fontSize: 24,
@@ -300,7 +240,7 @@ const styles = StyleSheet.create({
   postHistoryScroll: {
     paddingHorizontal: 20,
     paddingTop: 20,
-    paddingBottom: 100,
+    marginBottom: 75,
   },
   noReview: {
     justifyContent: 'center',

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, TextInput, Image } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
 import { db } from '../services/firestore.js'; // Adjust the path if needed
 import { useAuth } from '../context/authContext.js'; // Adjust the path if needed
 import Toast from 'react-native-toast-message';
+import * as ImagePicker from 'expo-image-picker';
+import Navbar from '../components/Navbar.jsx';
+import colors from '../styles.js';
 
 type RootStackParamList = {
   Profile: undefined;
@@ -16,11 +19,12 @@ const MyProfile = () => {
   const { loggedInUser, displayName } = user;
   const [editingStatus, setEditingStatus] = useState(false);
   const [nameInput, setNameInput] = useState(displayName || '');
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDisplayName = async () => {
       try {
-        const userId = loggedInUser?.uid;
+        const userId = user?.id;
         if (!userId) {
           Toast.show({
             type: 'error',
@@ -43,7 +47,7 @@ const MyProfile = () => {
       }
     };
 
-    if (loggedInUser && !displayName) {
+    if (user.id) {
       fetchDisplayName();
     }
   }, [loggedInUser, displayName]);
@@ -115,6 +119,25 @@ const MyProfile = () => {
     }
   };
 
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+        alert('Sorry, we need camera roll permissions to make this work!');
+        return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+        setProfileImage(result.assets[0].uri);
+    }
+};
+
   return (
     <View style={styles.container}>
       <View style={styles.homeHeaderTop}>
@@ -122,7 +145,12 @@ const MyProfile = () => {
           <Text>Back</Text>
         </TouchableOpacity>
       </View>
-
+      <TouchableOpacity onPress={pickImage}>
+        <Image
+          source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
+          style={styles.profileImage}
+          />
+      </TouchableOpacity>
       {editingStatus ? (
         <View style={styles.editingContainer}>
           <TextInput
@@ -146,6 +174,7 @@ const MyProfile = () => {
           </TouchableOpacity>
         </View>
       )}
+    <Navbar />
     </View>
   );
 };
@@ -153,8 +182,7 @@ const MyProfile = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: colors.backgroundGray,
   },
   text: {
     fontSize: 24,
@@ -201,6 +229,12 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     margin: 5,
   },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 10,
+},
 });
 
 export default MyProfile;
