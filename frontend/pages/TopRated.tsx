@@ -25,7 +25,7 @@ type Props = {
     }
 };
 
-const DiningHome: React.FC<Props> = ({ route }) => {
+const DinningHome: React.FC<Props> = ({ route }) => {
 
 
 
@@ -34,6 +34,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
     const bottomSheetRef = useRef(null);
     const [ onTheMenu, setOnTheMenu ] = useState([]);
     const [ loading, setLoading ] = useState(true);
+    const [topRatedMenus, setTopRatedMenus] = useState([]);
 
     const fetchReviews = async (location) => {
         try {
@@ -86,6 +87,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
         }
     };
 
+    //get review and sort by rating
     useEffect(() => {
         const getReviews = async () => {
             const reviewsData = await fetchReviews(placeName);
@@ -94,6 +96,19 @@ const DiningHome: React.FC<Props> = ({ route }) => {
         getReviews();
         console.log(onTheMenu);
     }, [placeName])
+
+    useEffect(() => {
+      if (onTheMenu.length === 0) return;
+      const sortedMenus = [...onTheMenu].sort((a, b) => {
+          const ratingA = a.averageRating === 'N/A' ? 0 : Number(a.averageRating);
+          const ratingB = b.averageRating === 'N/A' ? 0 : Number(b.averageRating);
+          
+          return ratingB - ratingA;
+      });
+  
+      setTopRatedMenus(sortedMenus);
+  
+  }, [onTheMenu]);
 
         
       //filtering
@@ -144,8 +159,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
       const [searchChange, setSearchChange] = useState('');
       
       const filterApplied = filters.preferred.length > 0 || filters.allergens.length > 0 || filters.time.length > 0 || filters.taste > 1 || filters.health > 1 || searchChange !== '' || simpleFilter !== '';
-      const filterOnTheMenu = useMemo(() => applyFilters(onTheMenu), [filters, simpleFilter, searchChange]);
-      const filterOrNone = filterApplied ? filterOnTheMenu : onTheMenu;
+      const filterOnTheMenu = useMemo(() => applyFilters(topRatedMenus), [filters, simpleFilter, searchChange]);
+      const filterOrNone = filterApplied ? filterOnTheMenu : topRatedMenus;
 
 
     const toggleBottomSheet = () => {
@@ -154,7 +169,6 @@ const DiningHome: React.FC<Props> = ({ route }) => {
     const handleFilterClick = () => {
       setIsDisabled((prev) => !prev); 
     };
-
 
 
     return (
@@ -166,7 +180,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                     </TouchableOpacity>
                 </View>
                 <View style={styles.diningHomeHeaderBottom}>
-                    <Text style={styles.placeNameText}>On the menu: {placeName}</Text>
+                    <Text style={styles.placeNameText}>Top Rated: {placeName}</Text>
                 </View>
             </View>
             <View style={styles.contentContainer}>
@@ -310,4 +324,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default DiningHome;
+export default DinningHome;

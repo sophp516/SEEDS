@@ -49,8 +49,19 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
   // Set the preferred and allergens items from the preferences.json
   useEffect(() => {
     const fetchTags = async () => {
+
+      // Ensure preferences.id has a default value if not logged in
+      //!! this has to be before the user.id check, or else guest account will not have the default preferences
+      const items = (preferences.id || []).map(item => ({
+        label: item,
+        value: item,
+      }));
+      setPreferredItems(items);
+      setAllergensItems(items);
+
+      if (!user.id) return;
       try {
-        const userId = loggedInUser.loggedInUser.uid 
+        const userId = user.id 
 
         if (userId) {
           const usersRef = collection(db, 'users');
@@ -82,15 +93,6 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
         }
       } catch (e) {
         console.error('Error fetching tags:', e);
-      } finally {
-        
-        // Ensure preferences.id has a default value if not logged in
-        const items = (preferences.id || []).map(item => ({
-          label: item,
-          value: item,
-        }));
-        setPreferredItems(items);
-        setAllergensItems(items);
       }
     };
 
@@ -241,38 +243,37 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
             }}
           />
 
-
           <View style={styles.sliderContainer}>
-            <Text style={styles.contentText}> Taste </Text>
+            <Text style={styles.contentText}>Taste</Text>
+            <View style={styles.slider}> 
               <CustomSlider 
-                      minimumValue={1} 
-                      maximumValue={5}
-                      step={1}
-                      onValueChange={(value)=> setReview(prevReview => ({...prevReview, taste: value }))}
-                      value={review.taste}
-                      sliderColor='#F9A05F'
-                      trackColor='white'         
+                minimumValue={1} 
+                maximumValue={5}
+                step={1}
+                onValueChange={(value)=> setReview(prevReview => ({...prevReview, taste: value }))}
+                value={review.taste}
+                sliderColor='#F9A05F'
+                trackColor='white'         
               />
+              </View>
+          </View>
+
           <View style={styles.sliderContainer}>
-            <Text style={styles.contentText}> Health</Text>
-                <CustomSlider 
-                        minimumValue={1} 
-                        maximumValue={5}
-                        step={1}
-                        onValueChange={(value)=> setReview(prevReview => ({...prevReview, health: value }))}
-                        value={review.health}
-                        sliderColor='#7FB676'
-                        trackColor='white'         
-                />
-
+            <Text style={styles.contentText}>Health</Text>
+            <View style={styles.slider}> 
+              <CustomSlider 
+                minimumValue={1} 
+                maximumValue={5}
+                step={1}
+                onValueChange={(value)=> setReview(prevReview => ({...prevReview, health: value }))}
+                value={review.health}
+                sliderColor='#7FB676'
+                trackColor='white'         
+              />
+              </View>
           </View>
-
-
-
+          
         </View>
-
-          </View>
-
       </ScrollView>
     </BottomSheet>
   );
@@ -298,24 +299,23 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   buttonText: {
-    fontSize: 18,
-    color: 'black',
+    fontSize: 16,
+    color: colors.textGray,
     textAlign: 'center',
-    
+    fontFamily: 'Satoshi-Medium',
   },
   fancy: {
-    fontWeight: 'bold',
-    
+    fontFamily: 'Satoshi-Bold',
+    fontSize: 18,
   },
-
   content: {
     paddingBottom: 10,
     paddingHorizontal: 16,
     paddingVertical: 40,
   },
   contentText: {
-    fontSize: 20, 
-    fontWeight: 'bold', 
+    fontFamily: 'Satoshi-Bold',
+    fontSize: 16, 
     marginBottom: 0
   },
   dropDownBox: {
@@ -326,14 +326,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     marginBottom: 40,
-    borderColor: colors.grayStroke,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.3, 
-    shadowRadius: 4, 
+    borderColor: colors.outlineBrown,
+    // shadowColor: '#000',
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 2,
+    // },
+    // shadowOpacity: 0.3, 
+    // shadowRadius: 4, 
 
   },
   BottomSheetStyle: {
@@ -349,9 +349,11 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'space-between',
     marginBottom: 20,
-
   },
-
+  slider: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
 
 });
 

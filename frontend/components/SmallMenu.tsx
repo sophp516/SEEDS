@@ -145,11 +145,13 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
     },
     nameText: {
-        fontSize: 17,
+        fontSize: 14,
         maxWidth: 150, 
+        fontFamily: 'Satoshi-Medium',
     },
     starText: {
         fontSize: 12,
+        fontFamily: 'Satoshi-Bold',
     },
     ratingContainer: {
         flexDirection: 'row'

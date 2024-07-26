@@ -107,7 +107,7 @@ const FoodRank = ({rank, foodName, rating, location}) => {
             </View>
             <View style={{flexDirection:'row'}}>
                 <Text style={styles.rating}>{formattedRating}</Text>
-                <Image style={styles.star}source={require('../assets/star.png')}/>
+                <Image style={styles.star} source={require('../assets/star.png')}/>
             </View>
         </View>
         </TouchableOpacity>

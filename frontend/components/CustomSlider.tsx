@@ -77,7 +77,6 @@ const styles = StyleSheet.create({
   },
   thumbLabel: {
     position: 'absolute',
-
     zIndex: 2,
   },
   labelText: {

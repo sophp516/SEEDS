@@ -90,7 +90,8 @@ const styles = StyleSheet.create({
     borderColor: colors.grayStroke,
   },
   buttonText: {
-    color: 'black',
+    color: colors.textGray,
+    fontFamily: 'Satoshi-Regular'
   },
 });
 

@@ -109,10 +109,15 @@ const styles = StyleSheet.create({
     },
     placeNameText: {
         fontSize: 16,
+        fontFamily: 'Satoshi-Bold',
+        fontWeight: '100',
+        color: colors.textGray,
     },
     diningInfoText: {
         fontSize: 12,
         marginBottom: 3,
+        fontFamily: 'Satoshi-Medium',
+        color: colors.textGray,
     },
     diningInfoContainer: {
         paddingTop: 12,
