@@ -14,35 +14,33 @@ import LogIn from './pages/LogIn.tsx';
 import Toast from 'react-native-toast-message';
 import Ranking from './pages/Ranking.tsx';
 import SelectedMenu from './pages/SelectedMenu.tsx';
-import MyActivity from './pages/ProfileDetail/MyActivity.tsx';
-import MyPreferences from './pages/ProfileDetail/MyPreferences.tsx';
-import MyProfile from './pages/ProfileDetail/MyProfile.tsx';
-
+import MyActivity from './pages/MyActivity.tsx';
+import MyPreferences from './pages/MyPreferences.tsx';
+import MyProfile from './pages/MyProfile.tsx';
 import React, { useEffect, useState } from 'react';
 import fonts from './fonts.js';
-import { ActivityIndicator, View } from 'react-native';
-
+import { ActivityIndicator, View, Text } from 'react-native';
+import { useFonts } from "expo-font";
 
 const Stack = createStackNavigator();
 
 export default function App() {
-  const [fontsLoaded, setFontsLoaded] = useState(false);
-
-  useEffect(() => {
-    const loadFonts = async () => {
-      await fonts();
-      setFontsLoaded(true);
-    };
-
-    loadFonts();
-  }, []);
+  const [fontsLoaded] = useFonts({
+    'SpaceGrotesk-Light': require('./assets/fonts/SpaceGrotesk-Light.ttf'),
+    'SpaceGrotesk-Regular': require('./assets/fonts/SpaceGrotesk-Regular.ttf'),
+    'SpaceGrotesk-Medium': require('./assets/fonts/SpaceGrotesk-Medium.ttf'),
+    'SpaceGrotesk-SemiBold': require('./assets/fonts/SpaceGrotesk-SemiBold.ttf'),
+    'SpaceGrotesk-Bold': require('./assets/fonts/SpaceGrotesk-Bold.ttf'),
+    'SpaceGrotesk-Variable': require('./assets/fonts/SpaceGrotesk-Variable.ttf'),
+    'Satoshi-Light': require('./assets/fonts/Satoshi-Light.otf'),
+    'Satoshi-Regular': require('./assets/fonts/Satoshi-Regular.otf'),
+    'Satoshi-Medium': require('./assets/fonts/Satoshi-Medium.otf'),
+    'Satoshi-Bold': require('./assets/fonts/Satoshi-Bold.otf'),
+    // 'Satoshi-Variable': require('./assets/fonts/Satoshi-Variable.ttf'),
+  });
 
   if (!fontsLoaded) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
+    return <Text>Loading...</Text>;
   }
 
   return (

@@ -5,6 +5,7 @@ import { useAuth } from "../context/authContext.js";
 import { View, Text, Image, StyleSheet, TextInput } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import colors from "../styles.js";
+import TimeDisplay from "./TimeDisplay.tsx";
 
 interface Comment {
     id: string;
@@ -36,39 +37,48 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
     const { user } = useAuth();
     const { loggedInUser } = user;
 
+
     const SubComment: React.FC<SubCommentProps> = memo(({ content, userId, commentId, postId, sublikes }) => {
         const commentUser = usersCache[userId];
         const [subLikes, setSubLikes] = useState(sublikes || []);
         const [isLiked, setIsLiked] = useState(false);
     
         useEffect(() => {
-            if (loggedInUser && sublikes) {
-                setIsLiked(sublikes.includes(loggedInUser.loggedInUser.uid));
+            if (user.id && sublikes) {
+                setIsLiked(sublikes.includes(user.id));
             }
         }, [sublikes, loggedInUser]);
     
         const handleSubLike = async () => {
-            if (!loggedInUser) return;
+            if (!user.id) return;
     
             try {
-                const userId = loggedInUser.loggedInUser.uid;
+                const userId = user.id;
                 const commentRef = doc(db, 'comments', commentId);
                 const commentDoc = await getDoc(commentRef);
+
+                const userRef = doc(db, 'users', userId)
+                const userDoc = await getDoc(userRef)
     
-                if (commentDoc.exists()) {
+                if (commentDoc.exists() && userDoc.exists()) {
                     const commentData = commentDoc.data();
+                    const userData = userDoc.data();
                     let commentLikes = commentData.likes || [];
+                    let userLikes = userData.likes || [];
     
                     if (commentLikes.includes(userId)) {
                         commentLikes = commentLikes.filter(id => id !== userId);
+                        userLikes = userLikes.filter(id => id !== postId);
                         setIsLiked(false);
                     } else {
                         commentLikes.push(userId);
+                        userLikes.push(postId);
                         setIsLiked(true);
                     }
     
                     setSubLikes(commentLikes);
                     await updateDoc(commentRef, { likes: commentLikes });
+                    await updateDoc(userRef, { likes: userLikes });
                 }
             } catch (err) {
                 console.error('Error updating like status:', err);
@@ -97,6 +107,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
     });
 
     useEffect(() => {
+        if (!loggedInUser) return;
         const fetchPostData = async () => {
             try {
                 const postRef = doc(db, 'posts', postId);
@@ -106,7 +117,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
                     const postData = postDoc.data();
                     setPost(postData);
                     setLikes(postData.likes || []);
-                    setLikeStatus(postData.likes?.includes(loggedInUser?.loggedInUser.uid) || false);
+                    setLikeStatus(postData.likes?.includes(user.id) || false);
                 }
             } catch (err) {
                 console.log(err);
@@ -178,11 +189,12 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
     }, [postId]);
 
     const handleLike = async () => {
-        if (!loggedInUser) return;
+        if (!user.id) return;
 
         try {
-            const userId = loggedInUser.loggedInUser.uid;
+            const userId = user.id;
             const postRef = doc(db, 'globalSubmissions', postId);
+            
             
             if (likeStatus) {
                 await updateDoc(postRef, {
@@ -215,7 +227,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
             const newCommentRef = await addDoc(commentCollectionRef, {
                 content: commentInput,
                 timestamp,
-                userId: loggedInUser.loggedInUser.uid,
+                userId: user.id,
                 postedUnder: postId,
                 likes: [],
                 subComments: []
@@ -227,7 +239,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
             setComments([...comments, { 
                 id: docId, 
                 content: commentInput, 
-                userId: loggedInUser.loggedInUser.uid, 
+                userId: user.id, 
                 postedUnder: postId, 
                 likes: [], 
                 subComments: [] 
@@ -259,6 +271,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
                                 style={{ width: 30, height: 30, borderRadius: 25, marginRight: 10 }}
                             />
                             <Text style={styles.userInfoText}>{userInfo.displayName}</Text>
+                            <TimeDisplay isMenu={false} timestamp={timestamp}  textStyle={styles.timestampText}/>
                         </View>
                     )}
                     <View style={styles.reviewContent}>
@@ -465,7 +478,16 @@ const styles =  StyleSheet.create({
     subCommentMain: {
         paddingHorizontal: 3,
         paddingBottom: 15,
-    }
+    },
+    timestampText:{
+        color: '#7C7C7C',               
+        fontFamily: 'Manrope',           
+        fontSize: 10,                    
+        fontStyle: 'normal',           
+        fontWeight: '400',              
+        // lineHeight: 14,                
+        alignContent: 'center',
+    },
 })
 
 export default Post;

@@ -28,19 +28,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'flex-end',
-    borderRadius: 10,
+    borderRadius: 15,
   },
   filterIcon: {
     margin: 5,
     height: 20,
     width: 20,
-    alignItems: 'center',
+    // alignItems: 'center',
   },
   button: {
     backgroundColor: colors.inputGray,
     padding: 3,
+    width: 45,
     borderRadius: 15,
     marginBottom: -15,
+    alignItems: 'center',
   },
 });
 

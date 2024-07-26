@@ -1,11 +1,12 @@
 import React, { useEffect, useState, memo } from "react";
-import { collection, query, where, getDocs, getDoc, doc, updateDoc, addDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, getDoc, doc, updateDoc, addDoc, Timestamp } from 'firebase/firestore';
 import { db } from '../services/firestore.js';
 import { useAuth } from "../context/authContext.js";
 import { View, Text, Image, StyleSheet, TextInput } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import colors from "../styles.js";
 import Preferences from "../services/Preferences.json";
+import TimeDisplay from "./TimeDisplay.tsx";
 
 interface Comment {
     id: string;
@@ -36,6 +37,28 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
     const { user } = useAuth();
     const { loggedInUser } = user;
     const [commentTarget, setCommentTarget] = useState(reviewId);
+    const [uploadTime, setUploadTime] = useState('');
+
+    useEffect(() => {
+        // time are store as nano seconds 
+        const currTime = new Date();
+        const timeDifference = currTime.getTime() -timestamp.toDate().getTime();
+        const minutes = Math.floor(timeDifference / 60000);
+        const hours = Math.floor(timeDifference / 3600000);
+        const days = Math.floor(timeDifference / 86400000);
+        const weeks = Math.floor(timeDifference / (86400000 * 7));
+        if (minutes < 60) {
+            setUploadTime(`${minutes} minutes ago`);
+        } else if (hours < 24) {
+            setUploadTime(`${hours} hours ago`);
+        } else if (days < 7) {
+            setUploadTime(`${days} days ago`);
+        } else if (weeks < 4) {
+            setUploadTime(`${weeks} weeks ago`);
+        }else{ // just show the actual time 
+            setUploadTime(timestamp.toDate().toString());
+        }
+    }, [])
 
     const SubComment: React.FC<SubCommentProps> = memo(({ content, userId, commentId, reviewId, sublikes }) => {
         const commentUser = usersCache[userId];
@@ -44,31 +67,39 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
     
         useEffect(() => {
             if (loggedInUser && sublikes) {
-                setIsLiked(sublikes.includes(loggedInUser.loggedInUser.uid));
+                setIsLiked(sublikes.includes(user.id));
             }
         }, [sublikes, loggedInUser]);
     
         const handleSubLike = async () => {
-            if (!loggedInUser) return;
+            if (!user.id) return;
     
             try {
-                const userId = loggedInUser.loggedInUser.uid;
+                const userId = user.id;
                 const commentRef = doc(db, 'comments', commentId);
                 const commentDoc = await getDoc(commentRef);
+
+                const userRef = doc(db, 'users', userId);
+                const userDoc = await getDoc(userRef)
     
-                if (commentDoc.exists()) {
+                if (commentDoc.exists() && userDoc.exists()) {
                     const commentData = commentDoc.data();
+                    const userData = userDoc.data();
                     let commentLikes = commentData.likes || [];
+                    let userLikes = userData.likes || []
     
                     if (commentLikes.includes(userId)) {
                         commentLikes = commentLikes.filter(id => id !== userId);
+                        userLikes = userLikes.filter(id => id !=- reviewId);
                         setIsLiked(false);
                     } else {
                         commentLikes.push(userId);
+                        userLikes.push(reviewId);
                         setIsLiked(true);
                     }
     
                     setSubLikes(commentLikes);
+                    await updateDoc(userRef, { likes: userLikes });
                     await updateDoc(commentRef, { likes: commentLikes });
                 }
             } catch (err) {
@@ -173,7 +204,7 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
                     const reviewData = reviewDoc.data();
                     const likeData = reviewData.likes || [];
 
-                    setLikeStatus(likeData.includes(loggedInUser.loggedInUser.uid));
+                    setLikeStatus(likeData.includes(user.id));
                     setLikes(likeData);
                 }
             } catch (err) {
@@ -185,26 +216,35 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
     }, [loggedInUser, reviewId]);
 
     const handleLike = async () => {
-        if (!loggedInUser) return;
+        if (!user.id) return;
 
         try {
-            const userId = loggedInUser.loggedInUser.uid;
+            const userId = user.id;
             const reviewRef = doc(db, 'globalSubmissions', reviewId);
             const reviewDoc = await getDoc(reviewRef);
 
-            if (reviewDoc.exists()) {
+            const userRef = doc(db, 'users', userId);
+            const userDoc = await getDoc(userRef)
+
+
+            if (reviewDoc.exists() && userDoc.exists()) {
                 const reviewData = reviewDoc.data();
+                const userData = userDoc.data();
                 let reviewLikes = reviewData.likes || [];
+                let userLikes = userData.likes || []
 
                 if (reviewLikes.includes(userId)) {
                     reviewLikes = reviewLikes.filter(id => id !== userId);
+                    userLikes = userLikes.filter(id => id !=- reviewId);
                     setLikeStatus(false);
                 } else {
                     reviewLikes.push(userId);
+                    userLikes.push(reviewId);
                     setLikeStatus(true);
                 }
 
                 setLikes(reviewLikes);
+                await updateDoc(userRef, { likes: userLikes });
                 await updateDoc(reviewRef, { likes: reviewLikes });
             }
         } catch (err) {
@@ -238,7 +278,7 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
         const newCommentRef = await addDoc(commentCollectionRef, {
             content: commentInput,
             timestamp,
-            userId: loggedInUser.loggedInUser.uid,
+            userId: user.id,
             postedUnder: commentTarget, // This can be reviewId or parent comment ID
             likes: [],
             subComments: []
@@ -267,7 +307,7 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
             });
 
             // Update the comments state to include the new comment
-            setComments([...comments, { id: docId, content: commentInput, userId: loggedInUser.loggedInUser.uid, postedUnder: commentTarget, likes: [], subComments: [] }]);
+            setComments([...comments, { id: docId, content: commentInput, userId: user.id, postedUnder: commentTarget, likes: [], subComments: [] }]);
             setCommentInput(''); // Clear the input field
         } else {
             console.error('Parent document not found');
@@ -292,6 +332,7 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
                                 style={{ width: 30, height: 30, borderRadius: 25, marginRight: 10 }}
                             />
                             <Text style={styles.userInfoText}>{userInfo.displayName}</Text>
+                            <TimeDisplay isMenu={false} timestamp={timestamp} textStyle={styles.timestampText}/>
                         </View>
                     )}
                     <View style={styles.reviewHeader}>
@@ -370,7 +411,7 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
 const styles = StyleSheet.create({
     profileBox: {
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     loadingContainer: {
         width: '100%',
@@ -386,6 +427,15 @@ const styles = StyleSheet.create({
     },
     userInfoText: {
         fontSize: 13,
+    },
+    timestampText:{
+        color: '#7C7C7C',               
+        fontFamily: 'Manrope',           
+        fontSize: 10,                    
+        fontStyle: 'normal',           
+        fontWeight: '400',              
+        // lineHeight: 14,                
+        alignContent: 'center',
     },
     reviewHeader: {
         paddingTop: 10,

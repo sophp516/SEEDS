@@ -6,6 +6,9 @@ import colors from '../styles.js';
 import Preferences from '../services/Preferences.json';
 import Toast from 'react-native-toast-message';
 import CustomSlider from './CustomSlider.tsx';
+import { useAuth } from '../context/authContext.js';
+import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
+import { db } from '../services/firestore.js';
 
 interface FilterContentProps {
   onFilter: (filters: { preferred: string[], allergens: string[], time: string[], taste: number, health: number }) => void;
@@ -15,6 +18,12 @@ interface FilterContentProps {
 
 const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setIsVisible }) => {
   const bottomSheetRef = useRef(null);
+  // for the user preferences filter
+  const { user } = useAuth();
+  const { loggedInUser, displayName } = user;
+  const [fetchTags, setFetchTags] = useState<string[]>([]);
+  const [fetchAllergies, setFetchAllergies] = useState<string[]>([]);
+
   const [ preferences, setPreferences ] = useState(Preferences);
   const [review, setReview] = useState({ taste: 1, health: 1 }); // Add this line
   
@@ -38,16 +47,59 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
   ]);
 
   // Set the preferred and allergens items from the preferences.json
-  // this library have to use useEffect to set the items
   useEffect(() => {
-    const items = preferences.id.map(item => ({
-      label: item,
-      value: item,
-    }));
-    setPreferredItems(items);
-    setAllergensItems(items);
-  }, [preferences]);
+    const fetchTags = async () => {
+      if (!user.id) return;
+      try {
+        const userId = user.id 
 
+        if (userId) {
+          const usersRef = collection(db, 'users');
+          const q = query(usersRef, where('id', '==', userId));
+          const querySnapshot = await getDocs(q);
+  
+          if (!querySnapshot.empty) {
+            const userDoc = querySnapshot.docs[0];
+            const userData = userDoc.data();
+  
+            if (userData.tags && Array.isArray(userData.tags)) {
+              setFetchTags(userData.tags);
+            } else {
+              setFetchTags([]);
+            }
+            if (userData.allergies && Array.isArray(userData.allergies)) {
+              setFetchAllergies(userData.allergies);
+            } else {
+              setFetchAllergies([]);
+            }
+          } else {
+            setFetchTags([]);
+            setFetchAllergies([]);
+          }
+        } else {
+          // Handle the case where the user is not logged in
+          setFetchTags([]);
+          setFetchAllergies([]);
+        }
+      } catch (e) {
+        console.error('Error fetching tags:', e);
+      } finally {
+        
+        // Ensure preferences.id has a default value if not logged in
+        const items = (preferences.id || []).map(item => ({
+          label: item,
+          value: item,
+        }));
+        setPreferredItems(items);
+        setAllergensItems(items);
+      }
+    };
+
+    fetchTags();
+    
+  }, [loggedInUser, preferences.id]);
+  
+  
 
   // Function to handle the filter application 
   // if the user select the same item in both preferred and allergens, it will show an error message
@@ -74,7 +126,6 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
     }
   };
   
-  
 
   const handleReset = () => {
     setPreferredValue([]);
@@ -83,9 +134,10 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
     setReview({ taste: 1, health: 1 });
   };
 
-  //TODO!!!!
-  //Function to add my preferences from firebase and apply my preferences filter
-  //also automatically apply perfered filter when user open the bottom sheet
+  const handelMyPreferences = () => {
+    setPreferredValue(fetchTags);
+    setAllergensValue(fetchAllergies);
+  }
 
   const snapPoints = useMemo(() => ['25%', '50%', '75%', '85%'], []); 
 
@@ -110,9 +162,9 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
     >
       <View style={styles.bottomSheetUpper}>
         <TouchableOpacity style={styles.bottomSheetButton} onPress={handleReset}>
-          <Text style={styles.buttonText}>Rest</Text>
+          <Text style={styles.buttonText}>Reset</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomSheetButton} onPress={() => console.log("perform Preferences")}>
+        <TouchableOpacity style={styles.bottomSheetButton} onPress={handelMyPreferences}>
           <Text style={[styles.buttonText, styles.fancy]}>My Preferences</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomSheetButton} onPress={handleApplyFilter}>
@@ -190,37 +242,36 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
             }}
           />
 
-
           <View style={styles.sliderContainer}>
-            <Text style={styles.contentText}> Taste </Text>
+            <Text style={styles.contentText}>Taste</Text>
+            <View style={styles.slider}> 
               <CustomSlider 
-                      minimumValue={1} 
-                      maximumValue={5}
-                      step={1}
-                      onValueChange={(value)=> setReview(prevReview => ({...prevReview, taste: value }))}
-                      value={review.taste}
-                      sliderColor='#F9A05F'
-                      trackColor='white'         
+                minimumValue={1} 
+                maximumValue={5}
+                step={1}
+                onValueChange={(value)=> setReview(prevReview => ({...prevReview, taste: value }))}
+                value={review.taste}
+                sliderColor='#F9A05F'
+                trackColor='white'         
               />
-
+              </View>
           </View>
 
           <View style={styles.sliderContainer}>
-            <Text style={styles.contentText}> Health</Text>
-                <CustomSlider 
-                        minimumValue={1} 
-                        maximumValue={5}
-                        step={1}
-                        onValueChange={(value)=> setReview(prevReview => ({...prevReview, health: value }))}
-                        value={review.health}
-                        sliderColor='#7FB676'
-                        trackColor='white'         
-                />
-
+            <Text style={styles.contentText}>Health</Text>
+            <View style={styles.slider}> 
+              <CustomSlider 
+                minimumValue={1} 
+                maximumValue={5}
+                step={1}
+                onValueChange={(value)=> setReview(prevReview => ({...prevReview, health: value }))}
+                value={review.health}
+                sliderColor='#7FB676'
+                trackColor='white'         
+              />
+              </View>
           </View>
-
-
-
+          
         </View>
       </ScrollView>
     </BottomSheet>
@@ -247,24 +298,23 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   buttonText: {
-    fontSize: 18,
-    color: 'black',
+    fontSize: 16,
+    color: colors.textGray,
     textAlign: 'center',
-    
+    fontFamily: 'Satoshi-Medium',
   },
   fancy: {
-    fontWeight: 'bold',
-    
+    fontFamily: 'Satoshi-Bold',
+    fontSize: 18,
   },
-
   content: {
     paddingBottom: 10,
     paddingHorizontal: 16,
     paddingVertical: 40,
   },
   contentText: {
-    fontSize: 20, 
-    fontWeight: 'bold', 
+    fontFamily: 'Satoshi-Bold',
+    fontSize: 16, 
     marginBottom: 0
   },
   dropDownBox: {
@@ -275,14 +325,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     marginBottom: 40,
-    borderColor: colors.grayStroke,
-    shadowColor: '#000', // Shadow color
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.3, 
-    shadowRadius: 4, 
+    borderColor: colors.outlineBrown,
+    // shadowColor: '#000',
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 2,
+    // },
+    // shadowOpacity: 0.3, 
+    // shadowRadius: 4, 
 
   },
   BottomSheetStyle: {
@@ -298,9 +348,11 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'space-between',
     marginBottom: 20,
-
   },
-
+  slider: {
+    marginTop: 10,
+    marginBottom: 10,
+  },
 
 });
 

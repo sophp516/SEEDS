@@ -70,6 +70,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                         carbs: globalData?.carbs ?? 'N/A', // Default value if carbs is missing
                         protein: globalData?.protein ?? 'N/A', // Default value if protein is missing
                         fat: globalData?.fat ?? 'N/A', // Default value if fat is missing  
+                        averageRating: globalData?.averageRating ?? 0,
+                        updatedTime: globalData?.updatedAt ?? 'N/A',
 
                     };
                     foodItems.push(foodItem);
@@ -153,7 +155,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
       setIsDisabled((prev) => !prev); 
     };
 
-  
+
 
     return (
         <View style={styles.container}>
@@ -161,7 +163,6 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                 <View style={styles.diningHomeHeaderTop}>
                     <TouchableOpacity onPress={() => navigation.goBack()}>
                         <Text>Back</Text>
-                        
                     </TouchableOpacity>
                 </View>
                 <View style={styles.diningHomeHeaderBottom}>
@@ -179,8 +180,6 @@ const DiningHome: React.FC<Props> = ({ route }) => {
               onSearchChange={(search) => {setSearchChange(search);}}
               />
 
-                
-
           </View>
             {loading ?
             <View style={styles.loadingScreen}>
@@ -192,22 +191,24 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                     filterOrNone.map((review, i) => {
                         // return <Review key={review.id} reviewId={review} />
                         return <FoodItem 
-                                    key={i}
-                                    foodName={review.foodName} 
-                                    reviewIds={review.reviewIds}
-                                    image={review.image} 
-                                    location={review.location} 
-                                    price={review.price}
-                                    taste={review.taste}
-                                    health={review.health}
-                                    tags={review.tags}
-                                    allergens={review.allergens}
-                                    serving={review.serving}
-                                    calories={review.calories}
-                                    carbs={review.carbs}
-                                    protein={review.protein}
-                                    fat={review.fat}
-                                    />
+                            key={i}
+                            foodName={review.foodName} 
+                            reviewIds={review.reviewIds}
+                            image={review.image} 
+                            location={review.location} 
+                            price={review.price}
+                            taste={review.taste}
+                            health={review.health}
+                            tags={review.tags}
+                            allergens={review.allergens}
+                            serving={review.serving}
+                            calories={review.calories}
+                            carbs={review.carbs}
+                            protein={review.protein}
+                            fat={review.fat}
+                            averageRating={review.averageRating}
+                            updatedTime={review.updatedTime}
+                            />
                     })
                 ) : (
                   <Text style={styles.noResult}> No results found...</Text>
@@ -215,10 +216,11 @@ const DiningHome: React.FC<Props> = ({ route }) => {
             </ScrollView>}
         </View>
         <FilterContent
-              onFilter={setFilters}
-              isVisible={isBottomSheetOpen}
-              setIsVisible={setIsBottomSheetOpen}
-              />
+            onFilter={setFilters}
+            isVisible={isBottomSheetOpen}
+            setIsVisible={setIsBottomSheetOpen}
+            />
+        
         <Navbar />
 
         </View>
@@ -245,7 +247,7 @@ const styles = StyleSheet.create({
     },
     closingText: {
         fontSize: 12,
-        color: '#7C7C7C'
+        color: colors.textFaintBrown,
     },
     recHeader: {
         paddingBottom: 13,
@@ -255,8 +257,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between'
     },
     placeNameText: {
-        fontSize: 20,
-        fontWeight: '500',
+        fontSize: 26,
+        fontFamily: 'SpaceGrotesk-SemiBold',
     },
     diningHomeHeader: {
         paddingTop: 60,
@@ -274,9 +276,6 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         paddingBottom: 20,
     },
-    recHeaderText: {
-        fontSize: 20,
-    },
     contentContainer: {
         flexGrow: 1,
         paddingBottom: 80,
@@ -284,7 +283,7 @@ const styles = StyleSheet.create({
     contentScrollContainer: {
         flexDirection: 'column',
         width: '100%',
-        marginTop: 30,
+        marginTop: 10,
         flex: 1,
     },
     recHolder: {

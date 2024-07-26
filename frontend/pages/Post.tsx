@@ -18,6 +18,7 @@ import preferences from '../services/Preferences.json';
 import Allergens from '../services/Allergens.json';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import {ACCESS_TOKEN} from "@env";
+
 interface newPost{
     images: string[];
     comment: string;
@@ -302,6 +303,7 @@ const Post = () => {
 
     const fetchNutrients = async (foodName) => {
         const baseUrl = 'https://platform.fatsecret.com/rest/server.api';
+        // takes the first search result, which is the most relevant and match closest to the search query
         const params = new URLSearchParams({
             method: 'foods.search',
             search_expression: foodName,
@@ -359,13 +361,18 @@ const Post = () => {
     };
 
 
-    //code for updating nutrients for a specific food item 
+    //code for updating nutrients for a specific food item, turn test as false when no need to make any updates
     const [test, setTest] = useState(false);
     const edit = async()=>{
         if (test === true){
-            const [serving, calories, fat, carbs, protein] = await fetchNutrients('Roasted Cauliflower');
-            const collegeFoodListDoc = doc(db, 'colleges', 'Dartmouth College', 'foodList','Roasted Cauliflower' ); // used for checking if food already in global list
-            await updateDoc(collegeFoodListDoc, {serving: serving, calories: calories, fat: fat, carbs: carbs, protein: protein});
+            const collegeFoodListDoc = doc(db, 'colleges', 'Dartmouth College', 'diningLocations','Class of 1953 Commons (FoCo)','Peanut Butter Sandwhich', 'reviews' );
+            const getFood = await getDoc(collegeFoodListDoc);
+            const collegeFoodListDoc2 = doc(db, 'colleges', 'Dartmouth College', 'diningLocations','Class of 1953 Commons (FoCo)','Peanut Butter Sandwich', 'reviews' );
+            await setDoc(collegeFoodListDoc2, getFood.data());
+            console.log("Food data:", getFood.data());
+            // const [serving, calories, fat, carbs, protein] = await fetchNutrients('Roasted Cauliflower');
+            // const collegeFoodListDoc = doc(db, 'colleges', 'Dartmouth College', 'foodList','Roasted Cauliflower' ); // used for checking if food already in global list
+            // await updateDoc(collegeFoodListDoc, {serving: serving, calories: calories, fat: fat, carbs: carbs, protein: protein});
         }
         setTest(false);
     }
@@ -629,7 +636,11 @@ const Post = () => {
     const getTagColor = (type, tag) =>{
         const verifiedTags = preferences.id;
         const allergens = Allergens.id;
-        if (type === 'tags' && verifiedTags.includes(tag)){
+        let times = ['breakfast', 'lunch', 'dinner'];
+        if (type === 'tags' && times.includes(tag.toLowerCase())){
+            return '#F2C897';
+        }
+        else if (type === 'tags' && verifiedTags.includes(tag)){
             return '#7FB676';
         }else if(allergens.includes(tag)){
             return '#FF7D84'
@@ -693,7 +704,8 @@ const Post = () => {
                         numberOfLines={100}
                         multiline={true}
                         onChangeText={(text)=> setPost(prevPost => ({...prevPost, comment: text}))}
-                        placeholder='enter comment'
+                        placeholder='Share thoughts, updates, or questions about your campus dining'
+                        autoCapitalize="none"
                     />
                     <View >
                         {post.images.length > 0 ? 
@@ -798,6 +810,7 @@ const Post = () => {
                                 initialValue={locationInput}
                                 textInputProps ={{
                                     placeholder: 'Enter location',
+                                    placeholderTextColor: '#888',
                                     value: locationInput,
                                     autoCorrect: false,
                                     autoCapitalize: 'none',
@@ -864,6 +877,7 @@ const Post = () => {
                                 initialValue={tag}
                                 textInputProps ={{
                                     placeholder: 'Enter a tag',
+                                    placeholderTextColor: '#888',
                                     value:tag,
                                     autoCorrect: false,
                                     autoCapitalize: 'none',
@@ -903,6 +917,7 @@ const Post = () => {
                                 initialValue={allergen}
                                 textInputProps ={{
                                     placeholder: 'Enter a allergen',
+                                    placeholderTextColor: '#888',
                                     value:allergen,
                                     autoCorrect: false,
                                     autoCapitalize: 'none',
