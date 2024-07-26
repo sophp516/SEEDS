@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     color: colors.textGray,
   },
   bottomPadding:{
-    height: 100,
+    height: 70,
   }
 });
 

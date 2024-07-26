@@ -125,11 +125,13 @@ const Ranking = () => {
                 </TouchableOpacity>
          </View>
          <View style={{justifyContent:'center'}}>
-          <View style={{backgroundColor: '#E7E2DB', marginBottom: 20, marginTop: 10, marginLeft: "60%",
-            borderRadius: 30, justifyContent:'center', alignContent: 'center', alignItems: "center", height: 40, width:100}}>
+          <View style={{backgroundColor: '#E7E2DB', marginBottom: 10, marginTop: 5, marginLeft: "60%",
+            borderRadius: 30, justifyContent:'center', alignContent: 'center', alignItems: "center", height: 35, width:100}}>
               <TouchableOpacity onPress={()=>setOpen(!open)} style={{ paddingHorizontal: 10, paddingVertical: 10 ,flexDirection: 'row', justifyContent: 'space-between'} }>
-                <Text> {selectedValue} </Text>
-                <Image source={require('../assets/dropdown.png')} style={{width: 12, height: 12, marginLeft: 1}} />
+                <Text style={{marginRight: 3}}> {selectedValue} </Text>
+                <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                <Image source={require('../assets/dropdown.png')} style={{width: 15, height: 12, marginLeft: 1}} />
+                </View>
               </TouchableOpacity>
           </View>
           {open ?

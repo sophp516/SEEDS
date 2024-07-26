@@ -49,8 +49,9 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
   // Set the preferred and allergens items from the preferences.json
   useEffect(() => {
     const fetchTags = async () => {
+      if (!user.id) return;
       try {
-        const userId = loggedInUser?.loggedInUser.uid 
+        const userId = user.id 
 
         if (userId) {
           const usersRef = collection(db, 'users');

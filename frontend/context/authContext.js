@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
       loggedInUser: user,
       displayName: user ? user.displayName : null,
       schoolName: user ? user.schoolName : null,
+      id: user ? user.id : null
     });
   };
 
@@ -32,6 +33,7 @@ export const AuthProvider = ({ children }) => {
           setUser(prevUser => ({
             ...prevUser,
             displayName: userData.displayName,
+            id: user.loggedInUser.uid
           }));
         }
       }
