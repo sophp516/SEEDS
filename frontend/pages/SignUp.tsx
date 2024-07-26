@@ -99,6 +99,7 @@ const SignUp = () => {
                 schoolName: input.schoolName,
                 password: input.password,
                 submissions: [],
+                likesCount: 0,
             });
 
             Toast.show({

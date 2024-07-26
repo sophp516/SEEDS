@@ -365,14 +365,7 @@ const Post = () => {
     const [test, setTest] = useState(false);
     const edit = async()=>{
         if (test === true){
-            const collegeFoodListDoc = doc(db, 'colleges', 'Dartmouth College', 'diningLocations','Class of 1953 Commons (FoCo)','Peanut Butter Sandwhich', 'reviews' );
-            const getFood = await getDoc(collegeFoodListDoc);
-            const collegeFoodListDoc2 = doc(db, 'colleges', 'Dartmouth College', 'diningLocations','Class of 1953 Commons (FoCo)','Peanut Butter Sandwich', 'reviews' );
-            await setDoc(collegeFoodListDoc2, getFood.data());
-            console.log("Food data:", getFood.data());
-            // const [serving, calories, fat, carbs, protein] = await fetchNutrients('Roasted Cauliflower');
-            // const collegeFoodListDoc = doc(db, 'colleges', 'Dartmouth College', 'foodList','Roasted Cauliflower' ); // used for checking if food already in global list
-            // await updateDoc(collegeFoodListDoc, {serving: serving, calories: calories, fat: fat, carbs: carbs, protein: protein});
+            
         }
         setTest(false);
     }

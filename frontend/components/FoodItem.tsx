@@ -147,7 +147,6 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                     <Text style={styles.number}>  {health.toFixed(1)}/5</Text>
                   </View>
                 </View>
-
             </View>
         </TouchableOpacity>
         <View style={styles.timeContainer}> 
