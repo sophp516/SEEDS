@@ -80,7 +80,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
 
   const fetchReviews = async (placeName) => {
     try {
-        if (loggedInUser) return [];
+        //if (loggedInUser) return [];
         const foodItems = [];
         const locationDocRef = collection(db, 'colleges', 'Dartmouth College', 'diningLocations', placeName, 'foodList');
         const collectionsSnapshot = await getDocs(locationDocRef);
