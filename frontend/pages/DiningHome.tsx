@@ -19,6 +19,7 @@ import { tags } from 'react-native-svg/lib/typescript/xml';
 type RootStackParamList = {
     Home: undefined,
     OnTheMenu: { placeName: string },
+    TopRated: { placeName: string },
 };
 
 interface SelectedMenuProps {
@@ -337,7 +338,7 @@ useEffect(() => {
                         <View>
                             <View style={styles.recHeader}>
                                 <Text style={styles.recHeaderText}>Top rated</Text>
-                                <TouchableOpacity style={styles.seeAllContainer}>
+                                <TouchableOpacity style={styles.seeAllContainer} onPress={() => navigation.navigate('TopRated', { placeName })}>
                                     <Text style={styles.seeAllText}>See all</Text>
                                 </TouchableOpacity>
                             </View>

@@ -49,6 +49,16 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
   // Set the preferred and allergens items from the preferences.json
   useEffect(() => {
     const fetchTags = async () => {
+
+      // Ensure preferences.id has a default value if not logged in
+      //!! this has to be before the user.id check, or else guest account will not have the default preferences
+      const items = (preferences.id || []).map(item => ({
+        label: item,
+        value: item,
+      }));
+      setPreferredItems(items);
+      setAllergensItems(items);
+
       if (!user.id) return;
       try {
         const userId = user.id 
@@ -83,15 +93,6 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
         }
       } catch (e) {
         console.error('Error fetching tags:', e);
-      } finally {
-        
-        // Ensure preferences.id has a default value if not logged in
-        const items = (preferences.id || []).map(item => ({
-          label: item,
-          value: item,
-        }));
-        setPreferredItems(items);
-        setAllergensItems(items);
       }
     };
 
