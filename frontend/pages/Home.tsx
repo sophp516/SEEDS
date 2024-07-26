@@ -90,8 +90,8 @@ const styles = StyleSheet.create({
     },
     welcomeText: {
         fontSize: 28,
-        fontFamily: 'SpaceGrotesk-Bold',
-        fontWeight: 'bold',
+        fontFamily: 'SpaceGrotesk-SemiBold',
+        color: colors.textGray,
         marginBottom: 5, 
     },
     placeComponentContainer: {
@@ -100,7 +100,8 @@ const styles = StyleSheet.create({
     },
     guideText: {
         fontSize: 16,
-        fontFamily: 'SpaceGrotesk-Regular',
+        fontFamily: 'SpaceGrotesk-Medium',
+        color: colors.textGray,
         marginBottom: 20,
     }
 });

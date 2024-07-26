@@ -93,14 +93,22 @@ const Discover = () => {
 
   return (
     <View style={styles.outerContainer}>
-      <AllFilter
-        isDisabled={isDisabled}
-        toggleBottomSheet={toggleBottomSheet}
-        handleFilterClick={handleFilterClick}
-        resetSimpleFilter={() => setIsDisabled(false)}
-        onSimpleFilterChange={setSimpleFilter}
-        onSearchChange={setSearchChange}
-      />
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Discover</Text>
+      </View>
+  
+      <View style={styles.filter}>
+        <AllFilter
+          isDisabled={isDisabled}
+          toggleBottomSheet={toggleBottomSheet}
+          handleFilterClick={handleFilterClick}
+          resetSimpleFilter={() => setIsDisabled(false)}
+          onSimpleFilterChange={setSimpleFilter}
+          onSearchChange={setSearchChange}
+        />
+      </View>
+
+
       <ScrollView style={styles.scrollContainer}>
         {filterOrNone.length > 0 ? (
           filterOrNone.map((submission, index) => (
@@ -147,17 +155,36 @@ const Discover = () => {
       <Navbar />
     </View>
   );
+  
 };
 
 const styles = StyleSheet.create({
+  header: {
+    width: '100%',
+    marginTop: 96,
+    backgroundColor: colors.primary, // Ensure this is a visible color
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
+  headerText: {
+    fontSize: 24, 
+    fontFamily: 'SpaceGrotesk-SemiBold', 
+    color: colors.textGray, 
+    paddingHorizontal: 30,
+  },
   outerContainer: {
     flex: 1,
-    alignItems: 'center',
     backgroundColor: colors.backgroundGray,
   },
+  filter: {
+    alignItems: 'center',
+    marginTop: -50,
+    width: '100%'
+},
   scrollContainer: {
     width: '100%',
     paddingHorizontal: 20,
+    paddingTop: 10,
   },
   noResult: {
     textAlign: 'center',

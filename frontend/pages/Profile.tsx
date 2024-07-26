@@ -4,7 +4,7 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../context/authContext.js';
 import { signOut } from "firebase/auth";
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
-import { db, auth } from '../services/firestore.js';
+import { db, auth, storage } from '../services/firestore.js';
 import Toast from 'react-native-toast-message';
 import * as ImagePicker from 'expo-image-picker';
 import Navbar from '../components/Navbar.jsx';

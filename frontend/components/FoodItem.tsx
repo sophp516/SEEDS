@@ -13,7 +13,6 @@ type RootStackParamList = {
     SelectedMenu: { foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs , averageRating },
 };
 
-
 const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs, averageRating,  updatedTime}) => {
   const defaultImage = require('../assets/image.png');
     let parsedRating = parseFloat(averageRating).toFixed(1);
@@ -91,7 +90,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
             <View style={styles.foodInfoContainer}>
                 <View style={styles.foodInfoHeader}>
                     {/* Modified foodname, so it doesn't push other element off of page */}
-                    <Text numberOfLines={1} ellipsizeMode='tail' style={{ flex: 1,}}>{foodName}</Text>
+                    <Text numberOfLines={1} ellipsizeMode='tail' style={styles.foodName}>{foodName}</Text>
                     <Text style={styles.reviewCount}>({reviewIds.length} reviews)</Text>
                 </View>
                 <View style={styles.tagContainer}>
@@ -167,9 +166,15 @@ const styles = StyleSheet.create({
     },
     foodInfoContainer: {
         paddingLeft: 18,
-        paddingTop: 10,
+        // paddingTop: 10,
         flex: 1,
         flexDirection: 'column',
+    },
+    foodName: {
+        flex: 1,
+        fontSize: 16,         
+        color: colors.textGray,  
+        fontFamily: 'Satoshi-Medium',
     },
     generalInfo: {
         backgroundColor: 'white',
@@ -192,9 +197,9 @@ const styles = StyleSheet.create({
         alignItems: 'flex-end',
     },
     generalInfotext:{
-        color: '#35353E',             
+        color: colors.textGray,             
         textAlign: 'center',          
-        fontFamily: 'Satoshi',        
+        fontFamily: 'Satoshi-Medium',        
         fontSize: 12,                 
         fontStyle: 'normal',          
         fontWeight: '500',            
@@ -222,7 +227,7 @@ const styles = StyleSheet.create({
         borderRadius: 15,
     },
     placeholderText: {
-        color: '#7c7c7c',
+        color: colors.textFaintBrown,
     },
     priceOverlayContainer: {
         position: 'absolute',
@@ -255,13 +260,13 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     reviewCount: {
-        color: colors.grayStroke,
+        color: colors.textFaintBrown,
         fontSize: 12,
         marginLeft: 5,
+        marginTop: 2,
     },
     foodInfoHeader: {
         flexDirection: 'row',
-
     },
     tagBlob: {
       paddingHorizontal: 6, // Reduced padding
@@ -272,6 +277,7 @@ const styles = StyleSheet.create({
   },
     tagText: {
       fontSize: 12,  // Smaller text size
+      fontFamily: "Satoshi-Regular",
     },
     tagYellow: {
       backgroundColor: colors.yellow,
@@ -295,8 +301,9 @@ const styles = StyleSheet.create({
     },
     number: {
       fontSize: 12,
+      fontFamily: 'Satoshi-Regular',
       marginLeft: 5,
-      color: colors.grayStroke,
+      color: colors.textGray,
     },
     tasteAndHealthContainer: {
         flexDirection: 'row',
@@ -309,7 +316,7 @@ const styles = StyleSheet.create({
     },
     ratingText: {
         fontSize: 12,
-        color: '#35353E',
+        color: colors.textGray,
     },
     bottonLine:{
         width: '100%',
@@ -324,19 +331,16 @@ const styles = StyleSheet.create({
         marginTop: -10,
     },
     timeText:{
-        color: '#7C7C7C',
+        color: colors.textFaintBrown,
         textAlign: 'right',
-        fontFamily: 'Satoshi', 
+        fontFamily: 'Satoshi-Regular', 
         fontSize: 12,
         fontStyle: 'normal',
         fontWeight: '400',
         lineHeight: 13.5, 
         letterSpacing: -0.099,
         marginRight: 20,
-    }
-
-
-    
+    }    
 });
 
 export default FoodItem;

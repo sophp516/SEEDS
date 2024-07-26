@@ -116,7 +116,6 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                     carbs: globalData?.carbs ?? 'N/A', // Default value if carbs is missing
                     protein: globalData?.protein ?? 'N/A', // Default value if protein is missing
                     fat: globalData?.fat ?? 'N/A', // Default value if fat is missing  
-
                 };
                 foodItems.push(foodItem);
             }
@@ -174,29 +173,29 @@ useEffect(() => {
 }, [user]);
 
 
+useEffect(() => {
+    const retrieveReviews = async () => {
+        const reviewsData = await fetchReviews(placeName);
+        setAllMenus(reviewsData);
+    }
+    retrieveReviews();
+}, [])
 
-    useEffect(() => {
-        const retrieveReviews = async () => {
-            const reviewsData = await fetchReviews(placeName);
-            setAllMenus(reviewsData);
-        }
-        retrieveReviews();
-    }, [])
+useEffect(() => {
+    if (allMenus.length === 0) return;
+    const sortedMenus = [...allMenus].sort((a, b) => {
+        // Convert averageRating to number, use 0 if 'N/A'
+        const ratingA = a.averageRating === 'N/A' ? 0 : Number(a.averageRating);
+        const ratingB = b.averageRating === 'N/A' ? 0 : Number(b.averageRating);
+        
+        // Sort in descending order
+        return ratingB - ratingA;
+    });
 
-    useEffect(() => {
-        if (allMenus.length === 0) return;
-        const sortedMenus = [...allMenus].sort((a, b) => {
-            // Convert averageRating to number, use 0 if 'N/A'
-            const ratingA = a.averageRating === 'N/A' ? 0 : Number(a.averageRating);
-            const ratingB = b.averageRating === 'N/A' ? 0 : Number(b.averageRating);
-            
-            // Sort in descending order
-            return ratingB - ratingA;
-        });
+    setTopRatedMenus(sortedMenus);
 
-        setTopRatedMenus(sortedMenus);
+}, [allMenus])
 
-    }, [allMenus])
 
 useEffect(() => {
   if (allMenus.length === 0) return;
@@ -228,8 +227,6 @@ useEffect(() => {
 }, [allMenus, fetchTags, fetchAllergies]);
 
     
-    
-
   const applyFilters = (menu) => {
     return menu.filter(item => {
     //If Search is not empty, it will show the items that has the search text
@@ -276,8 +273,6 @@ useEffect(() => {
     });
   };
 
-  
-
 
   const toggleBottomSheet = () => {
     setIsBottomSheetOpen(!isBottomSheetOpen);
@@ -316,7 +311,7 @@ useEffect(() => {
             <View style={styles.diningHomeHeader}>
                 <View style={styles.diningHomeHeaderTop}>
                     <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-                        <Text>Back</Text>
+                        <Text style={styles.backButtonText}>Back</Text>
                     </TouchableOpacity>
                     <Text style={styles.closingText}>Closes at {closingHour}</Text>
                 </View>
@@ -510,9 +505,13 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         paddingBottom: 20,
     },
+    backButtonText: {
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 16,
+    },
     closingText: {
         fontSize: 12,
-        color: '#7C7C7C'
+        color: colors.textFaintBrown,
     },
     loadingScreen: {
         width: '100%',
@@ -522,17 +521,18 @@ const styles = StyleSheet.create({
     },
     recHeader: {
         paddingBottom: 13,
-        marginTop: 30,
+        marginTop: 20,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between'
     },
     placeNameText: {
-        fontSize: 20,
-        fontWeight: '500',
+        fontSize: 26,
+        fontFamily: 'SpaceGrotesk-SemiBold',
+        paddingLeft: 2,
     },
     diningHomeHeader: {
-        paddingTop: 60,
+        paddingTop: 90,
         width: '100%',
         paddingHorizontal: 20,
         justifyContent: 'center',
@@ -548,7 +548,8 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
     },
     recHeaderText: {
-        fontSize: 20,
+        fontSize: 22,
+        fontFamily: 'SpaceGrotesk-Medium',
     },
     contentContainer: {
         flex: 1,
@@ -568,7 +569,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     seeAllText: {
-        fontSize: 16,
+        fontSize: 18,
+        fontFamily: 'Satoshi-Regular',
     },
     seeAllContainer: {
         paddingRight: 20,
