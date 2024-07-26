@@ -75,6 +75,7 @@ const LogIn = () => {
         <View style={styles.container}>
             <View style={styles.welcomeContainer}>
                 <Text style={styles.welcomeText}>Welcome back!</Text>
+                <Text style={styles.welcomeSubtext}>Log in to post reviews and get recommendations. </Text>
             </View>
             <View style={styles.backButtonContainer}>
                 <TouchableOpacity onPress={() => navigation.navigate('Home')}>
@@ -100,13 +101,13 @@ const LogIn = () => {
                         onChangeText={(text) => handleChange('password', text)}
                         autoCapitalize="none"
                     />
-                    <TouchableOpacity onPress={asyncLogIn} style={styles.signUpButton}>
-                        <Text style={styles.signUpText}>Log in</Text>
+                    <TouchableOpacity onPress={asyncLogIn} style={styles.logInButton}>
+                        <Text style={styles.logInText}>LOG IN</Text>
                     </TouchableOpacity>
-                    <View style={styles.logInNav}>
-                        <Text>Want to create an account?</Text>
+                    <View style={styles.signUpNav}>
+                        <Text style={styles.createAccountText}>Want to create an account?</Text>
                         <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-                            <Text style={styles.logInNavText}>Sign up</Text>
+                            <Text style={styles.signUpNavText}>Sign up</Text>
                         </TouchableOpacity>
                     </View>
                 </>
@@ -118,27 +119,11 @@ const LogIn = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        // marginTop: 30,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 16,
+        padding: 30,
         backgroundColor: colors.backgroundGray
-    },
-    logInNav: {
-        paddingTop: 20,
-        flexDirection: 'row',
-    },
-    logInNavText: {
-        marginLeft: 5,
-        textDecorationLine: 'underline',
-    },
-    input: {
-        height: 40,
-        borderColor: 'black',
-        borderWidth: 1,
-        marginBottom: 25,
-        paddingHorizontal: 8,
-        width: '100%',
-        borderRadius: 10,
     },
     backButtonContainer: {
         position: 'absolute',
@@ -147,25 +132,59 @@ const styles = StyleSheet.create({
     },
     backButtonText: {
         fontSize: 15,
+        fontFamily: 'Satoshi-Medium',
     },
-    signUpButton: {
+    welcomeContainer: {
+        width: '100%',
+        marginBottom: 40,
+    },
+    welcomeText: {
+        fontSize: 26,
+        fontFamily: 'SpaceGrotesk-SemiBold',
+        color: colors.textGray,
+    },
+    welcomeSubtext: {
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 15,
+        color: colors.textGray,
+        marginTop: 10,
+    },
+    input: {
+        fontFamily: 'Satoshi-Medium',
+        height: 50,
+        borderColor: colors.textGray,
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingHorizontal: 12,
+        marginBottom: 30,
+        width: '100%',
+    },
+    logInButton: {
         backgroundColor: colors.orangeHighlight,
         width: '100%',
-        height: 40,
+        height: 50,
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    signUpText: {
-        fontSize: 20,
+    signUpNav: {
+        paddingTop: 20,
+        flexDirection: 'row',
     },
-    welcomeContainer: {
-        width: '100%',
-        marginBottom: 20,
+    createAccountText: {
+        fontFamily: 'Satoshi-Bold',
+        color: colors.textGray,
     },
-    welcomeText: {
-        fontSize: 23,
-        fontWeight: '500',
+    logInText: {
+        fontSize: 16,
+        fontFamily: 'Satoshi-Bold',
+        color: colors.backgroundGray,
+    },
+    signUpNavText: {
+        marginLeft: 5,
+        textDecorationLine: 'underline',
+        fontFamily: 'Satoshi-Bold',
+        color: colors.textGray,
     },
 });
 
