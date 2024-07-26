@@ -16,6 +16,7 @@ const colors = {
 
     textGray: '#35353e',
     outlineBrown: '#BFB6A8',
+    textFaintBrown: 'AEA59A',
 };
 
 export default colors;

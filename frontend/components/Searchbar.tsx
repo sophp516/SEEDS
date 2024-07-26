@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
-    borderRadius: 20,
+    borderRadius: 15,
     height: 35,
     marginRight: 10,
     backgroundColor: colors.inputGray,
