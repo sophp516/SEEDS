@@ -559,7 +559,7 @@ const styles = StyleSheet.create({
     paddingLeft: 2,
   },
   diningHomeHeader: {
-    paddingTop: 90,
+    paddingTop: 50,
     width: '100%',
     paddingHorizontal: 20,
     justifyContent: 'center',
