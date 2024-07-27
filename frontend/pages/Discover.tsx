@@ -43,7 +43,8 @@ const Discover = () => {
   useEffect(() => {
     const loadSubmissions = async () => {
       const submissionData = await fetchSubmissions();
-      setSubmissions(submissionData);
+      const sortedSubmissionData = submissionData.sort((a, b) => b.timestamp - a.timestamp);
+      setSubmissions(sortedSubmissionData);
     };
     loadSubmissions();
   }, []);
