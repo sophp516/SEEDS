@@ -13,6 +13,7 @@ import ExampleTopRated from '../services/ExampleTopRated.json';
 import FoodItem from '../components/FoodItem.tsx';
 import { useAuth } from '../context/authContext.js';
 import { tags } from 'react-native-svg/lib/typescript/xml';
+import LoadingScreen from '../components/LoadingScreen.tsx';
 
 
 
@@ -349,7 +350,7 @@ useEffect(() => {
                             {loading ? (
                             <View style={styles.loadingScreen}>
                               <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
-                              <Text>Loading...</Text>
+                              <Text>loading...</Text>
 
 
                             </View>
@@ -395,7 +396,8 @@ useEffect(() => {
                             {loading ? (
                               <View style={styles.loadingScreen}>
                                 <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
-                                <Text>Loading...</Text>
+                                <Text>loading...</Text>
+
                               </View>
                             ) : allMenus.length === 0 ? (
                               <Text style={styles.noResultText}>No meals match your filter...</Text>
@@ -438,8 +440,8 @@ useEffect(() => {
                             </View>
                             {loading ? ( 
                               <View style={styles.loadingScreen}>
-                               <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
-                               <Text>Loading...</Text>
+                                <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
+                                <Text>loading...</Text>
                               </View>
                             ) : guestRecommendations? (
                               <Text style={styles.noResultText}>Please log in to see {'\n'} personalized recommendations</Text>
