@@ -51,6 +51,7 @@ const Discover = () => {
   //filtering
   const applyFilters = (submissions) => {
     return submissions.filter(item => {
+      const Comments = item.comment || '';
       const Tags = item.tags || [];
       const Allergens = item.allergens || [];
       const FoodName = item.foodName || '';
@@ -59,8 +60,13 @@ const Discover = () => {
       const Health = item.health || 1;
 
       if (!isBottomSheetOpen && searchChange !== '' && !isDisabled) {
+      // Search by comment: the comment with all words in the search string will be included
+      const searchWords = searchChange.trim().toLowerCase().split(/\s+/);
+      const commentLowerCase = Comments.toLowerCase();
+      const commentContainsAllSearchWords = searchWords.every(word => commentLowerCase.includes(word));
+
         return Tags.includes(searchChange) || Allergens.includes(searchChange) ||
-          FoodName.includes(searchChange) || Location.includes(searchChange);
+          FoodName.includes(searchChange) || Location.includes(searchChange) || commentContainsAllSearchWords;
       }
 
       if (!isBottomSheetOpen && simpleFilter !== '' && !isDisabled) {

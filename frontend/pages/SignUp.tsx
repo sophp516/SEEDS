@@ -147,6 +147,7 @@ const SignUp = () => {
             </TouchableOpacity>
             <View style={styles.welcomeContainer}>
                 <Text style={styles.welcomeText}>Welcome!</Text>
+                <Text style={styles.welcomeSubtext}>Sign up to post reviews and get recommendations. </Text>
             </View>
             {loading ? (
                 <ActivityIndicator size="large" color="#0000ff" />
@@ -166,6 +167,8 @@ const SignUp = () => {
                         onChangeText={(text) => handleChange('username', text)}
                         autoCapitalize="none"
                     />
+
+                    {/* School dropdown */}
                     <AutocompleteDropdown
                         ref={searchRef}
                         controller={(controller) => {
@@ -190,22 +193,24 @@ const SignUp = () => {
                         }}
                         loading={loading}
                         textInputProps={{
-                            placeholder: 'Type 3+ letters (School...)',
+                            placeholder: 'School Name (Type 3+ letters)',
                             value: query,
                             autoCorrect: false,
                             autoCapitalize: 'none',
                             style: {
                                 borderRadius: 10,
-                                borderColor: 'black',
+                                borderColor: colors.textGray,
                                 borderWidth: 1,
                                 backgroundColor: colors.backgroundGray,
-                                color: 'black',
+                                // color: 'black',
                                 fontSize: 14,
+                                fontFamily: 'Satoshi-Medium',
+                                color: colors.textGray,
                                 paddingLeft: 10,
                                 marginRight: 20,
-                                height: 40,
+                                // marginBottom: 30,
+                                height: 50,
                                 width: '100%',
-                                marginBottom: 13,
                             },
                             onChangeText: (text) => {
                                 setQuery(text);
@@ -215,29 +220,37 @@ const SignUp = () => {
                         rightButtonsContainerStyle={{
                             right: 8,
                             alignSelf: 'center',
-                            borderRadius: 30,
+                            borderRadius: 15,
                             backgroundColor: colors.inputGray,
                             height: 40,
                             width: 40,
-                            marginBottom: 13,
+                            // marginBottom: 25,
                         }}
                         inputContainerStyle={{
                             backgroundColor: colors.backgroundGray,
                             borderRadius: 10,
+                            borderColor: colors.textGray,
+                            // borderWidth: 0.5,
+                            marginBottom: 35,
                         }}
                         suggestionsListContainerStyle={{
                             backgroundColor: colors.backgroundGray,
                         }}
-                        containerStyle={{ width: '100%', marginBottom: 12 }}
+                        containerStyle={{ width: '100%', marginBottom: 0 }}
                         renderItem={(item) => (
-                            <Text style={{ color: '#35353E', padding: 15 }}>{item.title}</Text>
+                            <Text
+                                style={{ color: colors.textGray, padding: 15, fontFamily: 'Satoshi-Medium' }}>
+                                {item.title}
+                            </Text>
                         )}
                         inputHeight={50}
                     />
+
                     <TextInput
                         style={styles.input}
                         placeholder="Password"
                         value={input.password}
+                        secureTextEntry={true}
                         onChangeText={(text) => handleChange('password', text)}
                         autoCapitalize="none"
                     />
@@ -245,14 +258,16 @@ const SignUp = () => {
                         style={styles.input}
                         placeholder="Confirm Password"
                         value={input.confirmPassword}
+                        secureTextEntry={true}
                         onChangeText={(text) => handleChange('confirmPassword', text)}
                         autoCapitalize="none"
                     />
+
                     <TouchableOpacity onPress={asyncSignUp} style={styles.signUpButton}>
-                        <Text style={styles.signUpText}>Sign up</Text>
+                        <Text style={styles.signUpText}>SIGN UP</Text>
                     </TouchableOpacity>
                     <View style={styles.logInNav}>
-                        <Text>Already have an account?</Text>
+                        <Text style={styles.accountExistsText}>Already have an account?</Text>
                         <TouchableOpacity onPress={() => navigation.navigate('LogIn')}>
                             <Text style={styles.logInNavText}>Log in</Text>
                         </TouchableOpacity>
@@ -268,52 +283,69 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 16,
+        padding: 30,
         backgroundColor: colors.backgroundGray,
-    },
-    welcomeContainer: {
-        width: '100%',
-        marginBottom: 20,
-    },
-    welcomeText: {
-        fontSize: 23,
-        fontWeight: '500',
-    },
-    logInNav: {
-        paddingTop: 20,
-        flexDirection: 'row',
-    },
-    input: {
-        height: 40,
-        borderColor: 'black',
-        borderWidth: 1,
-        marginBottom: 25,
-        paddingHorizontal: 8,
-        width: '100%',
-        borderRadius: 10,
-    },
-    signUpButton: {
-        backgroundColor: colors.orangeHighlight,
-        width: '100%',
-        height: 40,
-        borderRadius: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
     },
     backButtonContainer: {
         position: 'absolute',
         top: 50,
         left: 20,
     },
-    signUpText: {
-        fontSize: 20,
-    },
     backButtonText: {
         fontSize: 15,
+        fontFamily: 'Satoshi-Medium',
+    },
+    welcomeContainer: {
+        width: '100%',
+        marginBottom: 40,
+    },
+    welcomeText: {
+        fontSize: 26,
+        fontFamily: 'SpaceGrotesk-SemiBold',
+        color: colors.textGray,
+    },
+    welcomeSubtext: {
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 15,
+        color: colors.textGray,
+        marginTop: 10,
+    },
+    logInNav: {
+        paddingTop: 20,
+        flexDirection: 'row',
+    },
+    input: {
+        fontFamily: 'Satoshi-Medium',
+        height: 50,
+        borderColor: colors.textGray,
+        borderWidth: 1,
+        borderRadius: 10,
+        marginBottom: 30,
+        paddingHorizontal: 12,
+        width: '100%',
+    },
+    signUpButton: {
+        backgroundColor: colors.orangeHighlight,
+        width: '100%',
+        height: 50,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    signUpText: {
+        fontSize: 16,
+        fontFamily: 'Satoshi-Bold',
+        color: colors.backgroundGray,
+    },
+    accountExistsText: {
+        fontFamily: 'Satoshi-Bold',
+        color: colors.textGray,
     },
     logInNavText: {
         marginLeft: 5,
         textDecorationLine: 'underline',
+        fontFamily: 'Satoshi-Bold',
+        color: colors.textGray,
     },
 });
 

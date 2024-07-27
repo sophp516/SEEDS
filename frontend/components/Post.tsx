@@ -106,7 +106,8 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
     });
 
     useEffect(() => {
-        // if (!loggedInUser) return;
+        //if (!loggedInUser) return;
+
         const fetchPostData = async () => {
             try {
                 const postRef = doc(db, 'posts', postId);
