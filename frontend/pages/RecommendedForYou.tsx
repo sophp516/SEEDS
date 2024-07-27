@@ -163,7 +163,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
       setRecommendedMenus(sortedMenus);
     
 
-    }, [, fetchTags, fetchAllergies]);
+    }, [onTheMenu, fetchTags, fetchAllergies]);
 
 
         
@@ -197,7 +197,6 @@ const DiningHome: React.FC<Props> = ({ route }) => {
     
           const isTaste = filters.taste <= Taste;
           const isHealth = filters.health <= Health;
-
     
           return isPreferred && isAllergens && isValidTime && isTaste && isHealth;
         });
@@ -216,14 +215,14 @@ const DiningHome: React.FC<Props> = ({ route }) => {
       const [searchChange, setSearchChange] = useState('');
       
       const filterApplied = filters.preferred.length > 0 || filters.allergens.length > 0 || filters.time.length > 0 || filters.taste > 1 || filters.health > 1 || searchChange !== '' || simpleFilter !== '';
-      const filterOnTheMenu = useMemo(() => applyFilters(recommendedMenus), [filters, simpleFilter, searchChange]);
+      const filterOnTheMenu = useMemo(() => applyFilters(recommendedMenus), [filters, simpleFilter, searchChange, recommendedMenus]);
       const filterOrNone = filterApplied ? filterOnTheMenu : recommendedMenus;
 
 
     const toggleBottomSheet = () => {
       setIsBottomSheetOpen(!isBottomSheetOpen);
     };
-    const handleFilterClick = () => {
+    const handleFilterClick = () => { 
       setIsDisabled((prev) => !prev); 
     };
 
