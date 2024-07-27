@@ -9,6 +9,7 @@ import Toast from 'react-native-toast-message';
 import * as ImagePicker from 'expo-image-picker';
 import Navbar from '../components/Navbar.jsx';
 import colors from '../styles.js';
+import Preferences from "../services/Preferences.json";
 
 type RootStackParamList = {
     LogIn: undefined;
@@ -23,6 +24,9 @@ const Profile = () => {
     const [profileImage, setProfileImage] = useState<string | null>(null);
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const [userInfo, setUserInfo] = useState(null);
+    const [fetchTags, setFetchTags] = useState<string[]>([]);
+    const [fetchAllergies, setFetchAllergies] = useState<string[]>([]);
+    const { loggedInUser, displayName } = user;
     console.log(user.id);
 
     useEffect(() => {
@@ -45,6 +49,52 @@ const Profile = () => {
         fetchUserData();
     }, []);
 
+    useEffect(() => {
+      const fetchTags = async () => {
+
+  
+        if (!user.id) return;
+        try {
+          const userId = user.id 
+  
+          if (userId) {
+            const usersRef = collection(db, 'users');
+            const q = query(usersRef, where('id', '==', userId));
+            const querySnapshot = await getDocs(q);
+    
+            if (!querySnapshot.empty) {
+              const userDoc = querySnapshot.docs[0];
+              const userData = userDoc.data();
+    
+              if (userData.tags && Array.isArray(userData.tags)) {
+                setFetchTags(userData.tags);
+              } else {
+                setFetchTags([]);
+              }
+              if (userData.allergens && Array.isArray(userData.allergens)) {
+                setFetchAllergies(userData.allergens);
+              } else {
+                setFetchAllergies([]);
+              }
+            } else {
+              setFetchTags([]);
+              setFetchAllergies([]);
+            }
+          } else {
+            // Handle the case where the user is not logged in
+            setFetchTags([]);
+            setFetchAllergies([]);
+          }
+        } catch (e) {
+          console.error('Error fetching tags:', e);
+        }
+      };
+  
+      fetchTags();
+      
+    }, [loggedInUser]);
+    
+
     const handleNavigation = (dest) => {
         if (!user.id) {
             Toast.show({
@@ -66,24 +116,56 @@ const Profile = () => {
         }
     };
 
+    const getTagStyle = (tag) => {
+      if (["Breakfast", "Lunch", "Dinner"].includes(tag)) {
+          return styles.tagYellow;
+      } else if (Preferences.id.includes(tag)) {
+          return styles.tagGreen;
+      }
+      return styles.tagGray;
+  };
+
+    const getAllergenStyle = (allergen) => {
+        return Preferences.id.includes(allergen) ? styles.tagRed : styles.tagGray;
+    };
 
     return (
         <View style={styles.container}>
             <Text style={styles.header}>Profile</Text>
+            <Text></Text>
             {user?.displayName ? (
-                <View style={styles.profileBox}>
-                    <Image
-                        source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
-                        style={styles.profileImage}
-                    />
-                    <View style={styles.displayContainer}>
-                        <View style={styles.nameContainer}>
-                            <Text style={styles.atSymbol}>@</Text>
-                            <Text style={styles.displayName}>{user?.displayName}</Text>
-                        </View>
-                        <Text style={styles.schoolName}>{userInfo?.schoolName}</Text>
-                    </View>
+              <View style={styles.profileContainer}>
+                  <View style={styles.profileBox}>
+                      <Image
+                          source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
+                          style={styles.profileImage}
+                      />
+                      <View style={styles.displayContainer}>
+                            <View style={styles.nameContainer}>
+                                <Text style={styles.atSymbol}>@</Text>
+                                <Text style={styles.displayName}>{user?.displayName}</Text>
+                            </View>
+                            <Text style={styles.schoolName}>{userInfo?.schoolName}</Text>
+
+                      </View>
+                  </View>
+
+                  <View style={styles.tagList}>
+                      {fetchTags.map((tag, index) => (
+                          <View style={[styles.tagWithDelete, getTagStyle(tag)]} key={index}>
+                              <Text>{tag}</Text>
+                          </View>
+                      ))}
+
+                      {fetchAllergies.map((tag, index) => (
+                          <View style={[styles.tagWithDelete, getAllergenStyle(tag)]} key={index}>
+                              <Text>{tag}</Text>
+                          </View>
+                      ))}
+                  </View>
+
                 </View>
+
             ) : (
                 <View style={styles.profileBox}>
                     <Image
@@ -136,10 +218,6 @@ const styles = StyleSheet.create({
     profileBox: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 20,
-        marginBottom: 20,
-        paddingTop: 20,
-        paddingBottom: 20,
         flexDirection: 'row',
         backgroundColor: colors.navbarBackground,
     },
@@ -222,6 +300,18 @@ const styles = StyleSheet.create({
         borderBottomColor: colors.outlineDarkBrown,
         borderBottomWidth: 1,
     },
+    profileContainer: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: colors.navbarBackground,
+        marginTop: 20,
+        marginBottom: 20,
+        paddingTop: 20,
+        paddingBottom: 20,
+        
+
+    },
     profileSectionIcon: {
         width: 20,
         height: 20,
@@ -281,8 +371,12 @@ const styles = StyleSheet.create({
     editingContainer: {
         
     },
-    displayContainer: {
+    displayContainerTop: {
     
+    },
+    displayContainer: {
+        flexDirection: 'column',
+        justifyContent: 'center',
     },
     guestProfileButtonContainer: {
         alignItems: 'center',
@@ -302,7 +396,19 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         width: '20%',
         borderRadius: 5,
-    }
+    },
+    tagGreen: {
+        backgroundColor: colors.highRating,
+    },
+    tagGray: {
+        backgroundColor: colors.userInput,
+    },
+    tagRed: {
+        backgroundColor: colors.warningPink,
+    },
+    tagYellow: {
+        backgroundColor: colors.yellow,
+    },
 });
 
 export default Profile;

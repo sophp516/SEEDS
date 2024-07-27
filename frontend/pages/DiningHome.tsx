@@ -13,6 +13,8 @@ import ExampleTopRated from '../services/ExampleTopRated.json';
 import FoodItem from '../components/FoodItem.tsx';
 import { useAuth } from '../context/authContext.js';
 import { tags } from 'react-native-svg/lib/typescript/xml';
+import LoadingScreen from '../components/LoadingScreen.tsx';
+import Toast from 'react-native-toast-message';
 
 
 
@@ -20,6 +22,7 @@ type RootStackParamList = {
     Home: undefined,
     OnTheMenu: { placeName: string },
     TopRated: { placeName: string },
+    RecommendedForYou: { placeName: string},
 };
 
 interface SelectedMenuProps {
@@ -221,11 +224,6 @@ useEffect(() => {
   });
 
   setRecommendedMenus(sortedMenus);
-
-  console.log("fetchTags", fetchTags);
-  console.log("fetchAllergies", fetchAllergies);
-  console.log("sortedMenus", sortedMenus);
-  console.log("allMenus", allMenus);
 }, [allMenus, fetchTags, fetchAllergies]);
 
     
@@ -308,6 +306,19 @@ useEffect(() => {
     const recommended = useMemo(() => applyFilters(ExampleMenu), [filters, simpleFilter, searchChange]);
     
 
+    const handleSeeAllRecommended = () => {
+      if (!user?.id) {
+          Toast.show({
+              type: 'error',
+              text1: 'Please Sign In',
+              text2: 'Please sign in to see personalized recommendations',
+          });
+      } else {
+          navigation.navigate('RecommendedForYou', { placeName });
+      }
+  };
+
+
     return (
         <View style={styles.container}>
             <View style={styles.diningHomeHeader}>
@@ -349,7 +360,7 @@ useEffect(() => {
                             {loading ? (
                             <View style={styles.loadingScreen}>
                               <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
-                              <Text>Loading...</Text>
+                              <Text>loading...</Text>
 
 
                             </View>
@@ -395,7 +406,8 @@ useEffect(() => {
                             {loading ? (
                               <View style={styles.loadingScreen}>
                                 <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
-                                <Text>Loading...</Text>
+                                <Text>loading...</Text>
+
                               </View>
                             ) : allMenus.length === 0 ? (
                               <Text style={styles.noResultText}>No meals match your filter...</Text>
@@ -432,14 +444,14 @@ useEffect(() => {
                         <View>
                             <View style={styles.recHeader}>
                                 <Text style={styles.recHeaderText}>Recommended for you</Text>
-                                <TouchableOpacity style={styles.seeAllContainer}>
+                                <TouchableOpacity style={styles.seeAllContainer} onPress={handleSeeAllRecommended}>
                                     <Text style={styles.seeAllText}>See all</Text>
                                 </TouchableOpacity>
                             </View>
                             {loading ? ( 
                               <View style={styles.loadingScreen}>
-                               <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
-                               <Text>Loading...</Text>
+                                <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
+                                <Text>loading...</Text>
                               </View>
                             ) : guestRecommendations? (
                               <Text style={styles.noResultText}>Please log in to see {'\n'} personalized recommendations</Text>

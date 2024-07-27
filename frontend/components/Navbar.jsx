@@ -18,7 +18,7 @@ const Navbar = () => {
     //There is a bug occur where not all route is on nav bar change color
     //Function to determine if the current route is home
     const isHomeRouteSelected = () => {
-      const homeRoutes = ['Home', 'DiningHome', 'SelectedMenu', 'OnTheMenu'];
+      const homeRoutes = ['Home', 'DiningHome', 'SelectedMenu', 'OnTheMenu', 'TopRated', ];
       return homeRoutes.includes(route.name);
     };
 

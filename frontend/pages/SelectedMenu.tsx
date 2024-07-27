@@ -230,6 +230,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
             </ScrollView>
             <View style={styles.addReviewContainer}>
                 <TouchableOpacity onPress={navigateToReview} style={styles.addReviewButton}>
+                    <Image style={styles.addReviewIcon} source={require('../assets/addReview.png')} />
                     <Text style={styles.addReviewText}>Add Review</Text>
                 </TouchableOpacity>
             </View>
@@ -420,18 +421,25 @@ const styles = StyleSheet.create({
     addReviewButton: {
         backgroundColor: colors.orangeHighlight,
         paddingHorizontal: 12,
-        paddingVertical: 6,
-        borderRadius: 10,
+        paddingVertical: 10,
+        borderRadius: 15,
+        flexDirection: 'row',
     },
     addReviewContainer: {
         position: 'absolute',
-        flexDirection: 'row-reverse',
+        // flexDirection: 'row',
         bottom: 100,
-        right: 20,
+        right: 30,
+    },
+    addReviewIcon: {
+        width: 20,
+        height: 20,
+        marginRight: 5,
     },
     addReviewText: {
-        color: 'white',
+        color: colors.backgroundGray,
         fontSize: 18,
+        fontFamily: 'SpaceGrotesk-SemiBold',
     },
     reviewsContainer: {
         paddingHorizontal: 20,

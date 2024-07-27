@@ -77,8 +77,8 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
             } else {
               setFetchTags([]);
             }
-            if (userData.allergies && Array.isArray(userData.allergies)) {
-              setFetchAllergies(userData.allergies);
+            if (userData.allergens && Array.isArray(userData.allergens)) {
+              setFetchAllergies(userData.allergens);
             } else {
               setFetchAllergies([]);
             }
