@@ -136,8 +136,11 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
   };
 
   const handelMyPreferences = () => {
-    setPreferredValue(fetchTags);
-    setAllergensValue(fetchAllergies);
+    const validTags = fetchTags.filter(tag => preferences.id.includes(tag));
+    const validAllergies = fetchAllergies.filter(allergy => preferences.id.includes(allergy));
+
+    setPreferredValue(validTags);
+    setAllergensValue(validAllergies);
   }
 
   const snapPoints = useMemo(() => ['25%', '50%', '75%', '85%'], []); 
