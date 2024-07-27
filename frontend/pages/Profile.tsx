@@ -212,13 +212,14 @@ const styles = StyleSheet.create({
         fontFamily: 'SpaceGrotesk-SemiBold',
         fontSize: 24,
         color: colors.textGray,
-        marginTop: 96,
+        marginTop: 60,
         marginLeft: 36,
     },
     profileBox: {
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'row',
+        paddingTop: 20,
         backgroundColor: colors.navbarBackground,
     },
     nameContainer: {

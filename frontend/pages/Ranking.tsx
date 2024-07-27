@@ -119,7 +119,7 @@ const Ranking = () => {
 
     return (
       <View style={styles.container}>
-        <View style={{margin: 40}}></View>
+        <View style={{margin: 30}}></View>
         <View style={{  alignItems: 'flex-start', flexDirection:'row', marginRight: '50%'}}>
           <Text style={styles.header}>Leaderboard</Text>
         </View>
@@ -149,9 +149,9 @@ const Ranking = () => {
 
         {/* Displays the leader board based off fetching  */}
         {toggle ? 
-        <ScrollView style={{zIndex: -1}}>
+        <ScrollView style={{zIndex: -1, width: '100%'}}>
             {filteredFoodLeaderboard.map((food, index) => (
-              <View key={index}>
+              <View key={index} style={{marginHorizontal: 20}}>
                 <FoodRank rank={index} foodName={food.foodName} rating={food.averageRating} location={food.location}/>
               </View>
             ))}
