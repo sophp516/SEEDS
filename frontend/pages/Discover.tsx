@@ -161,7 +161,7 @@ const Discover = () => {
 const styles = StyleSheet.create({
   header: {
     width: '100%',
-    marginTop: 96,
+    marginTop: '15%',
     backgroundColor: colors.primary, // Ensure this is a visible color
     alignItems: 'flex-start',
     justifyContent: 'center',
