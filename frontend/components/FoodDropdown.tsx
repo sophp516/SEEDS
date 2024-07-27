@@ -39,7 +39,6 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
         setFetching(false);
     }, [])
 
-
     
     const getSuggestions = useCallback(async (q: string) => {
         const filterToken = q.toLowerCase();
@@ -71,19 +70,18 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
                  dataSet={suggestionsList}
                  onChangeText={(value)=>{
                         getSuggestions(value);
-                        setInputValue(value)
+                        onChangeText(value);
                  }}
                  onSelectItem={(item) =>{
                     if (item){
-                        onSelectItem(item);
-                        setInputValue(item.title);
+                        onSelectItem(item); 
+                        onClear(); 
                     }
                  }}
                 //  loading={loading}
                  direction={Platform.select({ ios: 'down' })}
                  onClear={()=> {
                         onClear();
-                        setInputValue('');
                         setSuggestionsList(foodlist);
                  }}
                  renderItem={(item) => (
@@ -92,15 +90,12 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
                  textInputProps ={{
                      placeholder: 'Select or Enter a food',
                      placeholderTextColor: '#888',
-                     value: inputValue,
+                     value: value,
                      autoCorrect: false,
                      autoCapitalize: 'none',
-                     onSubmitEditing(e) {
-                        onChangeText(inputValue);
-                    },
                     onChangeText: (value)=> {
                         getSuggestions(value);
-                        setInputValue(value)
+                        onChangeText(value);
                     },
                      style: { 
                          color: '#35353E',
