@@ -10,6 +10,7 @@ import colors from '../styles.js';
 import FoodItem from '../components/FoodItem.tsx';
 import AllFilter from '../components/AllFilter.tsx';
 import FilterContent from '../components/FilterContent.tsx';
+import LoadingScreen from '../components/LoadingScreen.tsx';
 
 
 type RootStackParamList = {
@@ -197,8 +198,8 @@ const DinningHome: React.FC<Props> = ({ route }) => {
           </View>
             {loading ?
             <View style={styles.loadingScreen}>
-              <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
-              <Text>loading...</Text>
+                <LoadingScreen />
+
             </View>
             : <ScrollView style={styles.contentScrollContainer}>
                 {filterOrNone.length > 0 ? (
