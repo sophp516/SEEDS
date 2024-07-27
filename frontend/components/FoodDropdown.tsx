@@ -14,7 +14,6 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
     const [fetching, setFetching] = useState(true);
     const [inputValue, setInputValue] = useState('');
 
-
     useEffect(()=>{
         if (fetching){
             const fetchFood = async()=>{
