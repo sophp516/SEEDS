@@ -10,40 +10,46 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
     const [suggestionsList, setSuggestionsList] = useState([]);
     const searchRef = useRef(null);
     const dropdownController = useRef(null);
+    const [loading, setLoading] = useState(false);
+    const [fetching, setFetching] = useState(true);
+    const [inputValue, setInputValue] = useState('');
 
 
     useEffect(()=>{
-        const fetchFood = async()=>{
-            try{
-                const foodRef = collection(db, 'colleges', 'Dartmouth College', 'foodList');
-                const foodSnapshot = await getDocs(foodRef);
-                const foods = foodSnapshot.docs.map((food, index) => {
-                    const foodName = food.data().foodName;
-                    return{
-                        id: index,
-                        title: foodName
-                    }
-                });
-                setFoodlist(foods);
-            
-               
-            } catch (error){
-                console.error("Error fetching food: ", error);
-                return [];
+        if (fetching){
+            const fetchFood = async()=>{
+                try{
+                    const foodRef = collection(db, 'colleges', 'Dartmouth College', 'foodList');
+                    const foodSnapshot = await getDocs(foodRef);
+                    const foods = foodSnapshot.docs.map((food, index) => {
+                        const foodName = food.data().foodName;
+                        return{
+                            id: index,
+                            title: foodName
+                        }
+                    });
+                    setFoodlist(foods);
+                    setSuggestionsList(foods);
+                } catch (error){
+                    console.error("Error fetching food: ", error);
+                    return [];
+                }
             }
+            fetchFood();
         }
-        fetchFood();
+        setFetching(false);
     }, [])
 
+
+    
     const getSuggestions = useCallback(async (q: string) => {
         const filterToken = q.toLowerCase();
-        if (typeof q !== 'string' || q.length < 3) {
+        if (typeof q !== 'string' || q.length < 1) {
             setSuggestionsList(foodlist);
             return;
         }
-        // setLoading(true);
+        setLoading(true);
         const items = foodlist;
-        console.log(items)
         const suggestions = items
             .filter(item => item.title.toLowerCase().includes(filterToken))
             .map(item => ({
@@ -51,10 +57,11 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
                 title: item.title,
             }));
         setSuggestionsList(suggestions);
-        // setLoading(false);
+
+        setLoading(false);
     }, []);
 
-    // console.log("food list", foodlist)
+    // console.log("food list", value)
     return (
         <View>
             <AutocompleteDropdown
@@ -65,13 +72,20 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
                  dataSet={suggestionsList}
                  onChangeText={(value)=>{
                         getSuggestions(value);
-                        onChangeText();
+                        setInputValue(value)
                  }}
-                 onSelectItem={onSelectItem}
+                 onSelectItem={(item) =>{
+                    if (item){
+                        onSelectItem(item);
+                        setInputValue(item.title);
+                    }
+                 }}
+                //  loading={loading}
                  direction={Platform.select({ ios: 'down' })}
                  onClear={()=> {
                         onClear();
-                        setFoodlist([]);
+                        setInputValue('');
+                        setSuggestionsList(foodlist);
                  }}
                  renderItem={(item) => (
                     <Text style={{ color: '#35353E', padding: 15 }}>{item.title}</Text>
@@ -79,9 +93,16 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
                  textInputProps ={{
                      placeholder: 'Select or Enter a food',
                      placeholderTextColor: '#888',
-                     value: value,
+                     value: inputValue,
                      autoCorrect: false,
                      autoCapitalize: 'none',
+                     onSubmitEditing(e) {
+                        onChangeText(inputValue);
+                    },
+                    onChangeText: (value)=> {
+                        getSuggestions(value);
+                        setInputValue(value)
+                    },
                      style: { 
                          color: '#35353E',
                          backgroundColor: '#E7E2DB',

@@ -6,6 +6,11 @@ const TagDropdown = ({value, data, onChangeText, onClear, onSelectItem, placehol
     const [suggestionsList, setSuggestionsList] = useState([]);
     const searchRef = useRef(null);
     const dropdownController = useRef(null);
+    const [Initalize, setInitalize] = useState(true);
+    const [input, setInput] = useState('');
+    const [loading, setLoading] = useState(false);
+
+
 
     const getSuggestions = useCallback(async (q: string) => {
         const filterToken = q.toLowerCase();
@@ -13,9 +18,8 @@ const TagDropdown = ({value, data, onChangeText, onClear, onSelectItem, placehol
             setSuggestionsList(data);
             return;
         }
-        // setLoading(true);
+        setLoading(true);
         const items = data;
-        console.log(items)
         const suggestions = items
             .filter(item => item.title.toLowerCase().includes(filterToken))
             .map(item => ({
@@ -23,7 +27,7 @@ const TagDropdown = ({value, data, onChangeText, onClear, onSelectItem, placehol
                 title: item.title,
             }));
         setSuggestionsList(suggestions);
-        // setLoading(false);
+        setLoading(false);
     }, []);
 
 
@@ -34,25 +38,35 @@ const TagDropdown = ({value, data, onChangeText, onClear, onSelectItem, placehol
          dataSet={suggestionsList}
          onChangeText={(value)=>{
                 getSuggestions(value);
-                onChangeText();
+                setInput(value);
          }}
-         onSelectItem={onSelectItem}
+         onSelectItem={(item)=>{
+            if (item){  
+                onSelectItem(item);
+                setInput(item.title);
+            }
+         }}
+         loading={loading}
          direction={Platform.select({ ios: 'down' })}
          onClear={()=> {
                 onClear();
                 setSuggestionsList(data);
          }}
-         renderItem={(item) => (
-            <Text style={{ color: '#35353E', padding: 15 }}>{item.title}</Text>
-        )}
+        //  renderItem={(item) => (
+        //     <Text style={{ color: '#35353E', padding: 15 }}>{item.title}</Text>
+        // )}
          textInputProps ={{
              placeholder: placeholder,
              placeholderTextColor: '#888',
-             value: value,
+             value: input,
              autoCorrect: false,
              autoCapitalize: 'none',
              onSubmitEditing(e) {
-                handleSubmit();
+                handleSubmit(e);
+            },
+            onChangeText: (value) => {
+                setInput(value);
+                getSuggestions(value);
             },
              style: { 
                  color: '#35353E',

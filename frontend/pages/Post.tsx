@@ -164,6 +164,7 @@ const Post = () => {
             console.error("User does not exist");
             return null;
     };}
+
     
     const handleCreateReview = async () =>{
         try{
@@ -196,6 +197,7 @@ const Post = () => {
             }
 
             // Adding to review in the global collection where the information of each individual reviews are stored
+            console.log(finalReview);
             const reviewRef = await addDoc(collection(db, 'globalSubmissions'), finalReview);
             const reviewId = reviewRef.id;
             console.log("userID:", reviewId);
@@ -228,7 +230,7 @@ const Post = () => {
             alert("Error adding review to Firestore");
         }
     }
-
+    // console.log("Review:", review.foodName);
     // Full path: Colleges/CollegeName/Location/Collection/
     const verifyLocation = async(college, location: string) => {
         try{
@@ -524,7 +526,7 @@ const Post = () => {
         try{
             const response = await fetch(image);
             const blob = await response.blob(); // convert 
-            const imgName = "img-" + new Date().getTime();
+            const imgName = `img-${new Date().getTime()}-${Math.random().toString(36).substring(2, 15)}`;
             let refName;
             if (toggle == true){
                 refName = 'posts';
@@ -871,7 +873,7 @@ const Post = () => {
                                 value={allergen}
                                 onSelectItem={handleSelectAllergen}
                                 placeholder= {'Enter a allergen'}
-                                handleSubmit={handleSubmitAllergen()}
+                                handleSubmit={handleSubmitAllergen}
                             />
 
                         <Text style={styles.text}> Comment </Text>

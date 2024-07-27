@@ -1,21 +1,30 @@
 import { Platform, StyleSheet, Text, View } from 'react-native'
-import React, { useCallback, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
 
 const GeneralDropdown = ({value, data, onChangeText, onClear, onSelectItem, placeholder}) => {
     const [suggestionsList, setSuggestionsList] = useState([]);
     const searchRef = useRef(null);
     const dropdownController = useRef(null);
+    const [Initalize, setInitalize] = useState(true);
+    const [input, setInput] = useState('');
+    useEffect(()=>{
+        if (Initalize){
+            setInitalize(false);
+            setSuggestionsList(data);
+        }
+
+        setInitalize(false);
+    }, [] )
 
     const getSuggestions = useCallback(async (q: string) => {
         const filterToken = q.toLowerCase();
-        if (typeof q !== 'string' || q.length < 3) {
+        if (typeof q !== 'string' || q.length < 2) {
             setSuggestionsList(data);
             return;
         }
         // setLoading(true);
         const items = data;
-        console.log(items)
         const suggestions = items
             .filter(item => item.title.toLowerCase().includes(filterToken))
             .map(item => ({
@@ -31,10 +40,14 @@ const GeneralDropdown = ({value, data, onChangeText, onClear, onSelectItem, plac
   return (
     <View>
     <AutocompleteDropdown
+         ref={searchRef}
+         controller={(controller) => {
+             dropdownController.current = controller;
+         }}
          dataSet={suggestionsList}
          onChangeText={(value)=>{
                 getSuggestions(value);
-                onChangeText();
+                setInput(value);
          }}
          onSelectItem={onSelectItem}
          direction={Platform.select({ ios: 'down' })}
@@ -51,6 +64,9 @@ const GeneralDropdown = ({value, data, onChangeText, onClear, onSelectItem, plac
              value: value,
              autoCorrect: false,
              autoCapitalize: 'none',
+             onSubmitEditing(e) {
+                onChangeText(input);
+            },
              style: { 
                  color: '#35353E',
                  backgroundColor: '#E7E2DB',
