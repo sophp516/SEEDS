@@ -3,7 +3,7 @@ import React, { useCallback, useRef, useState } from 'react'
 import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
 
 const TagDropdown = ({value, data, onChangeText, onClear, onSelectItem, placeholder, handleSubmit }) => {
-    const [suggestionsList, setSuggestionsList] = useState([]);
+    const [suggestionsList, setSuggestionsList] = useState(data);
     const searchRef = useRef(null);
     const dropdownController = useRef(null);
     const [Initalize, setInitalize] = useState(true);
