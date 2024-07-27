@@ -162,7 +162,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
         <View style={styles.container}>
             <View style={styles.diningHomeHeader}>
                 <View style={styles.diningHomeHeaderTop}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButtonContainer}>
+                        <Image style={styles.backArrow} source={require('../assets/backArrow.png')} resizeMode="contain"/>
                         <Text>Back</Text>
                     </TouchableOpacity>
                 </View>
@@ -242,6 +243,16 @@ const styles = StyleSheet.create({
     diningHomeBody: {
         width: '100%',
     },
+    backButtonContainer: {
+        paddingLeft: 5,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    backArrow: {
+        width: 20,
+        height: 20,
+        marginRight: 10, // space between icon and text
+    },
     backButton: {
         paddingTop: 10,
         paddingBottom: 20,
@@ -262,7 +273,7 @@ const styles = StyleSheet.create({
         fontFamily: 'SpaceGrotesk-SemiBold',
     },
     diningHomeHeader: {
-        paddingTop: 60,
+        paddingTop: 50,
         width: '100%',
         paddingHorizontal: 20,
         justifyContent: 'center',
