@@ -311,10 +311,13 @@ useEffect(() => {
         <View style={styles.container}>
             <View style={styles.diningHomeHeader}>
                 <View style={styles.diningHomeHeaderTop}>
-                    <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-                        <Text style={styles.backButtonText}>Back</Text>
-                    </TouchableOpacity>
-                    <Text style={styles.closingText}>Closes at {closingHour}</Text>
+                  
+                  <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.backButtonContainer}>
+                    <Image style={styles.backArrow} source={require('../assets/backArrow.png')} resizeMode="contain"/>
+                    <Text style={styles.backButtonText}>Back</Text>
+                  </TouchableOpacity>
+
+                  <Text style={styles.closingText}>Closes at {closingHour}</Text>
                 </View>
                 <View style={styles.diningHomeHeaderBottom}>
                     <Text style={styles.placeNameText}>{placeName}</Text>
@@ -489,102 +492,112 @@ useEffect(() => {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: colors.backgroundGray,
-        width: '100%'
-    },
-    filter: {
-        alignItems: 'center',
-        marginTop: -70,
-        width: '100%'
-    },
-    diningHomeBody: {
-        width: '100%',
-    },
-    backButton: {
-        paddingTop: 10,
-        paddingBottom: 20,
-    },
-    backButtonText: {
-        fontFamily: 'Satoshi-Medium',
-        fontSize: 16,
-    },
-    closingText: {
-        fontSize: 12,
-        color: colors.textFaintBrown,
-    },
-    loadingScreen: {
-        width: '100%',
-        height: 150,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    recHeader: {
-        paddingBottom: 13,
-        marginTop: 20,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-    },
-    placeNameText: {
-        fontSize: 26,
-        fontFamily: 'SpaceGrotesk-SemiBold',
-        paddingLeft: 2,
-    },
-    diningHomeHeader: {
-        paddingTop: 90,
-        width: '100%',
-        paddingHorizontal: 20,
-        justifyContent: 'center',
-    },
-    diningHomeHeaderTop: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    diningHomeHeaderBottom: {
-        flexDirection: 'row',
-        paddingTop: 10,
-        paddingBottom: 20,
-    },
-    recHeaderText: {
-        fontSize: 22,
-        fontFamily: 'SpaceGrotesk-Medium',
-    },
-    contentContainer: {
-        flex: 1,
-        marginLeft: 20,
-    },
-    contentScrollContainer: {
-        flexGrow: 1,
-    },
-    recHolder: {
-        flexDirection: 'column',
-    },
-    smallMenuContainer: {
-        flexDirection: 'row',
-        marginBottom: 10,
-    },
-    horizontalScrollView: {
-        flexDirection: 'row',
-    },
-    seeAllText: {
-        fontSize: 18,
-        fontFamily: 'Satoshi-Regular',
-    },
-    seeAllContainer: {
-        paddingRight: 20,
-    },
-    filterContainer: {
-        marginRight: 20,
-    },
-    noResultText: {
-      textAlign: 'center',
-      marginTop: 20,
-      fontSize: 16,
-      color: colors.textGray,
-    },
+  container: {
+    flex: 1,
+    backgroundColor: colors.backgroundGray,
+    width: '100%'
+  },
+  backButtonContainer: {
+    paddingLeft: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backArrow: {
+    width: 20,
+    height: 20,
+    marginRight: 10, // space between icon and text
+  },
+  backButton: {
+    paddingTop: 10,
+    paddingBottom: 20,
+  },
+  backButtonText: {
+    fontFamily: 'Satoshi-Medium',
+    fontSize: 16,
+  },
+  filter: {
+    alignItems: 'center',
+    marginTop: -70,
+    width: '100%'
+  },
+  diningHomeBody: {
+    width: '100%',
+  },
+  closingText: {
+    fontSize: 12,
+    color: colors.textFaintBrown,
+  },
+  loadingScreen: {
+    width: '100%',
+    height: 150,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  recHeader: {
+    paddingBottom: 13,
+    marginTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  placeNameText: {
+    fontSize: 26,
+    fontFamily: 'SpaceGrotesk-SemiBold',
+    paddingLeft: 2,
+  },
+  diningHomeHeader: {
+    paddingTop: 90,
+    width: '100%',
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+  },
+  diningHomeHeaderTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  diningHomeHeaderBottom: {
+    flexDirection: 'row',
+    paddingTop: 10,
+    paddingBottom: 20,
+  },
+  recHeaderText: {
+    fontSize: 22,
+    fontFamily: 'SpaceGrotesk-Medium',
+  },
+  contentContainer: {
+    flex: 1,
+    marginLeft: 20,
+  },
+  contentScrollContainer: {
+    flexGrow: 1,
+  },
+  recHolder: {
+    flexDirection: 'column',
+  },
+  smallMenuContainer: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  horizontalScrollView: {
+    flexDirection: 'row',
+  },
+  seeAllText: {
+    fontSize: 18,
+    fontFamily: 'Satoshi-Regular',
+  },
+  seeAllContainer: {
+    paddingRight: 20,
+  },
+  filterContainer: {
+    marginRight: 20,
+  },
+  noResultText: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    color: colors.textGray,
+  },
 })
 
 export default DiningHome;

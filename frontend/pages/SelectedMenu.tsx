@@ -121,7 +121,8 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
     return (
         <View style={styles.container}>
             <View style={styles.selectedHeader}>
-                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.backButtonContainer}>
+                    <Image style={styles.backArrow} source={require('../assets/backArrow.png')} resizeMode="contain"/>
                     <Text style={styles.backButtonText}>Back</Text>
                 </TouchableOpacity>
                 <View style={styles.outerHeader}>
@@ -158,7 +159,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                             </View>
                         )}
                         <View style={styles.priceContainer}>
-                            <Text>$ {price}</Text>
+                            <Text style={styles.priceText}>$ {price}</Text>
                         </View>
                         <View style={styles.bottomContainer}>
                             <View style={styles.tagContainer}>
@@ -249,13 +250,24 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         flexDirection: 'column',
     },
+    backButtonContainer: {
+        paddingLeft: 5,
+        marginTop: 40,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    backArrow: {
+        width: 20,
+        height: 20,
+        marginRight: 10, // space between icon and text
+    },
     backButton: {
-        marginTop: 20,
-        padding: 10,
+        paddingTop: 10,
+        paddingBottom: 20,
     },
     backButtonText: {
+        fontFamily: 'Satoshi-Medium',
         fontSize: 16,
-        color: '#333',
     },
     headerContent: {
         marginLeft: 10,
@@ -264,8 +276,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     foodNameText: {
-        fontSize: 23,
-        fontWeight: '500',
+        fontSize: 24,
+        fontFamily: 'SpaceGrotesk-Medium',
+        color: colors.textGray,
         marginRight: 20,
         maxWidth: '70%',
         flexWrap: 'wrap',
@@ -280,6 +293,9 @@ const styles = StyleSheet.create({
     smallGrayText: {
         color: colors.grayStroke,
         fontSize: 12,
+        fontFamily: 'Satoshi-Regular',
+        marginLeft: -5,
+        marginTop: 3,
     },
     starText: {
         fontSize: 12,
@@ -295,7 +311,8 @@ const styles = StyleSheet.create({
     toggleText: {
         marginHorizontal: 20,
         fontSize: 18,
-        color: colors.grayStroke,
+        fontFamily: 'Satoshi-Medium',
+        color: colors.textBrown,
     },
     activeText: {
         color: colors.orangeHighlight, 
@@ -320,14 +337,15 @@ const styles = StyleSheet.create({
         paddingBottom: 100,
     },
     locationText: {
-        color: colors.grayStroke,
+        color: colors.textBrown,
         marginLeft: 10,
         marginTop: 5,
-        fontSize: 19,
+        fontSize: 20,
+        fontFamily: 'SpaceGrotesk-Medium',
     },
     priceContainer: {
         borderWidth: 1,
-        borderColor: colors.grayStroke,
+        borderColor: colors.outlineDarkBrown,
         borderRadius: 15,
         marginTop: 10,
         paddingVertical: 3,
@@ -335,6 +353,10 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
         alignSelf: 'flex-end', 
         marginRight: 4,
+    },
+    priceText: {
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 16,
     },
     placeholderImage: {
         width: '100%',
@@ -350,7 +372,7 @@ const styles = StyleSheet.create({
     image: {
         width: '100%',
         height: 240,
-        borderRadius: 5,
+        borderRadius: 15,
     },
     tagContainer: {
         flexDirection: 'column',
@@ -362,6 +384,7 @@ const styles = StyleSheet.create({
     tagText: {
         marginRight: 20,
         fontSize: 20,
+        fontFamily: 'Satoshi-Medium',
     },
     tagContent: {
         flexDirection: 'row',

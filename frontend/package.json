@@ -47,6 +47,7 @@
     "react-native-select-dropdown": "^4.0.1",
     "react-native-svg": "^15.3.0",
     "react-native-toast-message": "^2.2.0",
+    "react-native-vector-icons": "^10.1.0",
     "react-native-web": "~0.19.10",
     "request-promise": "^0.0.1",
     "typescript": "~5.3.3"

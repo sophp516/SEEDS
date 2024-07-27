@@ -139,7 +139,6 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                         height={10}
                         borderColor={colors.inputGray}
                         duration={100}
-                        
                       />
                     </View>
                     <Text style={styles.number}>  {health.toFixed(1)}/5</Text>

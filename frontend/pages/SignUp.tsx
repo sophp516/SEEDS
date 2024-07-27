@@ -249,6 +249,7 @@ const SignUp = () => {
                         style={styles.input}
                         placeholder="Password"
                         value={input.password}
+                        secureTextEntry={true}
                         onChangeText={(text) => handleChange('password', text)}
                         autoCapitalize="none"
                     />
@@ -256,6 +257,7 @@ const SignUp = () => {
                         style={styles.input}
                         placeholder="Confirm Password"
                         value={input.confirmPassword}
+                        secureTextEntry={true}
                         onChangeText={(text) => handleChange('confirmPassword', text)}
                         autoCapitalize="none"
                     />

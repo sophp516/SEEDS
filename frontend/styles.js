@@ -15,9 +15,10 @@ const colors = {
     lightOrange: '#F9A05F',
 
     textGray: '#35353e',
+    textFaintBrown: '#AEA59A',
+    textBrown: '#7A6D5A',
     outlineBrown: '#BFB6A8',
     outlineDarkBrown: '#91836E',
-    textFaintBrown: '#AEA59A',
 };
 
 export default colors;
