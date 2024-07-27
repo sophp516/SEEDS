@@ -21,6 +21,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
         parsedPrice = '$ N/A';
     }
 
+
     if (image.length === 0) {
         image = defaultImage;
     } 
@@ -144,7 +145,6 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                     <Text style={styles.number}>  {health.toFixed(1)}/5</Text>
                   </View>
                 </View>
-
             </View>
         </TouchableOpacity>
         <View style={styles.timeContainer}> 

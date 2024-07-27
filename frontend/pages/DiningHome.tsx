@@ -80,6 +80,8 @@ const DiningHome: React.FC<Props> = ({ route }) => {
 
   const fetchReviews = async (placeName) => {
     try {
+
+
         //if (loggedInUser) return [];
         const foodItems = [];
         const locationDocRef = collection(db, 'colleges', 'Dartmouth College', 'diningLocations', placeName, 'foodList');
@@ -98,7 +100,6 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                 const reviewIds = reviewsData.reviewIds || [];
 
                 const globalData = averageDocSnapshot.data();
-
                 const foodItem = {
                     foodName,
                     reviewIds,

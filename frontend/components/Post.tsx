@@ -37,7 +37,6 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
     const { user } = useAuth();
     const { loggedInUser } = user;
 
-
     const SubComment: React.FC<SubCommentProps> = memo(({ content, userId, commentId, postId, sublikes }) => {
         const commentUser = usersCache[userId];
         const [subLikes, setSubLikes] = useState(sublikes || []);
@@ -108,6 +107,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
 
     useEffect(() => {
         //if (!loggedInUser) return;
+
         const fetchPostData = async () => {
             try {
                 const postRef = doc(db, 'posts', postId);
