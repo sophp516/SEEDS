@@ -23,7 +23,7 @@ const Profile = () => {
     const [profileImage, setProfileImage] = useState<string | null>(null);
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const [userInfo, setUserInfo] = useState(null);
-
+    console.log(user.id);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -42,7 +42,6 @@ const Profile = () => {
                 console.log(err);
             }
         };
-
         fetchUserData();
     }, []);
 
@@ -57,7 +56,6 @@ const Profile = () => {
         }
     }
 
-    
 
     const asyncSignOut = async () => {
         try {
@@ -71,7 +69,7 @@ const Profile = () => {
 
     return (
         <View style={styles.container}>
-            <Text>Profile</Text>
+            <Text style={styles.header}>Profile</Text>
             {user?.displayName ? (
                 <View style={styles.profileBox}>
                     <Image
@@ -79,8 +77,11 @@ const Profile = () => {
                         style={styles.profileImage}
                     />
                     <View style={styles.displayContainer}>
-                        <Text style={styles.displayName}>{user?.displayName}</Text>
-                        <Text>{userInfo?.schoolName}</Text>
+                        <View style={styles.nameContainer}>
+                            <Text style={styles.atSymbol}>@</Text>
+                            <Text style={styles.displayName}>{user?.displayName}</Text>
+                        </View>
+                        <Text style={styles.schoolName}>{userInfo?.schoolName}</Text>
                     </View>
                 </View>
             ) : (
@@ -92,19 +93,22 @@ const Profile = () => {
                     <View style={styles.guestProfileButtonContainer}>
                         <Text style={styles.displayName}>Guest</Text>
                         <TouchableOpacity onPress={() => navigation.navigate('LogIn')} style={styles.createAccountButton}>
-                            <Text style={styles.createAccountText}>Log In</Text>
+                            <Text style={styles.createAccountText}>Log in</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
             )}
             <View style={styles.profileSections}>
                 <TouchableOpacity style={styles.profileSectionButton} onPress={() => handleNavigation('MyProfile')}>
+                    <Image style={styles.profileSectionIcon} source={require('../assets/profile.png')} resizeMode="contain"/>
                     <Text style={styles.profileSectionText}>My Profile</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.profileSectionButton} onPress={() => handleNavigation('MyPreferences')}>
+                    <Image style={styles.profileSectionIcon} source={require('../assets/emptyHeart.png')} resizeMode="contain"/>
                     <Text style={styles.profileSectionText}>My Preferences</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.profileSectionButton} onPress={() => handleNavigation('MyActivity')}>
+                    <Image style={styles.profileSectionIcon} source={require('../assets/activity.png')} resizeMode="contain"/>
                     <Text style={styles.profileSectionText}>My Activity</Text>
                 </TouchableOpacity>
             </View>
@@ -122,12 +126,27 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.backgroundGray,
     },
+    header: {
+        fontFamily: 'SpaceGrotesk-SemiBold',
+        fontSize: 24,
+        color: colors.textGray,
+        marginTop: 96,
+        marginLeft: 36,
+    },
     profileBox: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 70,
+        marginTop: 20,
         marginBottom: 20,
-        flexDirection: 'row'
+        paddingTop: 20,
+        paddingBottom: 20,
+        flexDirection: 'row',
+        backgroundColor: colors.navbarBackground,
+    },
+    nameContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        // justifyContent: 'center',
     },
     profileImage: {
         width: 100,
@@ -135,11 +154,25 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         marginBottom: 10,
         marginRight: 30,
+        backgroundColor: colors.backgroundGray,
+    },
+    atSymbol: {
+        fontFamily: 'SpaceGrotesk-Regular',
+        fontSize: 16,
+        marginRight: 2,
+        marginBottom: 2,
     },
     displayName: {
-        fontSize: 24,
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 20,
         fontWeight: 'bold',
+        color: colors.textGray,
         marginBottom: 5,
+    },
+    schoolName: {
+        fontFamily: 'Satoshi-Regular',
+        fontSize: 14,
+        color: colors.textGray,
     },
     tagList: {
         flexDirection: 'row',
@@ -168,6 +201,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     createAccountText: {
+        fontFamily: 'Satoshi-Medium',
         color: 'white',
         fontSize: 15,
     },
@@ -179,15 +213,24 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     profileSectionButton: {
+        flexDirection: 'row',
+        alignItems: 'center',    
         paddingTop: 20,
         paddingBottom: 20,
-        paddingHorizontal: 20,
+        paddingHorizontal: 30,
         borderRadius: 10,
-        borderBottomColor: colors.grayStroke,
+        borderBottomColor: colors.outlineDarkBrown,
         borderBottomWidth: 1,
     },
+    profileSectionIcon: {
+        width: 20,
+        height: 20,
+        marginRight: 10,
+    },
     profileSectionText: {
-        fontSize: 17,
+        fontSize: 18,
+        fontFamily: 'Satoshi-Medium',
+        color: colors.textGray,
     },
     inputName: {
         borderWidth: 1,
@@ -249,6 +292,7 @@ const styles = StyleSheet.create({
     signOutText: {
         marginVertical: 10,
         fontSize: 15,
+        fontFamily: 'Satoshi-Medium',
     },
     signOutButton: {
         marginTop: 60,

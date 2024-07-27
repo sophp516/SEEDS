@@ -1,10 +1,11 @@
 import Navbar from "../components/Navbar";
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, TouchableOpacity, View , Image} from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View , Image, ScrollView} from 'react-native';
 import colors from "../styles.js";
 import { getDocs, collection, average, where, query, Timestamp} from 'firebase/firestore'
 import { db } from '../services/firestore'
 import FoodRank from "../components/FoodRank.tsx";
+import UserRank from "../components/UserRank.tsx";
 import TimeDropdown from "../components/TimeDropdown.tsx";
 
 
@@ -17,6 +18,30 @@ const Ranking = () => {
     const [open, setOpen] = useState(false);
     const [selectedValue, setSelectedValue] = useState("All-time");
 
+    const [users, setUsers] = useState<any>([]);
+
+
+    useEffect(() => {
+      const fetchUsers = async () => {
+          try {
+              const usersRef = collection(db, 'users');
+              const usersSnapshot = await getDocs(usersRef);
+              const usersData = usersSnapshot.docs.flatMap(doc => {
+                  return [{
+                     displayName: doc.data().displayName ?? 'Anonymous',
+                     likesCount: doc.data().likesCount ?? '0',
+                      profilePicture: doc.data().profilePicture ?? 'N/A',
+                  }];
+              });
+
+              const sortedUsers = usersData.sort((a, b) => b.likesCount - a.likesCount);
+              setUsers(sortedUsers);
+          } catch (error) {
+              console.error("Error fetching users: ", error);
+          }
+      }
+      fetchUsers();
+    },[])
 
     // fetches the list of food names to get rating data once the component mounts
     useEffect(()=>{
@@ -31,24 +56,7 @@ const Ranking = () => {
       fetchFoodNames();
     }, [])
 
-    const calculateStartDate = (selectedValue) => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); // Start of today
-    
-      switch(selectedValue) {
-        case 'this week':
-          const dayOfWeek = today.getDay(); // Sunday - 0, Monday - 1, ..., Saturday - 6
-          const startOfWeek = new Date(today);
-          startOfWeek.setDate(today.getDate() - dayOfWeek); // Adjust to the start of this week
-          return startOfWeek;
-        case 'this month':
-          return new Date(today.getFullYear(), today.getMonth(), 1); // First day of this month
-        case 'this year':
-          return new Date(today.getFullYear(), 0, 1); // First day of this year
-        default:
-          return today;
-      }
-    };
+  
   
     useEffect(() => {
         const fetchFoodRating = async () => {
@@ -124,28 +132,39 @@ const Ranking = () => {
                     <Text style={!toggle ? styles.btnText1 : styles.btnText2}>Reviews</Text>
                 </TouchableOpacity>
          </View>
+
          <View style={{justifyContent:'center'}}>
-          <View style={{backgroundColor: '#E7E2DB', marginBottom: 10, marginTop: 5, marginLeft: "60%",
-            borderRadius: 30, justifyContent:'center', alignContent: 'center', alignItems: "center", height: 35, width:100}}>
-              <TouchableOpacity onPress={()=>setOpen(!open)} style={{ paddingHorizontal: 10, paddingVertical: 10 ,flexDirection: 'row', justifyContent: 'space-between'} }>
-                <Text style={{marginRight: 3}}> {selectedValue} </Text>
-                <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                <Image source={require('../assets/dropdown.png')} style={{width: 15, height: 12, marginLeft: 1}} />
-                </View>
-              </TouchableOpacity>
-          </View>
+            <View style={styles.sortContainer}>
+                <TouchableOpacity onPress={()=>setOpen(!open)} style={{ paddingHorizontal: 10, paddingVertical: 10 ,flexDirection: 'row', justifyContent: 'space-between'} }>
+                  <Text style={{marginRight: 3}}> {selectedValue} </Text>
+                  <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                  <Image source={require('../assets/dropdown.png')} style={{width: 15, height: 12, marginLeft: 1}} />
+                  </View>
+                </TouchableOpacity>
+            </View>
+
           {open ?
             <TimeDropdown setSelectedValue={setSelectedValue} filterFoodLeaderboard={filterFoodLeaderboard} />:<View/>}
-        </View>
+          </View>
+
         {/* Displays the leader board based off fetching  */}
         {toggle ? 
-        <View style={{zIndex: -1}}>
+        <ScrollView style={{zIndex: -1}}>
             {filteredFoodLeaderboard.map((food, index) => (
               <View key={index}>
                 <FoodRank rank={index} foodName={food.foodName} rating={food.averageRating} location={food.location}/>
               </View>
             ))}
-         </View>: <View/>}
+         </ScrollView >: 
+         <ScrollView style={{zIndex: -1}}>
+              {users.map((user, index) => (
+                <View key={index}>
+                  <UserRank rank={index} displayName={user.displayName} likesCount={user.likesCount} profilePicture={user.profilePicture} />
+                </View>
+              ))}
+             
+          </ScrollView>}
+
         <View></View>
 
 
@@ -244,6 +263,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 20,
     height: 100,
-  }
+  },
+  sortContainer: {
+    backgroundColor: '#E7E2DB', 
+    marginBottom: 10,
+    marginTop: 5, 
+    marginLeft: "60%",
+    borderRadius: 30,
+    justifyContent:'center', 
+    alignContent: 'center',
+    alignItems: "center", 
+    height: 35, 
+    width:100}
   });
 export default Ranking;

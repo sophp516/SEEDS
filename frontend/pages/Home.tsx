@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     },
     welcomeText: {
         fontSize: 28,
-        fontFamily: 'SpaceGrotesk-SemiBold',
+        fontFamily: 'SpaceGrotesk-Medium',
         color: colors.textGray,
         marginBottom: 5, 
     },
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     },
     guideText: {
         fontSize: 16,
-        fontFamily: 'SpaceGrotesk-Medium',
+        fontFamily: 'SpaceGrotesk-Regular',
         color: colors.textGray,
         marginBottom: 20,
     }
