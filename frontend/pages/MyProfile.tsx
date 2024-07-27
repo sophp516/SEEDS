@@ -205,12 +205,13 @@ const MyProfile = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.homeHeaderTop}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButtonContainer}>
-          <Image style={styles.backArrow} source={require('../assets/backArrow.png')} resizeMode="contain"/>
-          <Text style={styles.backButtonText}>Back</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButtonContainer}>
+        <Image style={styles.backArrow} source={require('../assets/backArrow.png')} resizeMode="contain"/>
+        <Text style={styles.backButtonText}>Back</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.header}>My Profile</Text>
+
       <TouchableOpacity onPress={pickImage}>
         <Image
           source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
@@ -280,7 +281,7 @@ const styles = StyleSheet.create({
     padding: 30,
   },
   backButtonContainer: {
-    marginTop: 20,
+    marginTop: 60,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -294,19 +295,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textGray,
   },
+  header: {
+    fontFamily: 'SpaceGrotesk-SemiBold',
+    fontSize: 24,
+    color: colors.textGray,
+    marginTop: 40,
+    // marginLeft: 5,
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
   text: {
     fontSize: 20,
     fontFamily: 'Satoshi-Medium',
     color: colors.textGray,
     marginTop: 30,
   },
-  homeHeaderTop: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingVertical: 20,
-    marginTop: 20, // Move the header down
-  },
+  // homeHeaderTop: {
+  //   flexDirection: 'row',
+  //   justifyContent: 'flex-start',
+  //   alignItems: 'center',
+  //   paddingVertical: 20,
+  //   marginTop: 20, // Move the header down
+  // },
   usernameContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -351,11 +364,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Satoshi-Medium',
     fontSize: 14,
     color: colors.textGray,
-  },
-  profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
   },
 });
 
