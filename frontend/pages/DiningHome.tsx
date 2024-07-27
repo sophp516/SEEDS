@@ -13,12 +13,16 @@ import ExampleTopRated from '../services/ExampleTopRated.json';
 import FoodItem from '../components/FoodItem.tsx';
 import { useAuth } from '../context/authContext.js';
 import { tags } from 'react-native-svg/lib/typescript/xml';
+import LoadingScreen from '../components/LoadingScreen.tsx';
+import Toast from 'react-native-toast-message';
 
 
 
 type RootStackParamList = {
     Home: undefined,
     OnTheMenu: { placeName: string },
+    TopRated: { placeName: string },
+    RecommendedForYou: { placeName: string},
 };
 
 interface SelectedMenuProps {
@@ -79,7 +83,9 @@ const DiningHome: React.FC<Props> = ({ route }) => {
 
   const fetchReviews = async (placeName) => {
     try {
-        if (loggedInUser) return [];
+
+
+        //if (loggedInUser) return [];
         const foodItems = [];
         const locationDocRef = collection(db, 'colleges', 'Dartmouth College', 'diningLocations', placeName, 'foodList');
         const collectionsSnapshot = await getDocs(locationDocRef);
@@ -97,7 +103,6 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                 const reviewIds = reviewsData.reviewIds || [];
 
                 const globalData = averageDocSnapshot.data();
-
                 const foodItem = {
                     foodName,
                     reviewIds,
@@ -219,11 +224,6 @@ useEffect(() => {
   });
 
   setRecommendedMenus(sortedMenus);
-
-  console.log("fetchTags", fetchTags);
-  console.log("fetchAllergies", fetchAllergies);
-  console.log("sortedMenus", sortedMenus);
-  console.log("allMenus", allMenus);
 }, [allMenus, fetchTags, fetchAllergies]);
 
     
@@ -306,14 +306,30 @@ useEffect(() => {
     const recommended = useMemo(() => applyFilters(ExampleMenu), [filters, simpleFilter, searchChange]);
     
 
+    const handleSeeAllRecommended = () => {
+      if (!user?.id) {
+          Toast.show({
+              type: 'error',
+              text1: 'Please Sign In',
+              text2: 'Please sign in to see personalized recommendations',
+          });
+      } else {
+          navigation.navigate('RecommendedForYou', { placeName });
+      }
+  };
+
+
     return (
         <View style={styles.container}>
             <View style={styles.diningHomeHeader}>
                 <View style={styles.diningHomeHeaderTop}>
-                    <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-                        <Text style={styles.backButtonText}>Back</Text>
-                    </TouchableOpacity>
-                    <Text style={styles.closingText}>Closes at {closingHour}</Text>
+                  
+                  <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.backButtonContainer}>
+                    <Image style={styles.backArrow} source={require('../assets/backArrow.png')} resizeMode="contain"/>
+                    <Text style={styles.backButtonText}>Back</Text>
+                  </TouchableOpacity>
+
+                  <Text style={styles.closingText}>Closes at {closingHour}</Text>
                 </View>
                 <View style={styles.diningHomeHeaderBottom}>
                     <Text style={styles.placeNameText}>{placeName}</Text>
@@ -337,14 +353,14 @@ useEffect(() => {
                         <View>
                             <View style={styles.recHeader}>
                                 <Text style={styles.recHeaderText}>Top rated</Text>
-                                <TouchableOpacity style={styles.seeAllContainer}>
+                                <TouchableOpacity style={styles.seeAllContainer} onPress={() => navigation.navigate('TopRated', { placeName })}>
                                     <Text style={styles.seeAllText}>See all</Text>
                                 </TouchableOpacity>
                             </View>
                             {loading ? (
                             <View style={styles.loadingScreen}>
                               <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
-                              <Text>Loading...</Text>
+                              <Text>loading...</Text>
 
 
                             </View>
@@ -390,7 +406,8 @@ useEffect(() => {
                             {loading ? (
                               <View style={styles.loadingScreen}>
                                 <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
-                                <Text>Loading...</Text>
+                                <Text>loading...</Text>
+
                               </View>
                             ) : allMenus.length === 0 ? (
                               <Text style={styles.noResultText}>No meals match your filter...</Text>
@@ -427,14 +444,14 @@ useEffect(() => {
                         <View>
                             <View style={styles.recHeader}>
                                 <Text style={styles.recHeaderText}>Recommended for you</Text>
-                                <TouchableOpacity style={styles.seeAllContainer}>
+                                <TouchableOpacity style={styles.seeAllContainer} onPress={handleSeeAllRecommended}>
                                     <Text style={styles.seeAllText}>See all</Text>
                                 </TouchableOpacity>
                             </View>
                             {loading ? ( 
                               <View style={styles.loadingScreen}>
-                               <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
-                               <Text>Loading...</Text>
+                                <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
+                                <Text>loading...</Text>
                               </View>
                             ) : guestRecommendations? (
                               <Text style={styles.noResultText}>Please log in to see {'\n'} personalized recommendations</Text>
@@ -488,102 +505,112 @@ useEffect(() => {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: colors.backgroundGray,
-        width: '100%'
-    },
-    filter: {
-        alignItems: 'center',
-        marginTop: -70,
-        width: '100%'
-    },
-    diningHomeBody: {
-        width: '100%',
-    },
-    backButton: {
-        paddingTop: 10,
-        paddingBottom: 20,
-    },
-    backButtonText: {
-        fontFamily: 'Satoshi-Medium',
-        fontSize: 16,
-    },
-    closingText: {
-        fontSize: 12,
-        color: colors.textFaintBrown,
-    },
-    loadingScreen: {
-        width: '100%',
-        height: 150,
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    recHeader: {
-        paddingBottom: 13,
-        marginTop: 20,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-    },
-    placeNameText: {
-        fontSize: 26,
-        fontFamily: 'SpaceGrotesk-SemiBold',
-        paddingLeft: 2,
-    },
-    diningHomeHeader: {
-        paddingTop: '10%',
-        width: '100%',
-        paddingHorizontal: 20,
-        justifyContent: 'center',
-    },
-    diningHomeHeaderTop: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    diningHomeHeaderBottom: {
-        flexDirection: 'row',
-        paddingTop: 10,
-        paddingBottom: 20,
-    },
-    recHeaderText: {
-        fontSize: 22,
-        fontFamily: 'SpaceGrotesk-Medium',
-    },
-    contentContainer: {
-        flex: 1,
-        marginLeft: 20,
-    },
-    contentScrollContainer: {
-        flexGrow: 1,
-    },
-    recHolder: {
-        flexDirection: 'column',
-    },
-    smallMenuContainer: {
-        flexDirection: 'row',
-        marginBottom: 10,
-    },
-    horizontalScrollView: {
-        flexDirection: 'row',
-    },
-    seeAllText: {
-        fontSize: 18,
-        fontFamily: 'Satoshi-Regular',
-    },
-    seeAllContainer: {
-        paddingRight: 20,
-    },
-    filterContainer: {
-        marginRight: 20,
-    },
-    noResultText: {
-      textAlign: 'center',
-      marginTop: 20,
-      fontSize: 16,
-      color: colors.textGray,
-    },
+  container: {
+    flex: 1,
+    backgroundColor: colors.backgroundGray,
+    width: '100%'
+  },
+  backButtonContainer: {
+    paddingLeft: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backArrow: {
+    width: 20,
+    height: 20,
+    marginRight: 10, // space between icon and text
+  },
+  backButton: {
+    paddingTop: 10,
+    paddingBottom: 20,
+  },
+  backButtonText: {
+    fontFamily: 'Satoshi-Medium',
+    fontSize: 16,
+  },
+  filter: {
+    alignItems: 'center',
+    marginTop: -70,
+    width: '100%'
+  },
+  diningHomeBody: {
+    width: '100%',
+  },
+  closingText: {
+    fontSize: 12,
+    color: colors.textFaintBrown,
+  },
+  loadingScreen: {
+    width: '100%',
+    height: 150,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  recHeader: {
+    paddingBottom: 13,
+    marginTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  placeNameText: {
+    fontSize: 26,
+    fontFamily: 'SpaceGrotesk-SemiBold',
+    paddingLeft: 2,
+  },
+  diningHomeHeader: {
+    paddingTop: 90,
+    width: '100%',
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+  },
+  diningHomeHeaderTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  diningHomeHeaderBottom: {
+    flexDirection: 'row',
+    paddingTop: 10,
+    paddingBottom: 20,
+  },
+  recHeaderText: {
+    fontSize: 22,
+    fontFamily: 'SpaceGrotesk-Medium',
+  },
+  contentContainer: {
+    flex: 1,
+    marginLeft: 20,
+  },
+  contentScrollContainer: {
+    flexGrow: 1,
+  },
+  recHolder: {
+    flexDirection: 'column',
+  },
+  smallMenuContainer: {
+    flexDirection: 'row',
+    marginBottom: 10,
+  },
+  horizontalScrollView: {
+    flexDirection: 'row',
+  },
+  seeAllText: {
+    fontSize: 18,
+    fontFamily: 'Satoshi-Regular',
+  },
+  seeAllContainer: {
+    paddingRight: 20,
+  },
+  filterContainer: {
+    marginRight: 20,
+  },
+  noResultText: {
+    textAlign: 'center',
+    marginTop: 20,
+    fontSize: 16,
+    color: colors.textGray,
+  },
 })
 
 export default DiningHome;

@@ -229,18 +229,23 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
 
             if (reviewDoc.exists() && userDoc.exists()) {
                 const reviewData = reviewDoc.data();
+                const reviewuserRef = doc(db, 'users', reviewData.userId);
+                const reviewerTotalLikes = await getDoc(reviewuserRef);
+            
                 const userData = userDoc.data();
                 let reviewLikes = reviewData.likes || [];
                 let userLikes = userData.likes || []
 
-                if (reviewLikes.includes(userId)) {
+                if (reviewLikes.includes(userId)) { // remove id from the user's likes array
                     reviewLikes = reviewLikes.filter(id => id !== userId);
                     userLikes = userLikes.filter(id => id !=- reviewId);
                     setLikeStatus(false);
-                } else {
+                    await updateDoc(reviewuserRef, { likesCount: reviewerTotalLikes.data().likesCount - 1 });
+                } else { // add id to user like array
                     reviewLikes.push(userId);
                     userLikes.push(reviewId);
                     setLikeStatus(true);
+                    await updateDoc(reviewuserRef, {likesCount: reviewerTotalLikes.data().likesCount + 1 });
                 }
 
                 setLikes(reviewLikes);

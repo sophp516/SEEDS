@@ -9,6 +9,7 @@ import Toast from 'react-native-toast-message';
 import * as ImagePicker from 'expo-image-picker';
 import Navbar from '../components/Navbar.jsx';
 import colors from '../styles.js';
+import Preferences from "../services/Preferences.json";
 
 type RootStackParamList = {
     LogIn: undefined;
@@ -23,7 +24,10 @@ const Profile = () => {
     const [profileImage, setProfileImage] = useState<string | null>(null);
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const [userInfo, setUserInfo] = useState(null);
-
+    const [fetchTags, setFetchTags] = useState<string[]>([]);
+    const [fetchAllergies, setFetchAllergies] = useState<string[]>([]);
+    const { loggedInUser, displayName } = user;
+    console.log(user.id);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -42,9 +46,54 @@ const Profile = () => {
                 console.log(err);
             }
         };
-
         fetchUserData();
     }, []);
+
+    useEffect(() => {
+      const fetchTags = async () => {
+
+  
+        if (!user.id) return;
+        try {
+          const userId = user.id 
+  
+          if (userId) {
+            const usersRef = collection(db, 'users');
+            const q = query(usersRef, where('id', '==', userId));
+            const querySnapshot = await getDocs(q);
+    
+            if (!querySnapshot.empty) {
+              const userDoc = querySnapshot.docs[0];
+              const userData = userDoc.data();
+    
+              if (userData.tags && Array.isArray(userData.tags)) {
+                setFetchTags(userData.tags);
+              } else {
+                setFetchTags([]);
+              }
+              if (userData.allergens && Array.isArray(userData.allergens)) {
+                setFetchAllergies(userData.allergens);
+              } else {
+                setFetchAllergies([]);
+              }
+            } else {
+              setFetchTags([]);
+              setFetchAllergies([]);
+            }
+          } else {
+            // Handle the case where the user is not logged in
+            setFetchTags([]);
+            setFetchAllergies([]);
+          }
+        } catch (e) {
+          console.error('Error fetching tags:', e);
+        }
+      };
+  
+      fetchTags();
+      
+    }, [loggedInUser]);
+    
 
     const handleNavigation = (dest) => {
         if (!user.id) {
@@ -57,7 +106,6 @@ const Profile = () => {
         }
     }
 
-    
 
     const asyncSignOut = async () => {
         try {
@@ -68,21 +116,56 @@ const Profile = () => {
         }
     };
 
+    const getTagStyle = (tag) => {
+      if (["Breakfast", "Lunch", "Dinner"].includes(tag)) {
+          return styles.tagYellow;
+      } else if (Preferences.id.includes(tag)) {
+          return styles.tagGreen;
+      }
+      return styles.tagGray;
+  };
+
+    const getAllergenStyle = (allergen) => {
+        return Preferences.id.includes(allergen) ? styles.tagRed : styles.tagGray;
+    };
 
     return (
         <View style={styles.container}>
-            <Text>Profile</Text>
+            <Text style={styles.header}>Profile</Text>
+            <Text></Text>
             {user?.displayName ? (
-                <View style={styles.profileBox}>
-                    <Image
-                        source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
-                        style={styles.profileImage}
-                    />
-                    <View style={styles.displayContainer}>
-                        <Text style={styles.displayName}>{user?.displayName}</Text>
-                        <Text>{userInfo?.schoolName}</Text>
-                    </View>
+              <View style={styles.profileContainer}>
+                  <View style={styles.profileBox}>
+                      <Image
+                          source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
+                          style={styles.profileImage}
+                      />
+                      <View style={styles.displayContainer}>
+                            <View style={styles.nameContainer}>
+                                <Text style={styles.atSymbol}>@</Text>
+                                <Text style={styles.displayName}>{user?.displayName}</Text>
+                            </View>
+                            <Text style={styles.schoolName}>{userInfo?.schoolName}</Text>
+
+                      </View>
+                  </View>
+
+                  <View style={styles.tagList}>
+                      {fetchTags.map((tag, index) => (
+                          <View style={[styles.tagWithDelete, getTagStyle(tag)]} key={index}>
+                              <Text>{tag}</Text>
+                          </View>
+                      ))}
+
+                      {fetchAllergies.map((tag, index) => (
+                          <View style={[styles.tagWithDelete, getAllergenStyle(tag)]} key={index}>
+                              <Text>{tag}</Text>
+                          </View>
+                      ))}
+                  </View>
+
                 </View>
+
             ) : (
                 <View style={styles.profileBox}>
                     <Image
@@ -92,19 +175,22 @@ const Profile = () => {
                     <View style={styles.guestProfileButtonContainer}>
                         <Text style={styles.displayName}>Guest</Text>
                         <TouchableOpacity onPress={() => navigation.navigate('LogIn')} style={styles.createAccountButton}>
-                            <Text style={styles.createAccountText}>Log In</Text>
+                            <Text style={styles.createAccountText}>Log in</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
             )}
             <View style={styles.profileSections}>
                 <TouchableOpacity style={styles.profileSectionButton} onPress={() => handleNavigation('MyProfile')}>
+                    <Image style={styles.profileSectionIcon} source={require('../assets/profile.png')} resizeMode="contain"/>
                     <Text style={styles.profileSectionText}>My Profile</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.profileSectionButton} onPress={() => handleNavigation('MyPreferences')}>
+                    <Image style={styles.profileSectionIcon} source={require('../assets/emptyHeart.png')} resizeMode="contain"/>
                     <Text style={styles.profileSectionText}>My Preferences</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.profileSectionButton} onPress={() => handleNavigation('MyActivity')}>
+                    <Image style={styles.profileSectionIcon} source={require('../assets/activity.png')} resizeMode="contain"/>
                     <Text style={styles.profileSectionText}>My Activity</Text>
                 </TouchableOpacity>
             </View>
@@ -122,12 +208,23 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: colors.backgroundGray,
     },
+    header: {
+        fontFamily: 'SpaceGrotesk-SemiBold',
+        fontSize: 24,
+        color: colors.textGray,
+        marginTop: 96,
+        marginLeft: 36,
+    },
     profileBox: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 70,
-        marginBottom: 20,
-        flexDirection: 'row'
+        flexDirection: 'row',
+        backgroundColor: colors.navbarBackground,
+    },
+    nameContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        // justifyContent: 'center',
     },
     profileImage: {
         width: 100,
@@ -135,11 +232,25 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         marginBottom: 10,
         marginRight: 30,
+        backgroundColor: colors.backgroundGray,
+    },
+    atSymbol: {
+        fontFamily: 'SpaceGrotesk-Regular',
+        fontSize: 16,
+        marginRight: 2,
+        marginBottom: 2,
     },
     displayName: {
-        fontSize: 24,
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 20,
         fontWeight: 'bold',
+        color: colors.textGray,
         marginBottom: 5,
+    },
+    schoolName: {
+        fontFamily: 'Satoshi-Regular',
+        fontSize: 14,
+        color: colors.textGray,
     },
     tagList: {
         flexDirection: 'row',
@@ -168,6 +279,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     createAccountText: {
+        fontFamily: 'Satoshi-Medium',
         color: 'white',
         fontSize: 15,
     },
@@ -179,15 +291,36 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     profileSectionButton: {
+        flexDirection: 'row',
+        alignItems: 'center',    
         paddingTop: 20,
         paddingBottom: 20,
-        paddingHorizontal: 20,
+        paddingHorizontal: 30,
         borderRadius: 10,
-        borderBottomColor: colors.grayStroke,
+        borderBottomColor: colors.outlineDarkBrown,
         borderBottomWidth: 1,
     },
+    profileContainer: {
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: colors.navbarBackground,
+        marginTop: 20,
+        marginBottom: 20,
+        paddingTop: 20,
+        paddingBottom: 20,
+        
+
+    },
+    profileSectionIcon: {
+        width: 20,
+        height: 20,
+        marginRight: 10,
+    },
     profileSectionText: {
-        fontSize: 17,
+        fontSize: 18,
+        fontFamily: 'Satoshi-Medium',
+        color: colors.textGray,
     },
     inputName: {
         borderWidth: 1,
@@ -238,8 +371,12 @@ const styles = StyleSheet.create({
     editingContainer: {
         
     },
-    displayContainer: {
+    displayContainerTop: {
     
+    },
+    displayContainer: {
+        flexDirection: 'column',
+        justifyContent: 'center',
     },
     guestProfileButtonContainer: {
         alignItems: 'center',
@@ -249,6 +386,7 @@ const styles = StyleSheet.create({
     signOutText: {
         marginVertical: 10,
         fontSize: 15,
+        fontFamily: 'Satoshi-Medium',
     },
     signOutButton: {
         marginTop: 60,
@@ -258,7 +396,19 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         width: '20%',
         borderRadius: 5,
-    }
+    },
+    tagGreen: {
+        backgroundColor: colors.highRating,
+    },
+    tagGray: {
+        backgroundColor: colors.userInput,
+    },
+    tagRed: {
+        backgroundColor: colors.warningPink,
+    },
+    tagYellow: {
+        backgroundColor: colors.yellow,
+    },
 });
 
 export default Profile;

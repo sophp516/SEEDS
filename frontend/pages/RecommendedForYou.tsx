@@ -2,39 +2,39 @@ import React, { useState, useRef, useMemo, useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, ScrollView, Image } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { db } from '../services/firestore.js';
-import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, query, where } from 'firebase/firestore';
 import Navbar from '../components/Navbar.jsx';
-import SearchBar from '../components/Searchbar.tsx';
-import SmallMenu from '../components/SmallMenu.tsx';
 import colors from '../styles.js';
 import FoodItem from '../components/FoodItem.tsx';
 import AllFilter from '../components/AllFilter.tsx';
 import FilterContent from '../components/FilterContent.tsx';
 import LoadingScreen from '../components/LoadingScreen.tsx';
+import { useAuth } from '../context/authContext.js';
+
 
 
 type RootStackParamList = {
     Home: undefined,
 };
 
-
 type Props = {
     route: {
         params: {
-            placeName: string;
+            placeName: string; 
+
         }
     }
 };
 
 const DiningHome: React.FC<Props> = ({ route }) => {
-
-
-
+    const { user } = useAuth();
     const { placeName } = route.params;
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-    const bottomSheetRef = useRef(null);
     const [ onTheMenu, setOnTheMenu ] = useState([]);
     const [ loading, setLoading ] = useState(true);
+    const [recommendedMenus, setRecommendedMenus] = useState([]);
+    const [fetchTags, setFetchTags] = useState<string[]>([]);
+    const [fetchAllergies, setFetchAllergies] = useState<string[]>([]);
 
     const fetchReviews = async (location) => {
         try {
@@ -83,18 +83,88 @@ const DiningHome: React.FC<Props> = ({ route }) => {
             console.error("Error fetching reviews: ", error);
             return [];
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     };
 
     useEffect(() => {
         const getReviews = async () => {
+            setLoading(true); 
             const reviewsData = await fetchReviews(placeName);
-            setOnTheMenu(reviewsData);
+            setOnTheMenu(reviewsData); 
         };
         getReviews();
-        console.log(onTheMenu);
+        
     }, [placeName])
+
+    useEffect(() => {
+      const fetchTags = async () => {
+        if (!user.id) return;
+        try {
+          const userId = user.id;
+    
+          if (userId) {
+            const usersRef = collection(db, 'users');
+            const q = query(usersRef, where('id', '==', userId));
+            const querySnapshot = await getDocs(q);
+    
+            if (!querySnapshot.empty) {
+              const userDoc = querySnapshot.docs[0];
+              const userData = userDoc.data();
+    
+              if (userData.tags && Array.isArray(userData.tags)) {
+                setFetchTags(userData.tags);
+              } else {
+                setFetchTags([]);
+              }
+              if (userData.allergies && Array.isArray(userData.allergies)) {
+                setFetchAllergies(userData.allergies);
+              } else {
+                setFetchAllergies([]);
+              }
+            } else {
+              setFetchTags([]);
+              setFetchAllergies([]);
+            }
+          } else {
+            // Handle the case where the user is not logged in
+            setFetchTags([]);
+            setFetchAllergies([]);
+          }
+        } catch (e) {
+    
+        } 
+      };
+    
+      fetchTags();
+    }, [user]);
+
+    useEffect(() => {
+      if (onTheMenu.length === 0) return;
+    
+      if (fetchTags.length === 0 && fetchAllergies.length === 0) {
+        // If no tags and allergens are set, return all menus
+        setRecommendedMenus(onTheMenu);
+        return;
+      }
+    
+      const sortedMenus = onTheMenu.filter(item => {
+        // Check if item has any of the preferred tags or allergens
+        const hasPreferredTags = fetchTags.length === 0 || 
+          fetchTags.some(tag => item.tags.includes(tag));
+    
+        // Check if item does not contain any of the allergens
+        const hasNoAllergens = fetchAllergies.length === 0 || 
+          !fetchAllergies.some(allergen => item.allergens.includes(allergen));
+    
+        return hasPreferredTags && hasNoAllergens;
+      });
+    
+      setRecommendedMenus(sortedMenus);
+    
+
+    }, [onTheMenu, fetchTags, fetchAllergies]);
+
 
         
       //filtering
@@ -145,14 +215,14 @@ const DiningHome: React.FC<Props> = ({ route }) => {
       const [searchChange, setSearchChange] = useState('');
       
       const filterApplied = filters.preferred.length > 0 || filters.allergens.length > 0 || filters.time.length > 0 || filters.taste > 1 || filters.health > 1 || searchChange !== '' || simpleFilter !== '';
-      const filterOnTheMenu = useMemo(() => applyFilters(onTheMenu), [filters, simpleFilter, searchChange]);
-      const filterOrNone = filterApplied ? filterOnTheMenu : onTheMenu;
+      const filterOnTheMenu = useMemo(() => applyFilters(recommendedMenus), [filters, simpleFilter, searchChange, recommendedMenus]);
+      const filterOrNone = filterApplied ? filterOnTheMenu : recommendedMenus;
 
 
     const toggleBottomSheet = () => {
       setIsBottomSheetOpen(!isBottomSheetOpen);
     };
-    const handleFilterClick = () => {
+    const handleFilterClick = () => { 
       setIsDisabled((prev) => !prev); 
     };
 
@@ -167,7 +237,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                     </TouchableOpacity>
                 </View>
                 <View style={styles.diningHomeHeaderBottom}>
-                    <Text style={styles.placeNameText}>On the menu: {placeName}</Text>
+                    <Text style={styles.placeNameText}>Recommended: {placeName}</Text>
                 </View>
             </View>
             <View style={styles.contentContainer}>

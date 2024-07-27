@@ -37,7 +37,6 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
     const { user } = useAuth();
     const { loggedInUser } = user;
 
-
     const SubComment: React.FC<SubCommentProps> = memo(({ content, userId, commentId, postId, sublikes }) => {
         const commentUser = usersCache[userId];
         const [subLikes, setSubLikes] = useState(sublikes || []);
@@ -107,7 +106,8 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
     });
 
     useEffect(() => {
-        if (!loggedInUser) return;
+        //if (!loggedInUser) return;
+
         const fetchPostData = async () => {
             try {
                 const postRef = doc(db, 'posts', postId);
@@ -260,6 +260,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
         <View style={styles.reviewContainer}>
             {loading ? (
                 <View style={styles.loadingContainer}>
+                    <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
                     <Text>loading...</Text>
                 </View>
             ) : (

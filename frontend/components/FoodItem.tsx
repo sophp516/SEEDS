@@ -13,7 +13,7 @@ type RootStackParamList = {
     SelectedMenu: { foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs , averageRating },
 };
 
-const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs, averageRating,  updatedTime}) => {
+const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs, averageRating, updatedTime}) => {
   const defaultImage = require('../assets/image.png');
     let parsedRating = parseFloat(averageRating).toFixed(1);
     let parsedPrice = '$' + parseFloat(price).toFixed(2);
@@ -22,19 +22,19 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
     }
 
 
-  if (image.length === 0) {
-    image = defaultImage;
-  } 
+    if (image.length === 0) {
+        image = defaultImage;
+    } 
 
     // Helper function for ProgressBar
     const normalizeValue = (value: any) => {
       // Check if value is a number
       if (typeof value !== 'number' || isNaN(value)) {
-          return 0;
+        return 0;
       }
       const normalized = Math.min(Math.max(value / 10, 0), 1);
       return Math.min(normalized * 2, 1);
-  };
+    };
 
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
@@ -44,12 +44,12 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
 
     const getTagStyle = (tag) => {
       if (["Breakfast", "Lunch", "Dinner"].includes(tag)) {
-          return styles.tagYellow;
+        return styles.tagYellow;
       } else if (Preferences.id.includes(tag)) {
-          return styles.tagGreen;
+        return styles.tagGreen;
       }
       return styles.tagGray;
-  };
+    };
 
   const getAllergenStyle = (allergen) => {
       return Preferences.id.includes(allergen) ? styles.tagRed : styles.tagGray;
@@ -81,12 +81,12 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                         <Text style={styles.generalInfotext}>{parsedRating}</Text>
                         <Image source={require('../assets/star.png')} style={styles.star}/>
                     </View>
-                    <View  style={styles.generalInfo}>
-                        
+                    <View style={styles.generalInfo}>
                         <Text style={styles.generalInfotext}>{parsedPrice}</Text>
                     </View>
                 </View>
             </View>
+
             <View style={styles.foodInfoContainer}>
                 <View style={styles.foodInfoHeader}>
                     {/* Modified foodname, so it doesn't push other element off of page */}
@@ -110,7 +110,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
 
                   <View style={styles.tasteAndHealthContainer}>
                       
-                    <Text style={styles.ratingText}>Taste  </Text>
+                    <Text style={styles.ratingText}>  Taste</Text>
 
                     <View style={styles.progressContainer}>
                       <ProgressBar
@@ -140,13 +140,11 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                         height={10}
                         borderColor={colors.inputGray}
                         duration={100}
-                        
                       />
                     </View>
                     <Text style={styles.number}>  {health.toFixed(1)}/5</Text>
                   </View>
                 </View>
-
             </View>
         </TouchableOpacity>
         <View style={styles.timeContainer}> 
@@ -263,17 +261,17 @@ const styles = StyleSheet.create({
         color: colors.textFaintBrown,
         fontSize: 12,
         marginLeft: 5,
-        marginTop: 2,
+        marginTop: 3,
     },
     foodInfoHeader: {
         flexDirection: 'row',
     },
     tagBlob: {
-      paddingHorizontal: 6, // Reduced padding
+      paddingHorizontal: 8, // Reduced padding
       paddingVertical: 2,   // Reduced padding
-      borderRadius: 12,     // Slightly smaller border radius
-      marginRight: 2,       // Reduced margin
-      marginBottom: 2,      // Reduced margin
+      borderRadius: 15,     // Slightly smaller border radius
+      marginRight: 7,       // Reduced margin
+      marginBottom: 7,      // Reduced margin
   },
     tagText: {
       fontSize: 12,  // Smaller text size
@@ -307,7 +305,7 @@ const styles = StyleSheet.create({
     },
     tasteAndHealthContainer: {
         flexDirection: 'row',
-        marginLeft: 5,
+        // marginLeft: 5,
         alignItems: 'center',
     },
     progressContainer: {
@@ -315,7 +313,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     ratingText: {
-        fontSize: 12,
+        fontSize: 10,
         color: colors.textGray,
     },
     bottonLine:{
