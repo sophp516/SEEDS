@@ -42,7 +42,6 @@ const Ranking = () => {
       }
       fetchUsers();
     },[])
-    console.log(users);
 
     // fetches the list of food names to get rating data once the component mounts
     useEffect(()=>{

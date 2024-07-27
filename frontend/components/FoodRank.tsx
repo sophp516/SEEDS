@@ -30,7 +30,7 @@ interface FoodRankProps {
     updatedTime: string;
 }
 const FoodRank = ({rank, foodName, rating, location}) => {
-    const formattedRating = parseFloat(rating).toFixed(2);
+    const formattedRating = parseFloat(rating).toFixed(1);
     const [foodReview, setFoodReview] = useState<FoodRankProps>({
         reviewIds:'',
         foodName: '',

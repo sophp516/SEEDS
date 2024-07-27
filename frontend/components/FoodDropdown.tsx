@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Platform } from 'react-native'
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useRef, useCallback} from 'react'
 import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown'
 import { getDocs, collection} from 'firebase/firestore'
 import { db } from '../services/firestore'
@@ -7,6 +7,9 @@ import { db } from '../services/firestore'
 // parameter: user location
 const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
     const [foodlist, setFoodlist] = useState([]);
+    const [suggestionsList, setSuggestionsList] = useState([]);
+    const searchRef = useRef(null);
+    const dropdownController = useRef(null);
 
 
     useEffect(()=>{
@@ -32,12 +35,38 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
         fetchFood();
     }, [])
 
+    const getSuggestions = useCallback(async (q: string) => {
+        const filterToken = q.toLowerCase();
+        if (typeof q !== 'string' || q.length < 3) {
+            setSuggestionsList(foodlist);
+            return;
+        }
+        // setLoading(true);
+        const items = foodlist;
+        console.log(items)
+        const suggestions = items
+            .filter(item => item.title.toLowerCase().includes(filterToken))
+            .map(item => ({
+                id: item.id,
+                title: item.title,
+            }));
+        setSuggestionsList(suggestions);
+        // setLoading(false);
+    }, []);
+
     // console.log("food list", foodlist)
     return (
         <View>
             <AutocompleteDropdown
-                 dataSet={foodlist}
-                 onChangeText={onChangeText}
+                ref={searchRef}
+                controller={(controller) => {
+                    dropdownController.current = controller;
+                }}
+                 dataSet={suggestionsList}
+                 onChangeText={(value)=>{
+                        getSuggestions(value);
+                        onChangeText();
+                 }}
                  onSelectItem={onSelectItem}
                  direction={Platform.select({ ios: 'down' })}
                  onClear={()=> {
@@ -67,7 +96,6 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
                      width: 350,
                      height: 35,
                      borderRadius: 10,
-                     
                  }}
             
             >

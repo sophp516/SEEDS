@@ -47,8 +47,8 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     heartImg:{
-        width: 25,
-        height: 20,
+        width: 20,
+        height: 18,
     },
     rankNum: {
         color: '#35353E',
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
         letterSpacing: -0.176,
         fontFamily: 'Satoshi', 
         paddingRight: 4,
-        width: 20
+        marginRight: 4,
 
     },
     likesContainer:{

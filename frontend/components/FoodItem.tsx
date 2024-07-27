@@ -20,7 +20,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
     if (Number.isNaN(parseFloat(price))) {
         parsedPrice = '$ N/A';
     }
-
+    console.log(tags);
 
   if (image.length === 0) {
     image = defaultImage;

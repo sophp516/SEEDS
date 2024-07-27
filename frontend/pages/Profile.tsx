@@ -23,7 +23,7 @@ const Profile = () => {
     const [profileImage, setProfileImage] = useState<string | null>(null);
     const navigation = useNavigation<NavigationProp<RootStackParamList>>();
     const [userInfo, setUserInfo] = useState(null);
-
+    console.log(user.id);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -42,7 +42,6 @@ const Profile = () => {
                 console.log(err);
             }
         };
-
         fetchUserData();
     }, []);
 
@@ -57,7 +56,6 @@ const Profile = () => {
         }
     }
 
-    
 
     const asyncSignOut = async () => {
         try {

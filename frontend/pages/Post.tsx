@@ -13,6 +13,8 @@ import { useAuth } from '../context/authContext.js';
 import diningLocation from '../services/dininglocation.json';
 import {debounce} from 'lodash';
 import FoodDropdown from '../components/FoodDropdown.tsx';
+import GeneralDropdown from '../components/GeneralDropdown.tsx';
+import TagDropdown from '../components/TagDropdown.tsx';
 import ImageSlider from '../components/ImageSlider.tsx';
 import preferences from '../services/Preferences.json';
 import Allergens from '../services/Allergens.json';
@@ -57,7 +59,7 @@ type RootStackParamList = {
 const Post = () => {
     const { user, setLoggedInUser } = useAuth();
     const { loggedInUser, displayName } = user;
-    const userId = loggedInUser?.loggedInUser?.uid;
+    const userId = user.id
     const userSchool = loggedInUser?.loggedInUser?.schoolName;
     // const userRef = doc(db, 'users', userId);
     const [tag, setTag] = useState<string>('');
@@ -103,8 +105,10 @@ const Post = () => {
             title: allergen
         }
     }));
+
     const handleCreatePost = async() => {
         try{
+            console.log(userId);
             const userData = await verifyUser();
             if (!userData) return; 
 
@@ -160,7 +164,7 @@ const Post = () => {
             console.error("User does not exist");
             return null;
     };}
-
+    
     const handleCreateReview = async () =>{
         try{
             // Verifies user
@@ -362,10 +366,11 @@ const Post = () => {
 
 
     //code for updating nutrients for a specific food item, turn test as false when no need to make any updates
-    const [test, setTest] = useState(false);
+    const [test, setTest] = useState(true);
     const edit = async()=>{
         if (test === true){
-            
+            const [serving, calories, fat, carbs, protein] = await fetchNutrients("Toast");
+            console.log("Serving:", serving);
         }
         setTest(false);
     }
@@ -425,9 +430,9 @@ const Post = () => {
             const currHealth = getAverage.data().health;
             const currTaste = getAverage.data().taste; 
             console.log("curr rating:", currAverage);
-            const reviews = await getDoc(doc(db, 'colleges', 'Dartmouth College',"diningLocations", location, foodName, 'reviews'));
+            const reviews = await getDoc(doc(db, 'colleges', 'Dartmouth College',"diningLocations", location, foodName, 'reviews')); // Error with the logic here
             if (!reviews.exists()) {
-                console.error(" review. Document does not exist!");
+                console.error(" review Document does not exist!");
                 return; // Optionally handle this case more gracefully
             }
             const reviewIds = reviews.data().reviewIds;
@@ -794,36 +799,16 @@ const Post = () => {
                         </View>
                            
                         <Text style={styles.text}> Location </Text>
-                            <AutocompleteDropdown 
-                                dataSet={diningLocation}
+                            <GeneralDropdown 
+                                data={diningLocation} 
                                 onChangeText={(text)=> {setLocationInput (text)}}
-                                onSelectItem={handleSelectItem}
-                                direction={Platform.select({ ios: 'down' })}
                                 onClear={() => setLocationInput('')}
-                                initialValue={locationInput}
-                                textInputProps ={{
-                                    placeholder: 'Enter location',
-                                    placeholderTextColor: '#888',
-                                    value: locationInput,
-                                    autoCorrect: false,
-                                    autoCapitalize: 'none',
-                                    style: { 
-                                        color: 'black',
-                                        backgroundColor: '#E7E2DB',
-                                        width: 350,
-                                        height: 30,
-                                        borderRadius: 10,                           
-                                        alignSelf: 'center'
-                                    }
-                                }}
-                                inputContainerStyle={{
-                                    backgroundColor: '#E7E2DB',
-                                    width: 350,
-                                    height: 35,
-                                    borderRadius: 10,
-                                    
-                                }}
-                            />
+                                value={locationInput}
+                                onSelectItem={handleSelectItem}
+                                placeholder= {'Enter location'}
+
+                                />
+                           
 
                         <Text style={styles.text}> Price </Text>
                             <TextInput 
@@ -861,39 +846,17 @@ const Post = () => {
                          <View style={styles.tagsContainer}>
                          {tagsContainer("tags", review.tags, handleDeleteTag)}
                         </View>:<View/>}
-                        <AutocompleteDropdown 
-                                dataSet={tagsData}
+
+                        <TagDropdown
+                                data={tagsData} 
                                 onChangeText={(text)=> {setTag (text)}}
-                                onSelectItem={handleSelectTag}
-                                direction={Platform.select({ ios: 'down' })}
                                 onClear={() => setTag('')}
-                                initialValue={tag}
-                                textInputProps ={{
-                                    placeholder: 'Enter a tag',
-                                    placeholderTextColor: '#888',
-                                    value:tag,
-                                    autoCorrect: false,
-                                    autoCapitalize: 'none',
-                                    onSubmitEditing(e) {
-                                        handleSubmitTag();
-                                    },
-                                    style: { 
-                                        color: 'black',
-                                        backgroundColor: '#E7E2DB',
-                                        width: 350,
-                                        height: 30,
-                                        borderRadius: 10,                           
-                                        alignSelf: 'center'
-                                    }
-                                }}
-                                inputContainerStyle={{
-                                    backgroundColor: '#E7E2DB',
-                                    width: 350,
-                                    height: 35,
-                                    borderRadius: 10,
-                                    
-                                }}
-                            />
+                                value={tag}
+                                onSelectItem={handleSelectTag}
+                                placeholder= {'Enter a tag'}
+                                handleSubmit={handleSubmitTag}
+                        />
+
 
                         <Text style={styles.text}> Add allergens</Text>
                         { review.allergens.length > 0 ?
@@ -901,40 +864,15 @@ const Post = () => {
                              {tagsContainer("allergens", review.allergens, handleDeleteAllergen)}
                             </View> 
                         :<View/>}
-                            <AutocompleteDropdown 
-                                dataSet={tagsData}
+                            <TagDropdown
+                                data={allergensData} 
                                 onChangeText={(text)=> {setAllergen(text)}}
-                                onSelectItem={handleSelectAllergen}
-                                direction={Platform.select({ ios: 'down' })}
                                 onClear={() => setAllergen('')}
-                                initialValue={allergen}
-                                textInputProps ={{
-                                    placeholder: 'Enter a allergen',
-                                    placeholderTextColor: '#888',
-                                    value:allergen,
-                                    autoCorrect: false,
-                                    autoCapitalize: 'none',
-                                    onSubmitEditing(e) {
-                                        handleSubmitAllergen();
-                                    },
-                                    style: { 
-                                        color: 'black',
-                                        backgroundColor: '#E7E2DB',
-                                        width: 350,
-                                        height: 30,
-                                        borderRadius: 10,                           
-                                        alignSelf: 'center'
-                                    }
-                                }}
-                                inputContainerStyle={{
-                                    backgroundColor: '#E7E2DB',
-                                    width: 350,
-                                    height: 35,
-                                    borderRadius: 10,
-                                    
-                                }}
+                                value={allergen}
+                                onSelectItem={handleSelectAllergen}
+                                placeholder= {'Enter a allergen'}
+                                handleSubmit={handleSubmitAllergen()}
                             />
-                       
 
                         <Text style={styles.text}> Comment </Text>
                         
