@@ -110,7 +110,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
 
                   <View style={styles.tasteAndHealthContainer}>
                       
-                    <Text style={styles.ratingText}>Taste</Text>
+                    <Text style={styles.ratingText}>  Taste</Text>
 
                     <View style={styles.progressContainer}>
                       <ProgressBar

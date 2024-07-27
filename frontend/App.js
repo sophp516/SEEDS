@@ -22,6 +22,7 @@ import TopRated from './pages/TopRated.tsx';
 import fonts from './fonts.js';
 import { ActivityIndicator, View, Text } from 'react-native';
 import { useFonts } from "expo-font";
+import RecommendedForYou from './pages/RecommendedForYou.tsx';
 
 const Stack = createStackNavigator();
 
@@ -61,6 +62,7 @@ export default function App() {
           <Stack.Screen name="SelectedMenu" component={SelectedMenu} options={{ headerShown: false }} /> 
           <Stack.Screen name="OnTheMenu" component={OnTheMenu} options={{ headerShown: false }} />  
           <Stack.Screen name="TopRated" component={TopRated} options={{ headerShown: false }} /> 
+          <Stack.Screen name="RecommendedForYou" component={RecommendedForYou} options={{ headerShown: false }} /> 
           <Stack.Screen name="MyActivity" component={MyActivity} options={{ headerShown: false }} />
           <Stack.Screen name="MyPreferences" component={MyPreferences} options={{ headerShown: false }} />
           <Stack.Screen name="MyProfile" component={MyProfile} options={{ headerShown: false }} /> 

@@ -10,9 +10,10 @@ const LoadingScreen = () => {
                 <View style={styles.overlayContainer}>
                     <Image source={require('../assets/Thinking.gif')} style={styles.thinkingGif} />
                     <Image source={require('../assets/loadingDot.gif')} style={styles.loadingDotGif} />
-                    <Text style={styles.text}>Just a Moment, Please...</Text>
                 </View>
+                
             </View>
+
         </View>
     );
 }
@@ -26,6 +27,7 @@ const styles = StyleSheet.create({
         paddingTop: 7,
         paddingHorizontal: 7,
         borderRadius: 10,
+        left: 50,
 
     },
     thinkingContainer: {
