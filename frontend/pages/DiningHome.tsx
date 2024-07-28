@@ -456,7 +456,7 @@ useEffect(() => {
                             ) : guestRecommendations? (
                               <Text style={styles.noResultText}>Please log in to see {'\n'} personalized recommendations</Text>
                             ) : recommendedMenus?.length === 0 ?(
-                              <Text style={styles.noResultText}>No meals match your filter...</Text>
+                              <Text style={styles.noResultText}>No meals match your preferences...</Text>
                             ) : (
                              
                               
