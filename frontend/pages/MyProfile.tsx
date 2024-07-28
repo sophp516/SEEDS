@@ -199,8 +199,64 @@ const MyProfile = () => {
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
+        const selectedImage = result.assets[0].uri;
         setProfileImage(result.assets[0].uri);
+        await saveProfileImage(selectedImage);
     }
+};
+
+
+const saveProfileImage = async (imageUri) => {
+  try {
+    const userId = loggedInUser?.uid;
+
+    if (!userId) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'No user is currently logged in.',
+      });
+      return;
+    }
+
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('id', '==', userId));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'User not found.',
+      });
+      return;
+    }
+
+    const userDoc = querySnapshot.docs[0];
+    const userDocRef = userDoc.ref;
+
+    await updateDoc(userDocRef, { profileImage: imageUri });
+
+    Toast.show({
+      type: 'success',
+      text1: 'Profile Updated',
+      text2: 'Your profile image has been updated successfully!',
+    });
+
+    // Optionally, update the profileImage in the context
+    setLoggedInUser(prev => ({
+      ...prev,
+      profileImage: imageUri,
+    }));
+
+  } catch (error) {
+    console.error('Error updating profile image:', error);
+    Toast.show({
+      type: 'error',
+      text1: 'Update Failed',
+      text2: 'There was an error updating your profile image. Please try again later.',
+    });
+  }
 };
 
   return (
