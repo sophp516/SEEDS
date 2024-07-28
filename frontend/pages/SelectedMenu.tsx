@@ -121,7 +121,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
     return (
         <View style={styles.container}>
             <View style={styles.selectedHeader}>
-                <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.backButtonContainer}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButtonContainer}>
                     <Image style={styles.backArrow} source={require('../assets/backArrow.png')} resizeMode="contain"/>
                     <Text style={styles.backButtonText}>Back</Text>
                 </TouchableOpacity>
