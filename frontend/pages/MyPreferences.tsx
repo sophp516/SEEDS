@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, TextInput, Image } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../context/authContext.js';
 import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
@@ -133,11 +133,12 @@ const MyPreferences = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text>Back</Text>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButtonContainer}>
+        <Image style={styles.backArrow} source={require('../assets/backArrow.png')} resizeMode="contain"/>
+        <Text style={styles.backButtonText}>Back</Text>
       </TouchableOpacity>
 
-      <Text style={styles.text}>My Preferences</Text>
+      <Text style={styles.header}>My Preferences</Text>
       <Text style={styles.subheader}>Track your dietary preferences and allergies.</Text>
 
       <View>
@@ -245,31 +246,51 @@ const MyPreferences = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 60, // Adjust the top padding as needed
-    paddingHorizontal: 20,
+    paddingLeft: 20,
     backgroundColor: colors.backgroundGray,
   },
-  backButton: {
-    position: 'absolute',
-    top: 60,
-    left: 20,
+  backButtonContainer: {
+    marginTop: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  text: {
-    fontSize: 24, // Adjust the size as needed
-    textAlign: 'center',
-    marginVertical: 20,
+  backArrow: {
+    width: 20,
+    height: 20,
+    marginRight: 10, // space between icon and text
   },
-  sectionHeader: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'left',
-    marginBottom: 10,
+  backButtonText: {
+    fontFamily: 'Satoshi-Medium',
+    fontSize: 16,
+    color: colors.textGray,
+  },
+  header: {
+    fontFamily: 'SpaceGrotesk-SemiBold',
+    fontSize: 24,
+    color: colors.textGray,
+    marginTop: 40,
+    // marginLeft: 5,
   },
   subheader: {
     fontSize: 16,
-    textAlign: 'center',
-    color: '#666', // Gray color for subheader
-    marginBottom: 20,
+    fontFamily: 'Satoshi-Medium',
+    // textAlign: 'center',
+    color: colors.textGray,
+    marginTop: 10,
+    marginBottom: 40,
+  },
+  text: {
+    fontSize: 20,
+    fontFamily: 'Satoshi-Medium',
+    color: colors.textGray,
+    marginTop: 30,
+  },
+  sectionHeader: {
+    fontSize: 20,
+    fontFamily: 'Satoshi-Medium',
+    fontWeight: 'bold',
+    textAlign: 'left',
+    marginBottom: 10,
   },
   editingContainer: {
     marginBottom: 20,

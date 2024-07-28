@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, Image, ScrollView, ActivityIndicator } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../context/authContext.js';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
@@ -122,11 +122,10 @@ const MyActivity = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.homeHeaderTop}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backButtonText}>Back</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButtonContainer}>
+        <Image style={styles.backArrow} source={require('../assets/backArrow.png')} resizeMode="contain"/>
+        <Text style={styles.backButtonText}>Back</Text>
+      </TouchableOpacity>
 
       <Text style={styles.text}>My Activity</Text>
 
@@ -200,6 +199,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.backgroundGray,
+    // padding: 30,
   },
   text: {
     fontSize: 24,
@@ -212,14 +212,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 20,
-    marginTop: 20, // Move the header down
   },
-  backButton: {
-    padding: 10,
+  backButtonContainer: {
+    paddingLeft: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 50,
+},
+  backArrow: {
+    width: 20,
+    height: 20,
+    marginRight: 10, // space between icon and text
   },
   backButtonText: {
+    fontFamily: 'Satoshi-Medium',
     fontSize: 16,
-    color: 'blue',
+    color: colors.textGray,
   },
   toggleContainer: {
     flexDirection: 'row',

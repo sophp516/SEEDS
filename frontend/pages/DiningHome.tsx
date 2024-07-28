@@ -456,7 +456,7 @@ useEffect(() => {
                             ) : guestRecommendations? (
                               <Text style={styles.noResultText}>Please log in to see {'\n'} personalized recommendations</Text>
                             ) : recommendedMenus?.length === 0 ?(
-                              <Text style={styles.noResultText}>No meals match your filter...</Text>
+                              <Text style={styles.noResultText}>No meals match your preferences...</Text>
                             ) : (
                              
                               
@@ -559,7 +559,7 @@ const styles = StyleSheet.create({
     paddingLeft: 2,
   },
   diningHomeHeader: {
-    paddingTop: 90,
+    paddingTop: 50,
     width: '100%',
     paddingHorizontal: 20,
     justifyContent: 'center',
