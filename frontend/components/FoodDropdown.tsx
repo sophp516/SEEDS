@@ -75,7 +75,6 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
                  onSelectItem={(item) =>{
                     if (item){
                         onSelectItem(item); 
-                        onClear(); 
                     }
                  }}
                 //  loading={loading}
