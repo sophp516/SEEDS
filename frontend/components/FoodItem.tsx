@@ -6,20 +6,41 @@ import ProgressBar from 'react-native-progress-bar-horizontal';
 import Preferences from '../services/Preferences.json';
 import Allergens from '../services/Allergens.json';
 import ImageSlider from './ImageSlider';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp, collection, getDocs, orderBy, query } from 'firebase/firestore';
 import TimeDisplay from './TimeDisplay';
+import { db } from '../services/firestore';
 
 type RootStackParamList = {
     SelectedMenu: { foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs , averageRating },
 };
 
 const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs, averageRating, updatedTime}) => {
-  const defaultImage = require('../assets/image.png');
+    const defaultImage = require('../assets/image.png');
+    // console.log("image", image)
+    
     let parsedRating = parseFloat(averageRating).toFixed(1);
     let parsedPrice = '$' + parseFloat(price).toFixed(2);
     if (Number.isNaN(parseFloat(price))) {
         parsedPrice = '$ N/A';
     }
+    const [topTags, setTopTags] = React.useState([]);
+
+    useEffect(() => {
+        const fetchTopTags = async () => {
+            try{
+                const tagCollection = collection(db, 'colleges', 'Dartmouth College', 'foodList', foodName, 'tagsCollection');
+                const q = query(tagCollection, orderBy('frequency', 'desc'));
+                const querySnapshot = await getDocs(q);
+                const topTagsData = querySnapshot.docs.map(doc => doc.id);
+                setTopTags(topTagsData);
+            }catch(error){
+                console.log("Error fetching top tags: ", error);
+            }
+        }
+        fetchTopTags();
+    },[])
+    // console.log(topTags);   
+
 
 
     if (image.length === 0) {

@@ -37,10 +37,11 @@ interface SelectedMenuProps {
 }
 
 const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
-    const { reviewIds, foodName, image, location, price, taste ,serving, calories, protein, fat, carbs, averageRating } = route.params;
+    const { reviewIds, foodName, image, location, price, taste ,tags, allergens, serving, calories, protein, fat, carbs, averageRating } = route.params;
     const navigation = useNavigation<NavigationProp<ParamListBase>>();
     const [toggleOverview, setToggleOverview] = useState(true);
     const [reviews, setReviews] = useState([])
+    const [times, setTimes] = useState(['Breakfast', 'Dinner', 'Lunch']); 
     const [allTags, setAllTags] = useState([]);
     const [allAllergens, setAllAllergen] = useState([]);
     let parsedAverageRating = parseFloat(averageRating.toString()).toFixed(1);
@@ -116,7 +117,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
             setAllAllergen(allergensArray)
         }
     }, [reviews]);
-    
+
     
     return (
         <View style={styles.container}>
@@ -150,9 +151,8 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
             <ScrollView style={styles.scrollContainer}>
                 {toggleOverview ? 
                     <View style={styles.toggleContentContainer}>
-                        {image ? (
-                            // <ImageSlider images={[image]} />
-                            <Image source={{ uri: image[0] }} style={styles.image} />
+                        {image.length > 0 ? (
+                            <ImageSlider images={image} />
                         ) : (
                             <View style={styles.placeholderImage}>
                                 <Text style={styles.placeholderText}>No Image</Text>
@@ -168,9 +168,9 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                                     <Text style={styles.smallGrayText}>inputted by reviewers</Text>
                                 </View>
                                 <View style={styles.tagContent}> 
-                                    {allTags.map((item, i) => {
+                                    {tags.map((item, i) => {
                                         return (
-                                            <View style={styles.tagBlob} key={i}>
+                                            <View style={times.includes(item) ? [styles.tagBlob, {backgroundColor:'#'}] : styles.tagBlob } key={i}>
                                                 <Text>{item}</Text>
                                             </View>
                                         )
@@ -181,7 +181,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                                     <Text style={styles.smallGrayText}>inputted by reviewers</Text>
                                 </View>
                                 <View style={styles.allergenContent}> 
-                                    {allAllergens.map((item, i) => {
+                                    {allergens.map((item, i) => {
                                         return (
                                             <View style={styles.allergenBlob} key={i}>
                                                 <Text>{item}</Text>

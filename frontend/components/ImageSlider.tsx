@@ -38,7 +38,7 @@ const ImageSlider = ({images}) => {
                         key={index}
                         style={[
                             styles.dot,
-                            { backgroundColor: currentIndex === index ? 'black' : 'gray' }
+                            { backgroundColor: currentIndex === index ? '#606060' : '#FBFAF5' }
                         ]}
                     />
                 ))}
@@ -55,6 +55,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 10,
+        position: 'absolute',
+        bottom: 0,
     },
     dot: {
         height: 10,

@@ -74,6 +74,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                       averageRating: globalData?.averageRating ?? 0,
                       updatedTime: globalData?.updatedAt ?? 'N/A',
                   };
+                //   console.log(foodItem.image);
                   foodItems.push(foodItem);
               }
           });
@@ -188,7 +189,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
             {loading ?
             <View style={styles.loadingScreen}>
               <LoadingScreen />
-
+                
             </View>
             : <ScrollView style={styles.contentScrollContainer}>
                 {filterOrNone.length > 0 ? (
