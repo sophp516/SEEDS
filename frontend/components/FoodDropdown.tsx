@@ -5,7 +5,7 @@ import { getDocs, collection} from 'firebase/firestore'
 import { db } from '../services/firestore'
 
 // parameter: user location
-const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
+const foodDropdown = ( {onChangeText,onSelectItem,onClear, food}) => {
     const [foodlist, setFoodlist] = useState([]);
     const [suggestionsList, setSuggestionsList] = useState([]);
     const searchRef = useRef(null);
@@ -42,22 +42,23 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
     
     const getSuggestions = useCallback(async (q: string) => {
         const filterToken = q.toLowerCase();
-        if (typeof q !== 'string' || q.length < 1) {
+        if (typeof q !== 'string' || q.length < 3) {
             setSuggestionsList(foodlist);
             return;
         }
-        setLoading(true);
+        // setLoading(true);
         const items = foodlist;
-        const suggestions = items
-            .filter(item => item.title.toLowerCase().includes(filterToken))
+        const suggestions = items.filter(item => item.title.toLowerCase().includes(filterToken))
             .map(item => ({
                 id: item.id,
                 title: item.title,
             }));
+        console.log(q);
+        console.log(suggestions)
         setSuggestionsList(suggestions);
 
-        setLoading(false);
-    }, []);
+        // setLoading(false);
+    }, [foodlist]);
 
     // console.log("food list", value)
     return (
@@ -77,7 +78,7 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
                         onSelectItem(item); 
                     }
                  }}
-                //  loading={loading}
+                debounce={600}
                  direction={Platform.select({ ios: 'down' })}
                  onClear={()=> {
                         onClear();
@@ -89,7 +90,7 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
                  textInputProps ={{
                      placeholder: 'Select or Enter a food',
                      placeholderTextColor: '#888',
-                     value: value,
+                     value: food,
                      autoCorrect: false,
                      autoCapitalize: 'none',
                     onChangeText: (value)=> {
