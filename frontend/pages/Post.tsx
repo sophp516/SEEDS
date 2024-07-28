@@ -657,16 +657,6 @@ const Post = () => {
 
     }
 
-
-             /* <View style={styles.tagsContainer} > 
-                            {review.tags && review.tags.map((tag, index) =>
-                                <View key={index} style={styles.tags}>
-                                    <Text >{tag}</Text>
-                                    <TouchableOpacity onPress={()=>handleDeleteTag(index)}>
-                                        <Text> x </Text>
-                                    </TouchableOpacity>
-                                </View>)}   
-                        </View> */
     return (
         <View style={styles.container}>
                <View style={{margin: 15}}></View>
