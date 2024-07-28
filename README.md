@@ -50,7 +50,7 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
+    <li><a href="#usage">Usage</a> (more Demo)</li>
     <li><a href="#contactdevelopers">Contact/Developers</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
@@ -124,19 +124,23 @@ Setting up the project on your device:
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-App Features:
+Main Features:
 
 * Sign up & Login in
 
-* Adding User Preferences - [[Demo]](https://www.figma.com/design/k86T2yRbwF2zjODRGxbXwE/SEEDS-2024?node-id=1-5&t=wXXycmiHbe2SY9XC-0)
+* Profile Editing
 
-* Dinning Home Menu Pages Filtering - [[Demo]](https://www.figma.com/design/k86T2yRbwF2zjODRGxbXwE/SEEDS-2024?node-id=1-5&t=wXXycmiHbe2SY9XC-0)
+* Adding User Preferences - [[Demo]](https://github.com/user-attachments/assets/e11a13dd-452a-4d57-82e8-eba6a46150b2)
 
-* Discover Page Commenting- [[Demo]](https://www.figma.com/design/k86T2yRbwF2zjODRGxbXwE/SEEDS-2024?node-id=1-5&t=wXXycmiHbe2SY9XC-0)
+* Dinning Home Menu Pages Filtering - [[Demo]](https://github.com/user-attachments/assets/0096bea7-3d50-4f18-b815-172e3298c1ad)
 
-* Ranking Page - [[Demo]](https://www.figma.com/design/k86T2yRbwF2zjODRGxbXwE/SEEDS-2024?node-id=1-5&t=wXXycmiHbe2SY9XC-0)
+* Selected Menu and Add Review- [[Demo]](https://github.com/user-attachments/assets/ddbcd6fb-a78e-42b9-a90b-4c69e833c6d8)
 
-* Profile Editing - [[Demo]](https://www.figma.com/design/k86T2yRbwF2zjODRGxbXwE/SEEDS-2024?node-id=1-5&t=wXXycmiHbe2SY9XC-0)
+* Discover Page Commenting and Add Post- [[Demo]](https://github.com/user-attachments/assets/ef5e1368-f400-4f5c-a9c3-439eb415065f)
+
+* Ranking Page - [[Demo]](https://github.com/user-attachments/assets/b5a231cd-6495-4dcc-a987-e3ecd4f294d1)
+
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -169,6 +173,7 @@ Racheal Huang - [@Linkedin](https://www.linkedin.com/in/rachaelhuang/) - email: 
 * [Drop Down Picker](https://www.npmjs.com/package/react-native-dropdown-picker)
 * [React Native Progress Bar](https://www.npmjs.com/package/react-native-progress-bar-horizontal)
 * [React Native Community Slider](https://www.npmjs.com/package/@react-native-community/slider)
+* [Toast Message](https://www.npmjs.com/package/react-native-toast-message)
 
 
 
