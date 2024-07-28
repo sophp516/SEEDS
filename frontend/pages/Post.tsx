@@ -797,7 +797,7 @@ const Post = () => {
                                 onChangeText={handleChangeFoodName}
                                 onSelectItem={handleSelectedFood}
                                 onClear={()=>setReview(prevReview => ({...prevReview, foodName: ''}))}
-                                value={review.foodName}
+                                food={review.foodName}
                             />
                         </View>
                            
