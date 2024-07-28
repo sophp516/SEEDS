@@ -112,6 +112,7 @@ const Profile = () => {
         try {
             await signOut(auth);
             setLoggedInUser(null);
+            setProfileImage(null);
         } catch (err) {
             console.error(err);
         }
