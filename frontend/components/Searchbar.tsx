@@ -45,6 +45,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ disabled, onSearchChange }) => {
         <TextInput
           style={styles.textInput}
           placeholder="Search"
+          placeholderTextColor={colors.textFaintBrown} 
           value={searchText}
           onChangeText={setSearchText}
           onSubmitEditing={handleSearch}
@@ -86,6 +87,7 @@ const styles = StyleSheet.create({
     height: 40,
     fontFamily: 'Satoshi-Regular',
     fontSize: 16,
+    color: colors.textGray,
   },
 });
 
