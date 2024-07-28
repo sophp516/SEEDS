@@ -246,11 +246,11 @@ const MyPreferences = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 30,
+    paddingLeft: 20,
     backgroundColor: colors.backgroundGray,
   },
   backButtonContainer: {
-    marginTop: 60,
+    marginTop: 50,
     flexDirection: 'row',
     alignItems: 'center',
   },

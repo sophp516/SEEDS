@@ -13,7 +13,7 @@ const TagDropdown = ({value, data, onChangeText, onClear, onSelectItem, placehol
 
     const getSuggestions = useCallback(async (q: string) => {
         const filterToken = q.toLowerCase();
-        if (typeof q !== 'string' || q.length < 3) {
+        if (typeof q !== 'string' || q.length < 1) {
             setSuggestionsList(data);
             return;
         }
@@ -34,13 +34,13 @@ const TagDropdown = ({value, data, onChangeText, onClear, onSelectItem, placehol
     <AutocompleteDropdown
         dataSet={suggestionsList}
         onChangeText={(value)=>{
+            onChangeText(value);
             getSuggestions(value);
-            setInput(value);
         }}
         onSelectItem={(item)=>{
             if (item){  
                 onSelectItem(item);
-                setInput(item.title);
+                setInput('');
             }
         }}
         loading={loading}
@@ -49,7 +49,7 @@ const TagDropdown = ({value, data, onChangeText, onClear, onSelectItem, placehol
             onClear();
             setSuggestionsList(data);
         }}
-         renderItem={(item) => (
+        renderItem={(item) => (
             <Text style={{ color: colors.textGray, padding: 15, fontFamily: 'Satoshi-Medium', fontSize: 15 }}>{item.title}</Text>
         )}
         textInputProps ={{
@@ -62,7 +62,7 @@ const TagDropdown = ({value, data, onChangeText, onClear, onSelectItem, placehol
                 handleSubmit(e);
             },
             onChangeText: (value) => {
-                setInput(value);
+                onChangeText(value);
                 getSuggestions(value);
             },
             style: { 

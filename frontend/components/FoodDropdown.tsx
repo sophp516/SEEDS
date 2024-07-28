@@ -6,7 +6,7 @@ import { db } from '../services/firestore'
 import colors from '../styles.js'
 
 // parameter: user location
-const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
+const foodDropdown = ( {onChangeText,onSelectItem,onClear, food}) => {
     const [foodlist, setFoodlist] = useState([]);
     const [suggestionsList, setSuggestionsList] = useState([]);
     const searchRef = useRef(null);
@@ -42,22 +42,23 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
 
     const getSuggestions = useCallback(async (q: string) => {
         const filterToken = q.toLowerCase();
-        if (typeof q !== 'string' || q.length < 1) {
+        if (typeof q !== 'string' || q.length < 3) {
             setSuggestionsList(foodlist);
             return;
         }
-        setLoading(true);
+        // setLoading(true);
         const items = foodlist;
-        const suggestions = items
-            .filter(item => item.title.toLowerCase().includes(filterToken))
+        const suggestions = items.filter(item => item.title.toLowerCase().includes(filterToken))
             .map(item => ({
                 id: item.id,
                 title: item.title,
             }));
+        console.log(q);
+        console.log(suggestions)
         setSuggestionsList(suggestions);
 
-        setLoading(false);
-    }, []);
+        // setLoading(false);
+    }, [foodlist]);
 
     // console.log("food list", value)
     return (
@@ -74,32 +75,27 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, value}) => {
                 }}
                 onSelectItem={(item) =>{
                     if (item){
-                        onSelectItem(item);
-                        setInputValue(item.title);
+                        onSelectItem(item); 
                     }
-                }}
-                //  loading={loading}
+                 }}
+                debounce={600}
                 direction={Platform.select({ ios: 'down' })}
                 onClear={()=> {
                     onClear();
-                    setInputValue('');
                     setSuggestionsList(foodlist);
                 }}
                 renderItem={(item) => (
-                    <Text style={{ color: colors.textGray, fontFamily: 'Satoshi-Medium', padding: 15, fontSize: 14 }}>{item.title}</Text>
+                    <Text style={{ color: '#35353E', padding: 15 }}>{item.title}</Text>
                 )}
                 textInputProps ={{
                     placeholder: 'Enter or select a food',
-                    placeholderTextColor: colors.textFaintBrown,
-                    value: inputValue,
+                    placeholderTextColor: '#888',
+                    value: food,
                     autoCorrect: false,
                     autoCapitalize: 'none',
-                    onSubmitEditing(e) {
-                        onChangeText(inputValue);
-                    },
                     onChangeText: (value)=> {
                         getSuggestions(value);
-                        setInputValue(value)
+                        onChangeText(value);
                     },
                     style: { 
                         fontFamily: 'Satoshi-Medium',

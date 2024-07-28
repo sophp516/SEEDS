@@ -7,7 +7,7 @@ const GeneralDropdown = ({value, data, onChangeText, onClear, onSelectItem, plac
     const searchRef = useRef(null);
     const dropdownController = useRef(null);
     const [Initalize, setInitalize] = useState(true);
-    const [input, setInput] = useState('');
+
     useEffect(()=>{
         if (Initalize){
             setInitalize(false);
@@ -35,8 +35,6 @@ const GeneralDropdown = ({value, data, onChangeText, onClear, onSelectItem, plac
         // setLoading(false);
     }, []);
 
-
-
   return (
     <View>
     <AutocompleteDropdown
@@ -47,7 +45,7 @@ const GeneralDropdown = ({value, data, onChangeText, onClear, onSelectItem, plac
         dataSet={suggestionsList}
         onChangeText={(value)=>{
             getSuggestions(value);
-            setInput(value);
+            onChangeText(value);
         }}
         onSelectItem={onSelectItem}
         direction={Platform.select({ ios: 'down' })}
@@ -64,8 +62,9 @@ const GeneralDropdown = ({value, data, onChangeText, onClear, onSelectItem, plac
             value: value,
             autoCorrect: false,
             autoCapitalize: 'none',
-            onSubmitEditing(e) {
-                onChangeText(input);
+            onChangeText: (value) => {
+                onChangeText(value);
+                getSuggestions(value);
             },
             style: { 
                 fontFamily: 'Satoshi-Medium',

@@ -146,22 +146,20 @@ const Profile = () => {
                                 <Text style={styles.displayName}>{user?.displayName}</Text>
                             </View>
                             <Text style={styles.schoolName}>{userInfo?.schoolName}</Text>
+                            <View style={styles.tagList}>
+                                {fetchTags.map((tag, index) => (
+                                    <View style={[styles.tagWithDelete, getTagStyle(tag)]} key={index}>
+                                        <Text>{tag}</Text>
+                                    </View>
+                                ))}
 
+                                {fetchAllergies.map((tag, index) => (
+                                    <View style={[styles.tagWithDelete, getAllergenStyle(tag)]} key={index}>
+                                        <Text>{tag}</Text>
+                                    </View>
+                                ))}
+                            </View>
                       </View>
-                  </View>
-
-                  <View style={styles.tagList}>
-                      {fetchTags.map((tag, index) => (
-                          <View style={[styles.tagWithDelete, getTagStyle(tag)]} key={index}>
-                              <Text>{tag}</Text>
-                          </View>
-                      ))}
-
-                      {fetchAllergies.map((tag, index) => (
-                          <View style={[styles.tagWithDelete, getAllergenStyle(tag)]} key={index}>
-                              <Text>{tag}</Text>
-                          </View>
-                      ))}
                   </View>
 
                 </View>
@@ -212,13 +210,14 @@ const styles = StyleSheet.create({
         fontFamily: 'SpaceGrotesk-SemiBold',
         fontSize: 24,
         color: colors.textGray,
-        marginTop: 96,
+        marginTop: 50,
         marginLeft: 36,
     },
     profileBox: {
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'row',
+        paddingTop: 10,
         backgroundColor: colors.navbarBackground,
     },
     nameContainer: {
@@ -256,6 +255,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         marginBottom: 10,
+        marginTop: 10,
     },
     tagWithDelete: {
         flexDirection: 'row',
@@ -305,12 +305,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: colors.navbarBackground,
-        marginTop: 20,
+        marginTop: 10,
         marginBottom: 20,
         paddingTop: 20,
         paddingBottom: 20,
-        
-
     },
     profileSectionIcon: {
         width: 20,
@@ -389,7 +387,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Satoshi-Medium',
     },
     signOutButton: {
-        marginTop: 60,
+        marginTop: 20,
         marginHorizontal: 'auto',
         backgroundColor: colors.inputGray,
         alignItems: 'center',
