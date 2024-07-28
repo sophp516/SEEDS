@@ -23,10 +23,12 @@ import fonts from './fonts.js';
 import { ActivityIndicator, View, Text } from 'react-native';
 import { useFonts } from "expo-font";
 import RecommendedForYou from './pages/RecommendedForYou.tsx';
+import CustomSplashScreen from './pages/CustomSplashScreen.js';
 
 const Stack = createStackNavigator();
 
 export default function App() {
+  const [isLoading, setIsLoading] = useState(true);
   const [fontsLoaded] = useFonts({
     'SpaceGrotesk-Light': require('./assets/fonts/SpaceGrotesk-Light.ttf'),
     'SpaceGrotesk-Regular': require('./assets/fonts/SpaceGrotesk-Regular.ttf'),
@@ -41,8 +43,15 @@ export default function App() {
     // 'Satoshi-Variable': require('./assets/fonts/Satoshi-Variable.ttf'),
   });
 
-  if (!fontsLoaded) {
-    return <Text>Loading...</Text>;
+  useEffect(() => {
+    // Simulate any loading process here
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 2000); // Show splash screen for 2 seconds
+  }, []);
+
+  if (!fontsLoaded || isLoading) {
+    return <CustomSplashScreen />;
   }
 
   return (
