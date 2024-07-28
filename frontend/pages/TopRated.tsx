@@ -36,57 +36,57 @@ const DinningHome: React.FC<Props> = ({ route }) => {
     const [ onTheMenu, setOnTheMenu ] = useState([]);
     const [ loading, setLoading ] = useState(true);
     const [topRatedMenus, setTopRatedMenus] = useState([]);
-
+    
     const fetchReviews = async (location) => {
-        try {
-            const foodItems = [];
-            const locationDocRef = collection(db, 'colleges', 'Dartmouth College', 'diningLocations', location, 'foodList');
-            const collectionsSnapshot = await getDocs(locationDocRef);
+      try {
+          const locationDocRef = collection(db, 'colleges', 'Dartmouth College', 'diningLocations', location, 'foodList');
+          const collectionsSnapshot = await getDocs(locationDocRef);
 
-            for (const subCollectionDoc of collectionsSnapshot.docs) {
-                const foodName = subCollectionDoc.id;
-                const reviewsDocRef = doc(db, 'colleges', 'Dartmouth College', 'diningLocations', location, foodName, 'reviews');
-                const reviewsDocSnapshot = await getDoc(reviewsDocRef);
+          const fetchPromises = collectionsSnapshot.docs.map(async (subCollectionDoc) => {
+              const foodName = subCollectionDoc.id;
+              const reviewsDocRef = doc(db, 'colleges', 'Dartmouth College', 'diningLocations', location, foodName, 'reviews');
+              const reviewsDocSnapshot = await getDoc(reviewsDocRef);
 
-                const averageReviewDocRef = doc(db, 'colleges', 'Dartmouth College', 'foodList', foodName);
-                const averageDocSnapshot = await getDoc(averageReviewDocRef);
+              const averageReviewDocRef = doc(db, 'colleges', 'Dartmouth College', 'foodList', foodName);
+              const averageDocSnapshot = await getDoc(averageReviewDocRef);
 
-                if (reviewsDocSnapshot.exists()) {
-                    const reviewsData = reviewsDocSnapshot.data();
-                    const reviewIds = reviewsData.reviewIds || [];
+              if (reviewsDocSnapshot.exists()) {
+                  const reviewsData = reviewsDocSnapshot.data();
+                  const reviewIds = reviewsData.reviewIds || [];
 
-                    const globalData = averageDocSnapshot.data();
+                  const globalData = averageDocSnapshot.data();
 
-                    const foodItem = {
-                        foodName,
-                        reviewIds,
-                        image: globalData?.images ?? require('../assets/image.png'), // Default image if image is missing
-                        location: globalData?.location ?? 'N/A', // Default value if location is missing
-                        price: globalData?.price ?? 'N/A', // Default value if price is missing
-                        taste: globalData?.taste ?? 'N/A', // Default value if taste is missing
-                        health: globalData?.health ?? 'N/A', // Default value if health is missing
-                        allergens: globalData?.allergens ?? [], // Default to an empty array if allergens are missing
-                        tags: globalData?.tags ?? [], // Default to an empty array if tags are missing
-                        serving: globalData?.serving ?? 'N/A', // Default value if serving is missing 
-                        calories: globalData?.calories ?? 'N/A', // Default value if calories is missing
-                        carbs: globalData?.carbs ?? 'N/A', // Default value if carbs is missing
-                        protein: globalData?.protein ?? 'N/A', // Default value if protein is missing
-                        fat: globalData?.fat ?? 'N/A', // Default value if fat is missing  
-                        averageRating: globalData?.averageRating ?? 0,
-                        updatedTime: globalData?.updatedAt ?? 'N/A',
+                  return {
+                      foodName,
+                      reviewIds,
+                      image: globalData?.images ?? require('../assets/image.png'), // Default image if image is missing
+                      location: globalData?.location ?? 'N/A', // Default value if location is missing
+                      price: globalData?.price ?? 'N/A', // Default value if price is missing
+                      taste: globalData?.taste ?? 'N/A', // Default value if taste is missing
+                      health: globalData?.health ?? 'N/A', // Default value if health is missing
+                      allergens: globalData?.allergens ?? [], // Default to an empty array if allergens are missing
+                      tags: globalData?.tags ?? [], // Default to an empty array if tags are missing
+                      serving: globalData?.serving ?? 'N/A', // Default value if serving is missing
+                      calories: globalData?.calories ?? 'N/A', // Default value if calories is missing
+                      carbs: globalData?.carbs ?? 'N/A', // Default value if carbs is missing
+                      protein: globalData?.protein ?? 'N/A', // Default value if protein is missing
+                      fat: globalData?.fat ?? 'N/A', // Default value if fat is missing  
+                      averageRating: globalData?.averageRating ?? 0,
+                      updatedTime: globalData?.updatedAt ?? 'N/A',
+                  };
+              }
+          });
 
-                    };
-                    foodItems.push(foodItem);
-                }
-            }
-            return foodItems;
-        } catch (error) {
-            console.error("Error fetching reviews: ", error);
-            return [];
-        } finally {
-            setLoading(false)
-        }
-    };
+          const foodItems = await Promise.all(fetchPromises);
+          return foodItems.filter(item => item); // Filter out undefined items
+      } catch (error) {
+          console.error("Error fetching reviews: ", error);
+          return [];
+      } finally {
+          setLoading(false);
+      }
+  };
+
 
     //get review and sort by rating
     useEffect(() => {

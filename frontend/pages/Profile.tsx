@@ -41,6 +41,7 @@ const Profile = () => {
                     const userDoc = querySnapshot.docs[0];
                     const userData = userDoc.data();
                     setUserInfo(userData);
+                    setProfileImage(userData.profileImage);
                 }
             } catch (err) {
                 console.log(err);
@@ -111,6 +112,7 @@ const Profile = () => {
         try {
             await signOut(auth);
             setLoggedInUser(null);
+            setProfileImage(null);
         } catch (err) {
             console.error(err);
         }

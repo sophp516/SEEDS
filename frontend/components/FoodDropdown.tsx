@@ -3,6 +3,7 @@ import React, {useState, useEffect, useRef, useCallback} from 'react'
 import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown'
 import { getDocs, collection} from 'firebase/firestore'
 import { db } from '../services/firestore'
+import colors from '../styles.js'
 
 // parameter: user location
 const foodDropdown = ( {onChangeText,onSelectItem,onClear, food}) => {
@@ -39,7 +40,6 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, food}) => {
         setFetching(false);
     }, [])
 
-    
     const getSuggestions = useCallback(async (q: string) => {
         const filterToken = q.toLowerCase();
         if (typeof q !== 'string' || q.length < 3) {
@@ -68,55 +68,54 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, food}) => {
                 controller={(controller) => {
                     dropdownController.current = controller;
                 }}
-                 dataSet={suggestionsList}
-                 onChangeText={(value)=>{
-                        getSuggestions(value);
-                        onChangeText(value);
-                 }}
-                 onSelectItem={(item) =>{
+                dataSet={suggestionsList}
+                onChangeText={(value)=>{
+                    getSuggestions(value);
+                    setInputValue(value)
+                }}
+                onSelectItem={(item) =>{
                     if (item){
                         onSelectItem(item); 
                     }
                  }}
                 debounce={600}
-                 direction={Platform.select({ ios: 'down' })}
-                 onClear={()=> {
-                        onClear();
-                        setSuggestionsList(foodlist);
-                 }}
-                 renderItem={(item) => (
+                direction={Platform.select({ ios: 'down' })}
+                onClear={()=> {
+                    onClear();
+                    setSuggestionsList(foodlist);
+                }}
+                renderItem={(item) => (
                     <Text style={{ color: '#35353E', padding: 15 }}>{item.title}</Text>
                 )}
-                 textInputProps ={{
-                     placeholder: 'Select or Enter a food',
-                     placeholderTextColor: '#888',
-                     value: food,
-                     autoCorrect: false,
-                     autoCapitalize: 'none',
+                textInputProps ={{
+                    placeholder: 'Enter or select a food',
+                    placeholderTextColor: '#888',
+                    value: food,
+                    autoCorrect: false,
+                    autoCapitalize: 'none',
                     onChangeText: (value)=> {
                         getSuggestions(value);
                         onChangeText(value);
                     },
-                     style: { 
-                         color: '#35353E',
-                         backgroundColor: '#E7E2DB',
-                         width: 350,
-                         height: 30,
-                         borderRadius: 10,                           
-                         alignSelf: 'center'
-                     }
-                 }}
-                 inputContainerStyle={{
-                     backgroundColor: '#E7E2DB',
-                     width: 350,
-                     height: 35,
-                     borderRadius: 10,
-                 }}
-            
+                    style: { 
+                        fontFamily: 'Satoshi-Medium',
+                        fontSize: 15,
+                        color: colors.textGray,
+                        // backgroundColor: '#E7E2DB',
+                        width: 350,
+                        height: 30,
+                        borderRadius: 15,                           
+                        alignSelf: 'center'
+                    }
+                }}
+                inputContainerStyle={{
+                    backgroundColor: colors.commentContainer,
+                    width: 350,
+                    height: 35,
+                    borderRadius: 10,
+                }}
             >
-
             </AutocompleteDropdown>
-        
         </View>
     )
 }

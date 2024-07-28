@@ -83,19 +83,16 @@ const DiningHome: React.FC<Props> = ({ route }) => {
 
   const fetchReviews = async (placeName) => {
     try {
-
-
-        //if (loggedInUser) return [];
         const foodItems = [];
         const locationDocRef = collection(db, 'colleges', 'Dartmouth College', 'diningLocations', placeName, 'foodList');
         const collectionsSnapshot = await getDocs(locationDocRef);
 
-        for (const subCollectionDoc of collectionsSnapshot.docs) {
+        const fetchPromises = collectionsSnapshot.docs.map(async (subCollectionDoc) => {
             const foodName = subCollectionDoc.id;
             const reviewsDocRef = doc(db, 'colleges', 'Dartmouth College', 'diningLocations', placeName, foodName, 'reviews');
-            const reviewsDocSnapshot = await getDoc(reviewsDocRef);
-
             const averageReviewDocRef = doc(db, 'colleges', 'Dartmouth College', 'foodList', foodName);
+
+            const reviewsDocSnapshot = await getDoc(reviewsDocRef);
             const averageDocSnapshot = await getDoc(averageReviewDocRef);
 
             if (reviewsDocSnapshot.exists() && averageDocSnapshot.exists()) {
@@ -106,7 +103,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                 const foodItem = {
                     foodName,
                     reviewIds,
-                    image: reviewsData?.image ?? '', 
+                    image: reviewsData?.image ?? '',
                     location: placeName,
                     price: globalData?.price ?? 'N/A', // Default value if price is missing
                     taste: globalData?.taste ?? 'N/A', // Default value if taste is missing
@@ -116,24 +113,25 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                     averageRating: globalData?.averageRating ?? 'N/A',
                     createdAt: globalData?.createdAt ?? 'N/A',
                     images: globalData?.images ?? [],
-                    serving: globalData?.serving ?? 'N/A', // Default value if serving is missing 
+                    serving: globalData?.serving ?? 'N/A', // Default value if serving is missing
                     calories: globalData?.calories ?? 'N/A', // Default value if calories is missing
                     carbs: globalData?.carbs ?? 'N/A', // Default value if carbs is missing
                     protein: globalData?.protein ?? 'N/A', // Default value if protein is missing
-                    fat: globalData?.fat ?? 'N/A', // Default value if fat is missing  
+                    fat: globalData?.fat ?? 'N/A', // Default value if fat is missing
                 };
                 foodItems.push(foodItem);
             }
-        }
+        });
+
+        await Promise.all(fetchPromises);
         return foodItems;
     } catch (error) {
         console.error("Error fetching reviews: ", error);
         return [];
     } finally {
-        setLoading(false)
+        setLoading(false);
     }
 };
-
 useEffect(() => {
   const fetchTags = async () => {
     if (!user.id) return;

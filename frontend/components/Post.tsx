@@ -267,7 +267,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
                     {userInfo && (
                         <View style={styles.profileBox}>
                             <Image
-                                source={userInfo.image ? { uri: userInfo.image } : require('../assets/profile.jpeg')}
+                                source={userInfo.profileImage ? { uri: userInfo.profileImage } : require('../assets/profile.jpeg')}
                                 style={{ width: 30, height: 30, borderRadius: 25, marginRight: 10 }}
                             />
                             <Text style={styles.userInfoText}>{userInfo.displayName}</Text>
