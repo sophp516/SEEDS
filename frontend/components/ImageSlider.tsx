@@ -11,7 +11,7 @@ const ImageSlider = ({images}) => {
             <Carousel
                 // loop
                 width={width}
-                height={width / 2}
+                height={width / 1.5}
                 autoPlay={false}
                 data={images}
                 // scrollAnimationDuration={1000}

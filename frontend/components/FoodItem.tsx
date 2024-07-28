@@ -39,7 +39,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
         }
         fetchTopTags();
     },[])
-    // console.log(topTags);   
+    console.log(topTags);   
 
 
 

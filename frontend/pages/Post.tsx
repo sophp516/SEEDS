@@ -1013,7 +1013,7 @@ const styles = StyleSheet.create({
     },
     addImageButton:{
         position: 'absolute',
-        bottom: 25,  // Adjust top and right as needed to position the button in the desired corner
+        bottom: 0,  // Adjust top and right as needed to position the button in the desired corner
         right: -60,
         width: 65,  // Set the size of the button
         height: 65,
