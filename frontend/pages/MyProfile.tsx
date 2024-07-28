@@ -278,10 +278,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.backgroundGray,
-    padding: 30,
+    paddingHorizontal: 30,
   },
   backButtonContainer: {
-    marginTop: 60,
+    marginTop: 50,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -306,6 +306,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
+    marginTop: 13,
   },
   text: {
     fontSize: 20,
