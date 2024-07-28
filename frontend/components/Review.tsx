@@ -222,15 +222,14 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
             const userId = user.id;
             const reviewRef = doc(db, 'globalSubmissions', reviewId);
             const reviewDoc = await getDoc(reviewRef);
-
             const userRef = doc(db, 'users', userId);
             const userDoc = await getDoc(userRef)
 
 
             if (reviewDoc.exists() && userDoc.exists()) {
                 const reviewData = reviewDoc.data();
-                const reviewuserRef = doc(db, 'users', reviewData.userId);
-                const reviewerTotalLikes = await getDoc(reviewuserRef);
+                const reviewuserRef = doc(db, 'users', reviewData.userId); // the user who posted the review id
+                const reviewerTotalLikes = await getDoc(reviewuserRef); // get the total likes of the reviewer
             
                 const userData = userDoc.data();
                 let reviewLikes = reviewData.likes || [];
