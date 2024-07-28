@@ -514,6 +514,7 @@ const Post = () => {
             }
         }
     }
+    // console.log("review:", review.foodName);
 
     // How multiple images upload will work:
     // 1. User selects multiple images from gallery

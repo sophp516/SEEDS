@@ -195,7 +195,6 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
             const userId = user.id;
             const postRef = doc(db, 'globalSubmissions', postId);
             
-            
             if (likeStatus) {
                 await updateDoc(postRef, {
                     likes: arrayRemove(userId)
