@@ -155,9 +155,9 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                         progress={normalizeValue(taste)}
                         borderWidth={1}
                         fillColor={colors.lightOrange}
-                        unfilledColor={colors.inputGray}
+                        unfilledColor={colors.commentContainer}
                         height={10}
-                        borderColor={colors.inputGray}
+                        borderColor={colors.backgroundGray}
                         duration={100}
                       />
                     </View>
@@ -174,9 +174,9 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                         progress={normalizeValue(health)}
                         borderWidth={1}
                         fillColor={colors.highRating}
-                        unfilledColor= {colors.inputGray}
+                        unfilledColor= {colors.commentContainer}
                         height={10}
-                        borderColor={colors.inputGray}
+                        borderColor={colors.backgroundGray}
                         duration={100}
                       />
                     </View>
@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
       flexDirection: 'column',
     },
     number: {
-      fontSize: 12,
+      fontSize: 10,
       fontFamily: 'Satoshi-Regular',
       marginLeft: 5,
       color: colors.textGray,
@@ -354,13 +354,14 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     ratingText: {
+        fontFamily: 'Satoshi-Medium',
         fontSize: 10,
         color: colors.textGray,
     },
     bottonLine:{
         width: '100%',
-        borderBottomColor: '#91836E',
-        borderBottomWidth: 1.5,
+        borderBottomColor: colors.outlineDarkBrown,
+        borderBottomWidth: 1,
         marginVertical: 12,
     },
     timeContainer:{
