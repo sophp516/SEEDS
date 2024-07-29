@@ -18,7 +18,7 @@ import TagDropdown from '../components/TagDropdown.tsx';
 import ImageSlider from '../components/ImageSlider.tsx';
 import preferences from '../services/Preferences.json';
 import Allergens from '../services/Allergens.json';
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+import Toast from 'react-native-toast-message';
 import colors from '../styles.js';
 import {ACCESS_TOKEN} from "@env";
 
@@ -69,6 +69,7 @@ const Post = () => {
     const [selectedImg, setSelectedImg] = useState<string | null>(null);
     const navigation = useNavigation<NavigationProp<ParamListBase>>();
     const [toggle, setToggle] = useState<boolean>(true); // true = post, false = review 
+    const [loading, setLoading] = useState<boolean>(false);
     const [post, setPost] = useState<newPost>({
         comment: '',
         images: [],
@@ -109,6 +110,7 @@ const Post = () => {
 
     const handleCreatePost = async() => {
         try{
+            setLoading(true);
             console.log(userId);
             const userData = await verifyUser();
             if (!userData) return; 
@@ -152,6 +154,16 @@ const Post = () => {
             
             console.log("Post added to Firestore with ID:", postRef.id);
             setPost({ images: [],comment: '', userId: userId, isReview: true, subComments: []}); // reset the post
+            setLoading(false);
+            navigation.goBack();
+            Toast.show({
+                type: 'success',
+                position: 'bottom',
+                text1: 'Post submitted',
+                text2: 'Thank you for sharing!',
+                visibilityTime: 2000,
+                autoHide: true,
+            });
         }catch{
             console.error("Error adding post to Firestore, have you signed in yet");
         }
@@ -169,6 +181,7 @@ const Post = () => {
     
     const handleCreateReview = async () =>{
         try{
+            setLoading(true);
             // Verifies user
             const userData = await verifyUser();
             if (!userData) return; 
@@ -225,7 +238,16 @@ const Post = () => {
             setReview({ userId: userId, foodName: '',location: '',price: null, taste: 0,health: 0,
                 images:[],tags: [], allergens:[], comment: '',likes: [],timestamp: null,isReview: false, subComments: [],
             }); // reset the review
+            setLoading(false);
             navigation.goBack();
+            Toast.show({
+                type: 'success',
+                position: 'bottom',
+                text1: 'Review submitted',
+                text2: 'Thank you for your review!',
+                visibilityTime: 2000,
+                autoHide: true,
+            });
         }catch{
             console.error("Error adding review to Firestore, have you signed in yet?");
             alert("Error adding review to Firestore");
@@ -651,255 +673,239 @@ const Post = () => {
 
     }
 
-
-             /* <View style={styles.tagsContainer} > 
-                            {review.tags && review.tags.map((tag, index) =>
-                                <View key={index} style={styles.tags}>
-                                    <Text >{tag}</Text>
-                                    <TouchableOpacity onPress={()=>handleDeleteTag(index)}>
-                                        <Text> x </Text>
-                                    </TouchableOpacity>
-                                </View>)}   
-                        </View> */
     return (
         <View style={styles.container}>
-               
-               <View style={{margin: 15}}></View>
-           
-                {toggle ? 
-                 <View style={{ alignItems: 'flex-start', flexDirection:'row' }}>
-                    {/* <TouchableOpacity onPress={handleExit}>
-                        <Text>Exit</Text>
-                    </TouchableOpacity> */}
-                    <Text style={[styles.header]}>Create a new post</Text>
-                </View>
-                :    <View style={{ alignItems: 'flex-start', flexDirection:'row' }}>
-                    {/* <TouchableOpacity onPress={handleExit}>
-                        <Text>Exit</Text>
-                    </TouchableOpacity> */}
-                    <Text style={[styles.header]}>Create a new review</Text>
-                    </View>
-                }
-           
-
-            <View style={styles.toggleContainer}>
-                
-                <TouchableOpacity onPress={()=>setToggle(true)} style={toggle ? styles.activeToggle : styles.inactiveToggle}>
-                    <Text style={toggle ? styles.btnText1 : styles.btnText1}>Post</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={()=>setToggle(false)} style={toggle ?  styles.inactiveToggle : styles.activeToggle }>
-                    <Text style={!toggle ? styles.btnText1 : styles.btnText1}>Review</Text>
-                </TouchableOpacity>
+          <View style={{ margin: 15 }}></View>
+          {loading === true ? (
+            <View style={{ zIndex: 1, position: 'absolute', backgroundColor: 'rgba(0,0,0,0.3)', width: '100%', height: '100%' }}>
+              <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10, top: 430, left: 180 }} />
             </View>
-            
-            {toggle ? 
-                // Post Section
-                <View style={{justifyContent: 'center'}}>
-
-                    <Text style={[styles.text, {flexDirection:'row', alignItems:'flex-start'}]}> Comments </Text>
-
-                    <TextInput 
-                        style={styles.commentBox}
-                        value={post.comment}
-                        numberOfLines={100}
-                        multiline={true}
-                        onChangeText={(text)=> setPost(prevPost => ({...prevPost, comment: text}))}
-                        placeholder='Share thoughts, updates, or questions about your campus dining!'
-                        autoCapitalize="none"
-                    />
-                    <View >
-                        {post.images.length > 0 ? 
-                            <View style={styles.postUploadedImages}>
-                                <ScrollView horizontal showsHorizontalScrollIndicator={true} style={{}}>
-                                    {post.images.map((image, index) =>(
-                                        <View>
-                                        {modalVisible ? 
-                                        <Modal
-                                            animationType="slide"
-                                            transparent={true}
-                                            visible={modalVisible}
-                                            onRequestClose={() => {
-                                                setModalVisible(!modalVisible);
-                                            }}
-                                        >
-                                        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)'}}>
-                                                <Image source={{uri: post.images[index] || null}} style={{width: 400, height: 400, margin: 10}} />
-                                                <TouchableOpacity onPress={()=>setModalVisible(false)}>
-                                                    <Text>Close</Text>
-                                                </TouchableOpacity>
-                                            </View>
-
-                                        </Modal>
-                                        :
-                                         <TouchableOpacity onPress={()=>setModalVisible(true)}>
-                                         <Image key={index} source={{uri: post.images[index] || null}} style={{width: 100, height: 100, margin: 10}} />
-                                     
-                                         </TouchableOpacity>
-                                        }
-                                       
-                                        </View>
-                                      
-
-                                    ))}
-                                </ScrollView>
-                                <TouchableOpacity onPress={selectImage} >
-                                    <Image source={require('../assets/postImg.png')} style={styles.postImgicon} />
+          ) : (
+            <View />
+          )}
+      
+          {toggle ? (
+            <View style={styles.headerContainer}>
+              {/* <TouchableOpacity onPress={handleExit}>
+                <Text>Exit</Text>
+              </TouchableOpacity> */}
+              <Text style={styles.header}>Create a new post</Text>
+            </View>
+          ) : (
+            <View style={styles.headerContainer}>
+              {/* <TouchableOpacity onPress={handleExit}>
+                <Text>Exit</Text>
+              </TouchableOpacity> */}
+              <Text style={styles.header}>Create a new review</Text>
+            </View>
+          )}
+      
+          <View style={styles.toggleContainer}>
+            <TouchableOpacity onPress={() => setToggle(true)} style={toggle ? styles.activeToggle : styles.inactiveToggle}>
+              <Text style={toggle ? styles.btnText1 : styles.btnText1}>Post</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setToggle(false)} style={toggle ? styles.inactiveToggle : styles.activeToggle}>
+              <Text style={!toggle ? styles.btnText1 : styles.btnText1}>Review</Text>
+            </TouchableOpacity>
+          </View>
+      
+          {toggle ? (
+            // Post Section
+            <View style={{ justifyContent: 'center' }}>
+              <Text style={[styles.text, { flexDirection: 'row', alignItems: 'flex-start' }]}>Comments </Text>
+      
+              <TextInput
+                style={styles.commentBox}
+                value={post.comment}
+                numberOfLines={100}
+                multiline={true}
+                onChangeText={(text) => setPost(prevPost => ({ ...prevPost, comment: text }))}
+                placeholder='Share thoughts, updates, or questions about your campus dining!'
+                placeholderTextColor={colors.textFaintBrown}
+                autoCapitalize="none"
+              />
+              <View>
+                {post.images.length > 0 ? (
+                  <View style={styles.postUploadedImages}>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={true} style={{}}>
+                      {post.images.map((image, index) => (
+                        <View key={index}>
+                          {modalVisible ? (
+                            <Modal
+                              animationType="slide"
+                              transparent={true}
+                              visible={modalVisible}
+                              onRequestClose={() => {
+                                setModalVisible(!modalVisible);
+                              }}
+                            >
+                              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                                <Image source={{ uri: post.images[index] || null }} style={{ width: 400, height: 400, margin: 10, borderRadius: 10 }} />
+                                <TouchableOpacity onPress={() => setModalVisible(false)}>
+                                  <Text style={{ fontFamily: 'Satoshi-Medium', fontSize: 16, color: colors.textGray }}>Close</Text>
                                 </TouchableOpacity>
-                        </View>
-                    :
-                        <TouchableOpacity onPress={selectImage} >
-                            <Image source={require('../assets/postImg.png')} style={styles.postImgicon} />
-                        </TouchableOpacity>
-                    }
-                   
-                        <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                            <TouchableOpacity style={styles.addPostBtn} onPress={handleCreatePost}>
-                                <Text style={styles.btnText2}>Add post</Text>
+                              </View>
+                            </Modal>
+                          ) : (
+                            <TouchableOpacity onPress={() => setModalVisible(true)}>
+                              <Image source={{ uri: post.images[index] || null }} style={{ width: 100, height: 100, marginRight: 10, marginBottom: 10, borderRadius: 10 }} />
                             </TouchableOpacity>
+                          )}
                         </View>
-                    </View>
-    
+                      ))}
+                    </ScrollView>
+                  </View>
+                ) : (
+                  <View style={styles.postImgIconContainer}>
+                    <TouchableOpacity onPress={selectImage}>
+                      <Image source={require('../assets/imageBrown.png')} style={styles.postImgicon} />
+                    </TouchableOpacity>
+                    <Text style={styles.addImageText2}>Add image</Text>
+                  </View>
+                )}
+      
+                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                  <TouchableOpacity style={styles.addPostBtn} onPress={handleCreatePost}>
+                    <Text style={styles.btnText2}>Add post</Text>
+                  </TouchableOpacity>
                 </View>
-                : 
-
-                // Review Section
-                <KeyboardAvoidingView
-                behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={ {flex: 1,
-                    width: '100%'}}
-                keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 10}
-               >
-                <ScrollView contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>   
-                    <View style={styles.reviewContainer}>
-                
-                    {review.images.length > 0 ?   
-                        <View>
-                        <ImageSlider 
-                            images={review.images}
-                        />
-                        <TouchableOpacity style={styles.addImageButton} onPress={selectImage} >
-                            <Image style={{ width: '100%', height: '100%', resizeMode: 'contain'}} source={require('../assets/addMoreImage.png') }/>
-                        </TouchableOpacity>
-                        </View>
-                        :
-                        <TouchableOpacity onPress={selectImage} style={styles.imagebox}>
-                          <Image source={require('../assets/image.png')} style={styles.cameraIcon} />
+              </View>
+            </View>
+          ) : (
+            // Review Section
+            <KeyboardAvoidingView
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
+              style={{ flex: 1, width: '100%' }}
+              keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 10}
+            >
+              <ScrollView contentContainerStyle={{ alignItems: 'center', justifyContent: 'center' }}>
+                <View style={styles.reviewContainer}>
+                  {review.images.length > 0 ? (
+                    <View>
+                      <ImageSlider images={review.images} />
+                      <TouchableOpacity style={styles.addImageButton} onPress={selectImage}>
+                        <Image style={{ width: '100%', height: '100%', resizeMode: 'contain' }} source={require('../assets/addMoreImage.png')} />
                       </TouchableOpacity>
-                    
-                    }
-                 
-                    <View style={styles.reviewContentContainer}>
-
-                        <Text style={styles.text}>Food name</Text>
-                            <View style={{position:'relative', marginTop: 0}}>
-                            <FoodDropdown 
-                                onChangeText={handleChangeFoodName}
-                                onSelectItem={handleSelectedFood}
-                                onClear={()=>setReview(prevReview => ({...prevReview, foodName: ''}))}
-                                food={review.foodName}
-                            />
-                        </View>
-                           
-                        <Text style={styles.text}>Location</Text>
-                            <GeneralDropdown 
-                                data={diningLocation} 
-                                onChangeText={(text)=> {setLocationInput (text)}}
-                                onClear={() => setLocationInput('')}
-                                value={locationInput}
-                                onSelectItem={handleSelectItem}
-                                placeholder='Enter location'
-                            />   
-
-                        <Text style={styles.text}>Price</Text>
-                            <TextInput 
-                                style={styles.textbox}
-                                value={review.price ? review.price.toString() :  null}
-                                keyboardType='decimal-pad'
-                                onChangeText={handlePriceChange}
-                                placeholder='Enter price (if none, leave blank)'
-                                placeholderTextColor={colors.textFaintBrown}
-                            />
-                        <Text style={styles.text}>Taste</Text>
-                            <CustomSlider 
-                                    minimumValue={1} 
-                                    maximumValue={5}
-                                    step={1}
-                                    onValueChange={(value)=> setReview(prevReview => ({...prevReview, taste: value }))}
-                                    value={review.taste}
-                                    sliderColor='#F9A05F'
-                                    trackColor='#E7E2DB'         
-                            />
-                        <Text style={styles.text}>Health</Text>
-                            <CustomSlider 
-                                    minimumValue={1} 
-                                    maximumValue={5}
-                                    step={1}
-                                    onValueChange={(value)=> setReview(prevReview => ({...prevReview, health: value }))}
-                                    value={review.health}
-                                    sliderColor='#7FB676'
-                                    trackColor='#E7E2DB'         
-                            />
-
-
-                        <Text style={styles.text}>Add tags</Text>
-                        
-                        {review.tags.length > 0 ?
-                         <View style={styles.tagsContainer}>
-                         {tagsContainer("tags", review.tags, handleDeleteTag)}
-                        </View>:<View/>}
-
-                        <TagDropdown
-                                data={tagsData} 
-                                onChangeText={(text)=> {setTag (text)}}
-                                onClear={() => setTag('')}
-                                value={tag}
-                                onSelectItem={handleSelectTag}
-                                placeholder= {'Enter a tag'}
-                                handleSubmit={handleSubmitTag}
-                        />
-
-
-                        <Text style={styles.text}>Add allergens</Text>
-                        { review.allergens.length > 0 ?
-                             <View style={styles.tagsContainer}>
-                             {tagsContainer("allergens", review.allergens, handleDeleteAllergen)}
-                            </View> 
-                        :<View/>}
-                            <TagDropdown
-                                data={allergensData} 
-                                onChangeText={(text)=> {setAllergen(text)}}
-                                onClear={() => setAllergen('')}
-                                value={allergen}
-                                onSelectItem={handleSelectAllergen}
-                                placeholder= {'Enter an allergen'}
-                                handleSubmit={handleSubmitAllergen}
-                            />
-
-                        <Text style={styles.text}>Comment</Text>
-                             <TextInput 
-                                style={styles.commentBox}
-                                value={review.comment}
-                                numberOfLines={100}
-                                multiline={true}
-                                onChangeText={(text)=> setReview(prevReview => ({...prevReview, comment: text}))}
-                                placeholder='Share your thoughts here'
-                                autoCapitalize="none"
-                                />
-                           
-                        </View>
-
-                        <TouchableOpacity onPress={handleCreateReview} style={styles.addReviewBtn}>
-                            <Text style={styles.btnText2}>Add review</Text>
-                        </TouchableOpacity>
-                    </View>   
-                </ScrollView>
-                </KeyboardAvoidingView>
-             }
-
-            <Navbar />
+                    </View>
+                  ) : (
+                    <TouchableOpacity onPress={selectImage} style={styles.imagebox}>
+                      <Image source={require('../assets/imageBrown.png')} style={styles.cameraIcon} />
+                      <Text style={styles.addImageText}>Add image</Text>
+                    </TouchableOpacity>
+                  )}
+      
+                  <View style={styles.reviewContentContainer}>
+                    <Text style={styles.text}>Food name</Text>
+                    <View style={{ position: 'relative', marginTop: 0 }}>
+                      <FoodDropdown
+                        onChangeText={handleChangeFoodName}
+                        onSelectItem={handleSelectedFood}
+                        onClear={() => setReview(prevReview => ({ ...prevReview, foodName: '' }))}
+                        food={review.foodName}
+                      />
+                    </View>
+      
+                    <Text style={styles.text}>Location</Text>
+                    <GeneralDropdown
+                      data={diningLocation}
+                      onChangeText={(text) => { setLocationInput(text) }}
+                      onClear={() => setLocationInput('')}
+                      value={locationInput}
+                      onSelectItem={handleSelectItem}
+                      placeholder='Enter location'
+                    />
+      
+                    <Text style={styles.text}>Price</Text>
+                    <TextInput
+                      style={styles.textbox}
+                      value={review.price ? review.price.toString() : null}
+                      keyboardType='decimal-pad'
+                      onChangeText={handlePriceChange}
+                      placeholder='Enter price (if none, leave blank)'
+                      placeholderTextColor={colors.textFaintBrown}
+                    />
+                    <Text style={styles.text}>Taste</Text>
+                    <CustomSlider
+                      minimumValue={1}
+                      maximumValue={5}
+                      step={1}
+                      onValueChange={(value) => setReview(prevReview => ({ ...prevReview, taste: value }))}
+                      value={review.taste}
+                      sliderColor='#F9A05F'
+                      trackColor='#E7E2DB'
+                    />
+                    <Text style={styles.text}>Health</Text>
+                    <CustomSlider
+                      minimumValue={1}
+                      maximumValue={5}
+                      step={1}
+                      onValueChange={(value) => setReview(prevReview => ({ ...prevReview, health: value }))}
+                      value={review.health}
+                      sliderColor='#7FB676'
+                      trackColor='#E7E2DB'
+                    />
+      
+                    <Text style={styles.text}>Add tags</Text>
+      
+                    {review.tags.length > 0 ? (
+                      <View style={styles.tagsContainer}>
+                        {tagsContainer("tags", review.tags, handleDeleteTag)}
+                      </View>
+                    ) : (
+                      <View />
+                    )}
+      
+                    <TagDropdown
+                      data={tagsData}
+                      onChangeText={(text) => { setTag(text) }}
+                      onClear={() => setTag('')}
+                      value={tag}
+                      onSelectItem={handleSelectTag}
+                      placeholder={'Enter a tag'}
+                      handleSubmit={handleSubmitTag}
+                    />
+      
+                    <Text style={styles.text}>Add allergens</Text>
+                    {review.allergens.length > 0 ? (
+                      <View style={styles.tagsContainer}>
+                        {tagsContainer("allergens", review.allergens, handleDeleteAllergen)}
+                      </View>
+                    ) : (
+                      <View />
+                    )}
+                    <TagDropdown
+                      data={allergensData}
+                      onChangeText={(text) => { setAllergen(text) }}
+                      onClear={() => setAllergen('')}
+                      value={allergen}
+                      onSelectItem={handleSelectAllergen}
+                      placeholder={'Enter an allergen'}
+                      handleSubmit={handleSubmitAllergen}
+                    />
+      
+                    <Text style={styles.text}>Comment</Text>
+                    <TextInput
+                      style={styles.commentBox}
+                      value={review.comment}
+                      numberOfLines={100}
+                      multiline={true}
+                      onChangeText={(text) => setReview(prevReview => ({ ...prevReview, comment: text }))}
+                      placeholder='Share your thoughts here'
+                      autoCapitalize="none"
+                    />
+                  </View>
+      
+                  <TouchableOpacity onPress={handleCreateReview} style={styles.addReviewBtn}>
+                    <Text style={styles.btnText2}>Add review</Text>
+                  </TouchableOpacity>
+                </View>
+              </ScrollView>
+            </KeyboardAvoidingView>
+          )}
+      
+          <Navbar />
         </View>
-
-    )
+      );      
 }
 
 
@@ -924,6 +930,7 @@ const styles = StyleSheet.create({
         // lineHeight: 18,
         // textAlign: 'left',
         paddingVertical: 10,
+        marginLeft: 3,
     },
     header:{
         color: colors.textGray,
@@ -934,6 +941,12 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         // letterSpacing: -0.264,
     },
+    headerContainer: {
+        width: '100%',
+        paddingHorizontal: 40, 
+        alignItems: 'flex-start',
+        flexDirection: 'row',
+      },
     btnText1:{ // white
         color: '#35353E',
         fontFamily: 'Satoshi-Medium', 
@@ -1004,7 +1017,7 @@ const styles = StyleSheet.create({
         // justifyContent: 'space-between'
     },
     imagebox:{
-        backgroundColor: '#E7E2DB',
+        backgroundColor: colors.commentContainer,
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
@@ -1014,12 +1027,24 @@ const styles = StyleSheet.create({
     },
     addImageButton:{
         position: 'absolute',
-        bottom: 25,  // Adjust top and right as needed to position the button in the desired corner
+        bottom: 0,  // Adjust top and right as needed to position the button in the desired corner
         right: -60,
         width: 65,  // Set the size of the button
         height: 65,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    addImageText: {
+        color: colors.textFaintBrown,
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 16,
+        marginTop: 5,
+    },
+    addImageText2: {
+        color: colors.textFaintBrown,
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 14,
+        marginLeft: 5,
     },
     textbox: {
         // borderColor: 'black',
@@ -1039,7 +1064,7 @@ const styles = StyleSheet.create({
     commentBox:{
         fontFamily: 'Satoshi-Medium',
         fontSize: 15,
-        color: colors.textFaintBrown,
+        color: colors.textGray,
         backgroundColor: colors.commentContainer,
         height: 200,
         width: 350,
@@ -1052,8 +1077,9 @@ const styles = StyleSheet.create({
     },
     cameraIcon:{
         width: "30%",
-        height: "50%",
+        height: "30%",
         justifyContent: 'center',
+        resizeMode: 'contain',
     },
     uploadedImageContainer : {
         width: 350, 
@@ -1065,13 +1091,27 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        margin: 10,
-        width: 350,
+        marginTop: 10,
+        // width: 350,
     },
     postImgicon:{
-        width: 45,
-        height: 31,
-        margin: 10,
+        width: 25,
+        height: 25,
+        // margin: 10,
+        resizeMode: 'contain',
+        marginRight: 5,
+    },
+    postImgIconContainer:{
+        backgroundColor: colors.commentContainer,
+        borderRadius: 10,
+        marginTop: 10,
+        marginBottom: 10,
+        width: 125,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        alignItems: 'center',
+        // justifyContent: 'center',
+        flexDirection: 'row',
     },
     tagsContainer: {
         flexDirection: 'row',

@@ -85,11 +85,11 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, food}) => {
                     setSuggestionsList(foodlist);
                 }}
                 renderItem={(item) => (
-                    <Text style={{ color: '#35353E', padding: 15 }}>{item.title}</Text>
+                    <Text style={{ color: colors.textGray, padding: 15, fontFamily: 'Satoshi-Medium', fontSize: 14 }}>{item.title}</Text>
                 )}
                 textInputProps ={{
                     placeholder: 'Enter or select a food',
-                    placeholderTextColor: '#888',
+                    placeholderTextColor: colors.textFaintBrown,
                     value: food,
                     autoCorrect: false,
                     autoCapitalize: 'none',

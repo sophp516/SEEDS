@@ -319,7 +319,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
                     onChangeText={(text) => setCommentInput(text)} 
                     />
                     <TouchableOpacity style={styles.replyButton} onPress={asyncSubmitComment}>
-                        <Text>reply</Text>
+                        <Text style={{fontFamily: 'Satoshi-Medium', fontSize: 13, color: colors.textGray}}>Reply</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -343,9 +343,10 @@ const styles =  StyleSheet.create({
         flexDirection: 'row',
     },
     textInput: {
+        fontFamily: 'Satoshi-Medium',
         backgroundColor: 'white',
         paddingVertical: 4,
-        paddingHorizontal: 3,
+        paddingHorizontal: 10,
         width: '85%',
         borderRadius: 5
     },
@@ -354,6 +355,9 @@ const styles =  StyleSheet.create({
         height: 16,
     },
     likeNumber: {
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 13,
+        color: colors.textGray,
         marginLeft: 4
     },
     loadingContainer: {
@@ -370,7 +374,9 @@ const styles =  StyleSheet.create({
         marginBottom: 10,
     },
     userInfoText: {
+        fontFamily: 'Satoshi-Medium',
         fontSize: 13,
+        color: colors.textGray,
     },
     reviewHeader: {
         paddingTop: 10,
@@ -392,9 +398,12 @@ const styles =  StyleSheet.create({
         marginTop: 10,
     },
     tagText: {
+        fontFamily: 'Satoshi-Medium',   
         fontSize: 12,
     },
     reviewComment: {
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 14,
         marginBottom: 10,
         lineHeight: 20,
     },
@@ -435,6 +444,7 @@ const styles =  StyleSheet.create({
         alignItems: 'center',
     },
     sublikeNumber: {
+        fontFamily: 'Satoshi-Medium',
         marginLeft: 5
     },
     subicon: {
@@ -470,9 +480,12 @@ const styles =  StyleSheet.create({
         fontSize: 13,
     },
     subCommentContent: {
-        fontSize: 13
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 13,
     },
     subCommentContainer: {
+        fontFamily: 'Satoshi-Medium',
+
         paddingTop: 3,
     },
     subCommentMain: {
@@ -481,10 +494,8 @@ const styles =  StyleSheet.create({
     },
     timestampText:{
         color: '#7C7C7C',               
-        fontFamily: 'Manrope',           
+        fontFamily: 'Satoshi-Regular',           
         fontSize: 10,                    
-        fontStyle: 'normal',           
-        fontWeight: '400',              
         // lineHeight: 14,                
         alignContent: 'center',
     },
