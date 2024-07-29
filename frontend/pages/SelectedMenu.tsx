@@ -170,7 +170,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                                 <View style={styles.tagContent}> 
                                     {tags.map((item, i) => {
                                         return (
-                                            <View style={times.includes(item) ? [styles.tagBlob, {backgroundColor:'#'}] : styles.tagBlob } key={i}>
+                                            <View style={times.includes(item) ? [styles.tagBlob, {backgroundColor:'#F2C897'}] : styles.tagBlob } key={i}>
                                                 <Text>{item}</Text>
                                             </View>
                                         )

@@ -24,6 +24,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
         parsedPrice = '$ N/A';
     }
     const [topTags, setTopTags] = React.useState([]);
+    const [topAllergens, setTopAllergens] = React.useState([]);
 
     useEffect(() => {
         const fetchTopTags = async () => {
@@ -34,12 +35,28 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                 const topTagsData = querySnapshot.docs.map(doc => doc.id);
                 setTopTags(topTagsData);
             }catch(error){
-                console.log("Error fetching top tags: ", error);
+                console.log("Error fetching top tags frequency");
+            }
+        }
+        const fetchAllergens = async () => {
+            try{
+                const allergenCollection = collection(db, 'colleges', 'Dartmouth College', 'foodList', foodName, 'allergensCollection');
+                const q = query(allergenCollection);
+                const querySnapshot = await getDocs(q);
+                const allergensData = querySnapshot.docs.map(doc => doc.id);
+                setTopAllergens(allergensData);
+
+            }catch{
+                console.log("Error fetching allergens frequency");
             }
         }
         fetchTopTags();
+        fetchAllergens();
     },[])
-    console.log(topTags);   
+    console.log("topTags", topTags);
+    console.log("topAllergens", topAllergens);
+    console.log("")
+
 
 
 
@@ -115,12 +132,12 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                     <Text style={styles.reviewCount}>({reviewIds.length} reviews)</Text>
                 </View>
                 <View style={styles.tagContainer}>
-                    {tags.length > 0 && tags.map((tag, i) => (
+                    {topTags.length > 0 && topTags.map((tag, i) => (
                         <View style={[styles.tagBlob, getTagStyle(tag)]} key={i}>
                             <Text style={styles.tagText}>{tag}</Text>
                         </View>
                     ))}
-                    {allergens.length > 0 && allergens.map((allergens, i) => (
+                    {topAllergens.length > 0 && allergens.map((allergens, i) => (
                         <View style={[styles.tagBlob, getAllergenStyle(allergens)]} key={i}>
                             <Text style={styles.tagText}>{allergens}</Text>
                         </View>
@@ -314,6 +331,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         marginVertical: 5,
+        height: 50,
+        width: 200,
+        overflow: 'hidden',
     },
     ratingContainer: {
       flexDirection: 'column',
