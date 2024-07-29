@@ -69,6 +69,7 @@ const Post = () => {
     const [selectedImg, setSelectedImg] = useState<string | null>(null);
     const navigation = useNavigation<NavigationProp<ParamListBase>>();
     const [toggle, setToggle] = useState<boolean>(true); // true = post, false = review 
+    const [loading, setLoading] = useState<boolean>(false);
     const [post, setPost] = useState<newPost>({
         comment: '',
         images: [],
@@ -109,6 +110,7 @@ const Post = () => {
 
     const handleCreatePost = async() => {
         try{
+            setLoading(true);
             console.log(userId);
             const userData = await verifyUser();
             if (!userData) return; 
@@ -152,6 +154,7 @@ const Post = () => {
             
             console.log("Post added to Firestore with ID:", postRef.id);
             setPost({ images: [],comment: '', userId: userId, isReview: true, subComments: []}); // reset the post
+            setLoading(false);
         }catch{
             console.error("Error adding post to Firestore, have you signed in yet");
         }
@@ -169,6 +172,7 @@ const Post = () => {
     
     const handleCreateReview = async () =>{
         try{
+            setLoading(true);
             // Verifies user
             const userData = await verifyUser();
             if (!userData) return; 
@@ -225,6 +229,7 @@ const Post = () => {
             setReview({ userId: userId, foodName: '',location: '',price: null, taste: 0,health: 0,
                 images:[],tags: [], allergens:[], comment: '',likes: [],timestamp: null,isReview: false, subComments: [],
             }); // reset the review
+            setLoading(false);
             navigation.goBack();
         }catch{
             console.error("Error adding review to Firestore, have you signed in yet?");
@@ -651,21 +656,15 @@ const Post = () => {
 
     }
 
-
-             /* <View style={styles.tagsContainer} > 
-                            {review.tags && review.tags.map((tag, index) =>
-                                <View key={index} style={styles.tags}>
-                                    <Text >{tag}</Text>
-                                    <TouchableOpacity onPress={()=>handleDeleteTag(index)}>
-                                        <Text> x </Text>
-                                    </TouchableOpacity>
-                                </View>)}   
-                        </View> */
     return (
         <View style={styles.container}>
-               
                <View style={{margin: 15}}></View>
-           
+                {loading === true ? 
+                  <View style={{zIndex: 1, position:'absolute', backgroundColor: 'rgba(0,0,0,0.3)', width: '100%', height:'100%'}}>
+                    <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 , top: 430, left: 180}} />
+                </View>
+                : <View/>}
+
                 {toggle ? 
                  <View style={{ alignItems: 'flex-start', flexDirection:'row' }}>
                     {/* <TouchableOpacity onPress={handleExit}>
@@ -1014,7 +1013,7 @@ const styles = StyleSheet.create({
     },
     addImageButton:{
         position: 'absolute',
-        bottom: 25,  // Adjust top and right as needed to position the button in the desired corner
+        bottom: 0,  // Adjust top and right as needed to position the button in the desired corner
         right: -60,
         width: 65,  // Set the size of the button
         height: 65,

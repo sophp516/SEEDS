@@ -212,13 +212,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 20,
+    marginTop: 20, // Move the header down
   },
   backButtonContainer: {
-    paddingLeft: 20,
+    marginTop: 60,
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 50,
-},
+  },
   backArrow: {
     width: 20,
     height: 20,
