@@ -6,7 +6,7 @@ import { db } from '../services/firestore.js';
 import colors from '../styles.js';
 import { useAuth } from '../context/authContext.js';
 import SmallMenu from '../components/SmallMenu';
-import LoadingScreen from '../components/LoadingScreen.js';
+import LoadingScreen from '../components/LoadingScreen.tsx';
 
 type RootStackParamList = {
   Home: undefined,
@@ -106,7 +106,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
       </View>
       <View style={styles.menuContainer}>
         {loading ? (
-          <ActivityIndicator size="large" color={colors.primary} />
+          <LoadingScreen />
         ) : (
           <>
             <View style={styles.confettiContainer}>
