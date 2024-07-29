@@ -563,6 +563,12 @@ const Post = () => {
             console.error("Error uploading image to Firestore");
         }
     }
+
+    const removeImage = (index) =>{
+        const newImages = review.images.filter((_, idx) => idx !== index);
+        setReview(prevReview => ({...prevReview, images: newImages}));
+
+    }
    
     /* function handleExit(): Brings user back to the last visited page
     * Also resets the data stored in the use state
@@ -782,7 +788,14 @@ const Post = () => {
                 <View style={styles.reviewContainer}>
                   {review.images.length > 0 ? (
                     <View>
+                        {/* doesn't work well rn, but at least allow remove something */}
                       <ImageSlider images={review.images} />
+                      {review.images.map((image, index) => (
+                        <TouchableOpacity style={styles.removeImageButton} onPress={()=> removeImage(index)}>
+                            <Image style={{ width: '20%', height: '20%', resizeMode: 'contain' }} source={require('../assets/x_icon.png')} />
+                        </TouchableOpacity>
+                      ))}
+
                       <TouchableOpacity style={styles.addImageButton} onPress={selectImage}>
                         <Image style={{ width: '100%', height: '100%', resizeMode: 'contain' }} source={require('../assets/addMoreImage.png')} />
                       </TouchableOpacity>
@@ -1033,6 +1046,16 @@ const styles = StyleSheet.create({
         height: 65,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    removeImageButton:{
+        position: 'absolute',
+        bottom: 180,  
+        right: -75,
+        width: 50,  // Set the size of the button
+        height: 55,
+        justifyContent: 'center',
+        alignItems: 'center',
+       
     },
     addImageText: {
         color: colors.textFaintBrown,
