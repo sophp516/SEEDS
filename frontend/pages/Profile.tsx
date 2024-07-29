@@ -245,6 +245,12 @@ const styles = StyleSheet.create({
         color: colors.textGray,
         marginBottom: 5,
     },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.backgroundGray,
+    },
     schoolName: {
         fontFamily: 'Satoshi-Regular',
         fontSize: 14,
