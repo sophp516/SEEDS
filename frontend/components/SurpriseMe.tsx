@@ -1,22 +1,35 @@
 import React from 'react';
 import { Text, View, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import colors from '../styles';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { useState } from 'react';
 
-const SurpriseMe = () => {
-    return (
-        <View style={styles.container}>
-          <View style= {styles.top}>
-          <Text style={styles.text}>Don't know what to eat?</Text>
-          <Image source={require('../assets/present.gif')} style={styles.image} />
+type RootStackParamList = {
+  SurpriseMe: { placeName: string },
+};
 
+type SurpriseMeProps = {
+  placeName: string;
+};
+
+
+const SurpriseMe: React.FC<SurpriseMeProps> = ({ placeName }) => {
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [allMenus, setAllMenus] = useState([]);
+
+  return (
+      <View style={styles.container}>
+          <View style={styles.top}>
+              <Text style={styles.text}>Don't know what to eat?</Text>
+              <Image source={require('../assets/present.gif')} style={styles.image} />
           </View>
-
-            <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Surprise Me!</Text>
-            </TouchableOpacity>
-        </View>
-    );
+          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('SurpriseMe', { placeName })}>
+              <Text style={styles.buttonText}>Surprise Me!</Text>
+          </TouchableOpacity>
+      </View>
+  );
 }
+
 
 const styles = StyleSheet.create({
     top:{

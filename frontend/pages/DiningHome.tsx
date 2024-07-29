@@ -15,6 +15,7 @@ import { useAuth } from '../context/authContext.js';
 import { tags } from 'react-native-svg/lib/typescript/xml';
 import LoadingScreen from '../components/LoadingScreen.tsx';
 import Toast from 'react-native-toast-message';
+import SurpriseMe from '../components/SurpriseMe.tsx';
 
 
 
@@ -349,6 +350,8 @@ useEffect(() => {
                 <ScrollView style={styles.contentScrollContainer} contentContainerStyle={{ paddingBottom: 100 }}>
                     <View style={styles.recHolder}>
                         <View>
+                          <Text></Text>
+                          <SurpriseMe placeName={placeName}/>
                             <View style={styles.recHeader}>
                                 <Text style={styles.recHeaderText}>Top rated</Text>
                                 <TouchableOpacity style={styles.seeAllContainer} onPress={() => navigation.navigate('TopRated', { placeName })}>
