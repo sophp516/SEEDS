@@ -884,7 +884,7 @@ const Post = () => {
       
                     <TagDropdown
                       data={tagsData}
-                      onChangeText={(text) => { setTag(text) }}
+                      onChangeText={(text) => {setTag(text) }}
                       onClear={() => setTag('')}
                       value={tag}
                       onSelectItem={handleSelectTag}
