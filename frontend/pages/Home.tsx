@@ -19,7 +19,7 @@ const Home = () => {
         const fetchDisplayName = async () => {
             if (!user.id) return;
             try {
-                if (!displayName && loggedInUser) {
+                if (!displayName) {
                     const usersRef = collection(db, 'users');
                     const q = query(usersRef, where('id', '==', user.id));
                     const querySnapshot = await getDocs(q);

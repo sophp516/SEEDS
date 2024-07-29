@@ -52,6 +52,7 @@ const MyProfile = () => {
           const userData = userDoc.data();
           setNameInput(userData.displayName || '');
           setEmailInput(userData.email || '');
+          setProfileImage(userData.profileImage || null); // Add this line to set the profile image
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -61,7 +62,7 @@ const MyProfile = () => {
     if (user.id) {
       fetchUserData();
     }
-  }, [loggedInUser]);
+  }, []);
 
   const handleSaveUsername = async () => {
     try {
@@ -203,7 +204,7 @@ const MyProfile = () => {
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
         const selectedImage = result.assets[0].uri;
-        setProfileImage(result.assets[0].uri);
+        setProfileImage(selectedImage);
         await saveProfileImage(selectedImage);
     }
 }
@@ -222,6 +223,8 @@ const saveProfileImage = async (imageUri) => {
       return;
     }
 
+    const imageUrl = await handleUploadImage(imageUri); // Correctly get the uploaded image URL
+
     const usersRef = collection(db, 'users');
     const q = query(usersRef, where('id', '==', userId));
     const querySnapshot = await getDocs(q);
@@ -238,7 +241,7 @@ const saveProfileImage = async (imageUri) => {
     const userDoc = querySnapshot.docs[0];
     const userDocRef = userDoc.ref;
 
-    await updateDoc(userDocRef, { profileImage: imageUri });
+    await updateDoc(userDocRef, { profileImage: imageUrl });
 
     Toast.show({
       type: 'success',
@@ -249,7 +252,7 @@ const saveProfileImage = async (imageUri) => {
     // Optionally, update the profileImage in the context
     setLoggedInUser(prev => ({
       ...prev,
-      profileImage: imageUri,
+      profileImage: imageUrl,
     }));
 
   } catch (error) {
@@ -268,54 +271,45 @@ const saveProfileImage = async (imageUri) => {
         if (Platform.OS === 'ios'){
             const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
             if (status !== 'granted'){
-                alert('Please grant access to library to upload photos')
+                alert('Please grant access to library to upload photos');
                 return false;
             }
         }
         return true;
     }
+
     const selectImage = async() => {
-        // const foodItem = fetchReviews(review.location);
-        // console.log("foodItem:", foodItem);
         const permissionStatus = await getPermission();
         if (!permissionStatus) return; 
 
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
-            // allowsEditing: true,
             aspect:[4,3],
             allowsMultipleSelection: true,
-            quality:1, // we can edit later for more
-        })
-        // console.log("image:", result);        
-        if (!result.canceled){ // if image is selected, then save the latest upload
-            let selected = result.assets.map((image) => image.uri);
+            quality:1,
+        });
+        
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+          const selectedImage = result.assets[0].uri;
+          setProfileImage(selectedImage);
+          await saveProfileImage(selectedImage);
         }
-    }
-    // console.log("review:", review.foodName);
+    };
 
-    // How multiple images upload will work:
-    // 1. User selects multiple images from gallery
-    // 2. Images are stored in an array
-    // 3. User clicks submit
-    // 4. Images are uploaded to Firebase Storage one by one, the images in the final array are the URLs
-    // 5. The URLs are stored in the Firestore document
-    
     const handleUploadImage = async (image: string) => {
-        try{
+        try {
             const response = await fetch(image);
-            const blob = await response.blob(); // convert 
+            const blob = await response.blob();
             const imgName = `img-${new Date().getTime()}-${Math.random().toString(36).substring(2, 15)}`;
-            const storageRef = ref(storage, `images/${imgName}.jpg`)
-            const snapshop = await uploadBytesResumable(storageRef, blob);
+            const storageRef = ref(storage, `images/${imgName}.jpg`);
+            const snapshot = await uploadBytesResumable(storageRef, blob);
             const imageUrl = await getDownloadURL(storageRef);
-            return imageUrl
+            return imageUrl;
+        } catch (error) {
+            console.error("Error uploading image to Firebase Storage:", error);
+            throw error;
         }
-        catch{
-            console.error("Error uploading image to Firestore");
-        }
-    }
-
+    };
 
   return (
     <View style={styles.container}>
