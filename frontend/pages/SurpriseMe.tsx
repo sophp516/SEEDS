@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
     left: 0,
   },
   anotherSurpriseButton: {
-    backgroundColor: colors.orangeHighlight, // You can customize the button color
+    backgroundColor: colors.orangeHighlight, 
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 5,

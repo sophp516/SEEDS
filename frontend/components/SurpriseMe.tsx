@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
       justifyContent: 'space-between',
     },
     container: {
-        backgroundColor: '#FFFFFF', // Set the background color to white
+        backgroundColor: '#FFFFFF', 
         borderColor: colors.grayStroke,
         borderWidth: 1,
         paddingBottom: 10,
@@ -60,13 +60,13 @@ const styles = StyleSheet.create({
         height: 50,
     },
     button: {
-        backgroundColor: colors.orangeHighlight, // You can customize the button color
+        backgroundColor: colors.orangeHighlight,
         paddingHorizontal: 20,
         paddingVertical: 10,
         borderRadius: 5,
     },
     buttonText: {
-        color: '#FFFFFF', // You can customize the text color
+        color: '#FFFFFF', 
         fontSize: 16,
     },
 });
