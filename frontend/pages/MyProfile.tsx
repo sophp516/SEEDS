@@ -329,7 +329,7 @@ const saveProfileImage = async (imageUri) => {
             mediaTypes: ImagePicker.MediaTypeOptions.All,
             // allowsEditing: true,
             aspect:[4,3],
-            allowsMultipleSelection: true,
+            allowsMultipleSelection: false,
             quality:1, // we can edit later for more
         })
         // console.log("image:", result);        
@@ -345,7 +345,7 @@ const saveProfileImage = async (imageUri) => {
     // 3. User clicks submit
     // 4. Images are uploaded to Firebase Storage one by one, the images in the final array are the URLs
     // 5. The URLs are stored in the Firestore document
-    
+
     const handleUploadImage = async (image: string) => {
         try{
             const response = await fetch(image);
