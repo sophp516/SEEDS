@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: colors.textGray,
-    fontFamily: 'Satoshi-Regular'
+    fontFamily: 'Satoshi-Medium',
   },
 });
 
