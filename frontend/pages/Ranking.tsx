@@ -116,14 +116,13 @@ const Ranking = () => {
       }
   };
 
-
     return (
       <View style={styles.container}>
-        <View style={{margin: 30}}></View>
-        <View style={{  alignItems: 'flex-start', flexDirection:'row', marginRight: '50%'}}>
+        <View style={{alignItems: 'flex-start', flexDirection:'row', marginRight: '45%'}}>
           <Text style={styles.header}>Leaderboard</Text>
         </View>
         
+        {/* Section toggle */}
         <View style={styles.toggleContainer}>
                 <TouchableOpacity onPress={()=>setToggle(true)} style={toggle ? styles.activeToggle : styles.inactiveToggle}>
                     <Text style={toggle ? styles.btnText1 : styles.btnText2}>Food</Text>
@@ -133,12 +132,13 @@ const Ranking = () => {
                 </TouchableOpacity>
          </View>
 
+        {/* Dropdown toggle */}
          <View style={{justifyContent:'center'}}>
             <View style={styles.sortContainer}>
-                <TouchableOpacity onPress={()=>setOpen(!open)} style={{ paddingHorizontal: 10, paddingVertical: 10 ,flexDirection: 'row', justifyContent: 'space-between'} }>
-                  <Text style={{marginRight: 3}}> {selectedValue} </Text>
+                <TouchableOpacity onPress={()=>setOpen(!open)} style={{ paddingHorizontal: 10, paddingVertical: 7 ,flexDirection: 'row', justifyContent: 'space-between'} }>
+                  <Text style={{fontFamily: 'Satoshi-Medium', color: colors.textGray, marginRight: 3}}> {selectedValue} </Text>
                   <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                  <Image source={require('../assets/dropdown.png')} style={{width: 15, height: 12, marginLeft: 1}} />
+                  <Image source={require('../assets/dropdown.png')} style={{width: 13, height: 10, marginLeft: 1, resizeMode: 'contain'}} />
                   </View>
                 </TouchableOpacity>
             </View>
@@ -150,20 +150,19 @@ const Ranking = () => {
         {/* Displays the leader board based off fetching  */}
         {toggle ? 
         <ScrollView style={{zIndex: -1}}>
-            {filteredFoodLeaderboard.map((food, index) => (
-              <View key={index} style={{marginHorizontal: 20}}>
-                <FoodRank rank={index} foodName={food.foodName} rating={food.averageRating} location={food.location}/>
-              </View>
-            ))}
-         </ScrollView >: 
-         <ScrollView style={{zIndex: -1, }}>
-              {users.map((user, index) => (
-                <View key={index}>
-                  <UserRank rank={index} displayName={user.displayName} likesCount={user.likesCount} profilePicture={user.profilePicture} />
-                </View>
-              ))}
-             
-          </ScrollView>}
+          {filteredFoodLeaderboard.map((food, index) => (
+            <View key={index} style={{marginHorizontal: 20}}>
+              <FoodRank rank={index} foodName={food.foodName} rating={food.averageRating} location={food.location}/>
+            </View>
+          ))}
+        </ScrollView >: 
+        <ScrollView style={{zIndex: -1, }}>
+          {users.map((user, index) => (
+            <View key={index}>
+              <UserRank rank={index} displayName={user.displayName} likesCount={user.likesCount} profilePicture={user.profilePicture} />
+            </View>
+          ))}
+        </ScrollView>}
 
         <View></View>
 
@@ -182,17 +181,12 @@ const styles = StyleSheet.create({
       flexDirection: 'column',
       width: '100%',
     },
-    leaderboardText: {
-      marginTop: 60,
-      fontSize: 20,
-    },
     header:{
-      color: colors.textGray,
       fontFamily: 'SpaceGrotesk-SemiBold', 
       fontSize: 24,
-      lineHeight: 36,
-      letterSpacing: -0.264,
+      color: colors.textGray,
       textAlign: 'left',
+      marginTop: 96,
   },
     toggleContainer: {
       flexDirection: 'row',
@@ -223,24 +217,18 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignContent: 'center',
   },
-  btnText1:{ // white
-      color: '#35353E',
-      fontFamily: 'Satoshi', 
-      fontSize: 14,
-      fontStyle: 'normal',
-      fontWeight: '500',
-      lineHeight: 21, 
-      letterSpacing: -0.154,
-      textAlign: 'center',
-  },
-  btnText2:{ // white
+  btnText1:{ 
     color: '#35353E',
-    fontFamily: 'Satoshi', 
+    fontFamily: 'Satoshi-Medium', 
     fontSize: 14,
-    fontStyle: 'normal',
-    fontWeight: '500',
     lineHeight: 21, 
-    letterSpacing: -0.154,
+    textAlign: 'center',
+  },
+  btnText2:{ 
+    color: '#35353E',
+    fontFamily: 'Satoshi-Medium', 
+    fontSize: 14,
+    lineHeight: 21, 
     textAlign: 'center',
   },
   dropdown:{
@@ -266,14 +254,15 @@ const styles = StyleSheet.create({
   },
   sortContainer: {
     backgroundColor: '#E7E2DB', 
-    marginBottom: 10,
+    marginBottom: 15,
     marginTop: 5, 
     marginLeft: "60%",
     borderRadius: 30,
     justifyContent:'center', 
     alignContent: 'center',
     alignItems: "center", 
-    height: 35, 
-    width:100}
+    // height: 35, 
+    // width: 100
+  }
   });
 export default Ranking;

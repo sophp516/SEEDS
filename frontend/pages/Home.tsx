@@ -7,7 +7,6 @@ import Navbar from '../components/Navbar.jsx';
 import DiningPlaceHome from '../components/DiningPlaceHome.tsx';
 import DartmouthDining from '../services/DartmouthDining.json';
 import colors from '../styles.js';
-import fonts from '../fonts.js';
 
 const Home = () => {
 

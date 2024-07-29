@@ -256,6 +256,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
             {loading ?
             <View style={styles.loadingScreen}>
               <LoadingScreen />
+              <Text style={styles.loadingText}>Preparing Your Recommended...</Text>
 
             </View>
             : <ScrollView style={styles.contentScrollContainer}>
@@ -389,6 +390,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
     color: colors.textGray,
+  },
+  loadingText: {
+    fontSize: 18,
+    fontFamily: 'Satoshi-Medium',
+    color: colors.orangeHighlight,
+    marginTop: 10,
+
   },
 })
 

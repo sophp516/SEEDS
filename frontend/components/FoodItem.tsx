@@ -126,11 +126,14 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
             </View>
 
             <View style={styles.foodInfoContainer}>
-                <View style={styles.foodInfoHeader}>
-                    {/* Modified foodname, so it doesn't push other element off of page */}
-                    <Text numberOfLines={1} ellipsizeMode='tail' style={styles.foodName}>{foodName}</Text>
-                    <Text style={styles.reviewCount}>({reviewIds.length} reviews)</Text>
-                </View>
+            <View style={styles.foodInfoHeader}>
+            {/* Modified foodname, so it doesn't push other elements off of the page */}
+                <Text numberOfLines={1} ellipsizeMode='tail' style={styles.foodName}>{foodName}</Text>
+                    <Text style={styles.reviewCount}>
+                        ({reviewIds.length} review{reviewIds.length !== 1 ? 's' : ''})
+                     </Text>
+            </View>
+
                 <View style={styles.tagContainer}>
                     {topTags.length > 0 && topTags.map((tag, i) => (
                         <View style={[styles.tagBlob, getTagStyle(tag)]} key={i}>
@@ -155,9 +158,9 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                         progress={normalizeValue(taste)}
                         borderWidth={1}
                         fillColor={colors.lightOrange}
-                        unfilledColor={colors.inputGray}
+                        unfilledColor={colors.commentContainer}
                         height={10}
-                        borderColor={colors.inputGray}
+                        borderColor={colors.backgroundGray}
                         duration={100}
                       />
                     </View>
@@ -174,9 +177,9 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                         progress={normalizeValue(health)}
                         borderWidth={1}
                         fillColor={colors.highRating}
-                        unfilledColor= {colors.inputGray}
+                        unfilledColor= {colors.commentContainer}
                         height={10}
-                        borderColor={colors.inputGray}
+                        borderColor={colors.backgroundGray}
                         duration={100}
                       />
                     </View>
@@ -213,12 +216,12 @@ const styles = StyleSheet.create({
         fontFamily: 'Satoshi-Medium',
     },
     generalInfo: {
-        backgroundColor: 'white',
+        backgroundColor: colors.commentContainer,
         textAlign: 'center',
         margin: 1,
         borderRadius: 15,
-        borderWidth: 2,
-        borderColor: colors.primaryWhite,
+        borderWidth: 1,
+        borderColor: colors.outlineDarkBrown,
         alignItems: 'center',
         paddingVertical: 1,
         paddingHorizontal: 5,
@@ -235,12 +238,8 @@ const styles = StyleSheet.create({
     generalInfotext:{
         color: colors.textGray,             
         textAlign: 'center',          
-        fontFamily: 'Satoshi-Medium',        
+        fontFamily: 'Satoshi-Bold',        
         fontSize: 12,                 
-        fontStyle: 'normal',          
-        fontWeight: '500',            
-        lineHeight: 15,              
-        letterSpacing: -0.11, 
     },
     star:{
         width: 12,
@@ -339,7 +338,7 @@ const styles = StyleSheet.create({
       flexDirection: 'column',
     },
     number: {
-      fontSize: 12,
+      fontSize: 10,
       fontFamily: 'Satoshi-Regular',
       marginLeft: 5,
       color: colors.textGray,
@@ -354,13 +353,14 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     ratingText: {
+        fontFamily: 'Satoshi-Medium',
         fontSize: 10,
         color: colors.textGray,
     },
     bottonLine:{
         width: '100%',
-        borderBottomColor: '#91836E',
-        borderBottomWidth: 1.5,
+        borderBottomColor: colors.outlineDarkBrown,
+        borderBottomWidth: 1,
         marginVertical: 12,
     },
     timeContainer:{

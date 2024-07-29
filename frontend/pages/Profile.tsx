@@ -123,11 +123,11 @@ const Profile = () => {
       } else if (Preferences.id.includes(tag)) {
           return styles.tagGreen;
       }
-      return styles.tagGray;
+      return styles.tagGreen; // styles.tagGray default
   };
 
     const getAllergenStyle = (allergen) => {
-        return Preferences.id.includes(allergen) ? styles.tagRed : styles.tagGray;
+        return Preferences.id.includes(allergen) ? styles.tagRed : styles.tagRed; // styles.tagGray default
     };
 
     return (
@@ -150,13 +150,13 @@ const Profile = () => {
                             <View style={styles.tagList}>
                                 {fetchTags.map((tag, index) => (
                                     <View style={[styles.tagWithDelete, getTagStyle(tag)]} key={index}>
-                                        <Text>{tag}</Text>
+                                        <Text style={styles.tagText}>{tag}</Text>
                                     </View>
                                 ))}
 
                                 {fetchAllergies.map((tag, index) => (
                                     <View style={[styles.tagWithDelete, getAllergenStyle(tag)]} key={index}>
-                                        <Text>{tag}</Text>
+                                        <Text style={styles.tagText}>{tag}</Text>
                                     </View>
                                 ))}
                             </View>
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
         fontFamily: 'SpaceGrotesk-SemiBold',
         fontSize: 24,
         color: colors.textGray,
-        marginTop: 50,
+        marginTop: 96,
         marginLeft: 36,
     },
     profileBox: {
@@ -264,13 +264,15 @@ const styles = StyleSheet.create({
         paddingVertical: 3,
         borderRadius: 10,
         alignItems: 'center',
-        backgroundColor: 'lightgray',
         marginRight: 5,
         marginBottom: 5,
+        // color: colors.primaryWhite,
+        backgroundColor: colors.backgroundGray,
     },
-    tagDeleteButton: {
-        marginLeft: 5,
-        color: 'red',
+    tagText: {
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 14,
+        color: colors.textGray,
     },
     createAccountButton: {
         marginTop: 10,
@@ -400,7 +402,8 @@ const styles = StyleSheet.create({
         backgroundColor: colors.highRating,
     },
     tagGray: {
-        backgroundColor: colors.userInput,
+        color: colors.textGray,
+        backgroundColor: colors.backgroundGray,
     },
     tagRed: {
         backgroundColor: colors.warningPink,

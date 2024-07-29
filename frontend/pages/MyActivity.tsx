@@ -127,20 +127,21 @@ const MyActivity = () => {
         <Text style={styles.backButtonText}>Back</Text>
       </TouchableOpacity>
 
-      <Text style={styles.text}>My Activity</Text>
+      <Text style={styles.header}>My Activity</Text>
+      <Text style={styles.subheader}>See your posts and likes in one place.</Text>
 
       {/* Toggle buttons */}
       <View style={styles.toggleContainer}>
         <TouchableOpacity
           style={[styles.toggleButton, postHistory && styles.activeButton]}
           onPress={() => setPostHistory(true)}>
-          <Text>My Posts</Text>
+          <Text style={styles.toggleText}>My Posts</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.toggleButton, !postHistory && styles.activeButton]}
           onPress={() => setPostHistory(false)}>
-          <Text>Favorites</Text>
+          <Text style={styles.toggleText}>Favorites</Text>
         </TouchableOpacity>
       </View>
 
@@ -201,10 +202,22 @@ const styles = StyleSheet.create({
     backgroundColor: colors.backgroundGray,
     // padding: 30,
   },
-  text: {
+  header: {
+    fontFamily: 'SpaceGrotesk-SemiBold',
     fontSize: 24,
-    textAlign: 'center',
-    marginVertical: 10,
+    color: colors.textGray,
+    // textAlign: 'center',
+    marginTop: 40,
+    paddingHorizontal: 30,
+  },
+  subheader: {
+    fontSize: 16,
+    fontFamily: 'Satoshi-Medium',
+    // textAlign: 'center',
+    color: colors.textGray,
+    marginTop: 10,
+    marginBottom: 30,
+    paddingHorizontal: 30,
   },
   homeHeaderTop: {
     flexDirection: 'row',
@@ -218,6 +231,7 @@ const styles = StyleSheet.create({
     marginTop: 60,
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 30,
   },
   backArrow: {
     width: 20,
@@ -237,13 +251,19 @@ const styles = StyleSheet.create({
   toggleButton: {
     paddingHorizontal: 20,
     paddingVertical: 10,
-    backgroundColor: '#d9d9d9',
+    backgroundColor: colors.commentContainer,
     marginHorizontal: 5,
+    borderRadius: 15,
+  },
+  toggleText: {
+    fontFamily: 'Satoshi-Medium',
+    color: colors.textGray,
   },
   activeButton: {
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: 'gray',
+    backgroundColor: colors.lightOrange,
+    // borderWidth: 1,
+    // borderColor: 'gray',
+    borderRadius: 15,
   },
   postHistoryScroll: {
     paddingHorizontal: 20,

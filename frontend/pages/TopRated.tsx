@@ -148,7 +148,7 @@ const DinningHome: React.FC<Props> = ({ route }) => {
       }
       // For the filter
       const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-      const [simpleFilter, setSimpleFilter] = useState(''); // State for simple filter
+      const [simpleFilter, setSimpleFilter] = useState(''); 
       const [filters, setFilters] = useState<{ preferred: string[]; allergens: string[]; time: string[]; taste:number; health:number }>({
         preferred: [],
         allergens: [],
@@ -178,28 +178,29 @@ const DinningHome: React.FC<Props> = ({ route }) => {
                 <View style={styles.diningHomeHeaderTop}>
                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButtonContainer}>
                     <Image style={styles.backArrow} source={require('../assets/backArrow.png')} resizeMode="contain"/>
-                        <Text>Back</Text>
+                        <Text style={styles.backButtonText}>Back</Text>
                     </TouchableOpacity>
                 </View>
+
                 <View style={styles.diningHomeHeaderBottom}>
                     <Text style={styles.placeNameText}>Top Rated: {placeName}</Text>
                 </View>
             </View>
             <View style={styles.contentContainer}>
-            <View style={styles.filter}>
-            <AllFilter 
-              isDisabled={isDisabled}
-              toggleBottomSheet={toggleBottomSheet}
-              handleFilterClick={handleFilterClick}
-              resetSimpleFilter={() => setIsDisabled(false)}
-              onSimpleFilterChange={(filter) => {setSimpleFilter(filter);}}
-              onSearchChange={(search) => {setSearchChange(search);}}
-              />
-
-          </View>
+                <View style={styles.filter}>
+                    <AllFilter 
+                    isDisabled={isDisabled}
+                    toggleBottomSheet={toggleBottomSheet}
+                    handleFilterClick={handleFilterClick}
+                    resetSimpleFilter={() => setIsDisabled(false)}
+                    onSimpleFilterChange={(filter) => {setSimpleFilter(filter);}}
+                    onSearchChange={(search) => {setSearchChange(search);}}
+                    />
+            </View>
             {loading ?
             <View style={styles.loadingScreen}>
                 <LoadingScreen />
+                <Text style={styles.loadingText}>Preparing top rated...</Text>
 
             </View>
             : <ScrollView style={styles.contentScrollContainer}>
@@ -261,6 +262,10 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         paddingBottom: 20,
     },
+    backButtonText: {
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 16,
+    },
     closingText: {
         fontSize: 12,
         color: colors.textFaintBrown,
@@ -277,7 +282,7 @@ const styles = StyleSheet.create({
         fontFamily: 'SpaceGrotesk-SemiBold',
     },
     diningHomeHeader: {
-        paddingTop: 50,
+        paddingTop: 60,
         width: '100%',
         paddingHorizontal: 20,
         justifyContent: 'center',
@@ -293,13 +298,14 @@ const styles = StyleSheet.create({
         marginRight: 10, // space between icon and text
       },
     diningHomeHeaderTop: {
+        // marginTop: 5,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
     },
     diningHomeHeaderBottom: {
         flexDirection: 'row',
-        paddingTop: 10,
+        paddingTop: 30,
         paddingBottom: 20,
     },
     contentContainer: {
@@ -333,6 +339,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
     color: colors.textGray,
+  },
+  loadingText: {
+    fontSize: 18,
+    fontFamily: 'Satoshi-Medium',
+    color: colors.orangeHighlight,
+    marginTop: 10,
+
   },
 })
 

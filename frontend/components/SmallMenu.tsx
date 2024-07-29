@@ -115,8 +115,8 @@ const SmallMenu: React.FC<SmallMenuProps> = ({ id, foodName, images, reviewIds, 
 
 const styles = StyleSheet.create({
     smallMenuContainer: {
-        backgroundColor: colors.primaryWhite,
-        borderColor: colors.grayStroke,
+        backgroundColor: colors.offWhite,
+        borderColor: colors.outlineBrown,
         borderWidth: 1,
         paddingBottom: 10,
         paddingTop: 7,

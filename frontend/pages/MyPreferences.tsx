@@ -141,6 +141,7 @@ const MyPreferences = () => {
       <Text style={styles.header}>My Preferences</Text>
       <Text style={styles.subheader}>Track your dietary preferences and allergies.</Text>
 
+      {/* Preferences Container */}
       <View>
         <Text style={styles.sectionHeader}>Preferences</Text>
         {editingPreferences ? (
@@ -148,9 +149,9 @@ const MyPreferences = () => {
             <View style={styles.tagList}>
               {tags.map((tag, i) => (
                 <View style={styles.tagWithDelete} key={i}>
-                  <Text>{tag}</Text>
+                  <Text style={styles.tagText}>{tag}</Text>
                   <TouchableOpacity onPress={() => handleDeleteTag(i)}>
-                    <Text style={styles.tagDeleteButton}>x</Text>
+                    <Image source={require('../assets/x_icon.png')} style={{width: 8, height: 8, marginLeft: 8}}/>
                   </TouchableOpacity>
                 </View>
               ))}
@@ -161,17 +162,18 @@ const MyPreferences = () => {
                 value={tagInput}
                 onChangeText={setTagInput}
                 placeholder="Add a new preference"
+                placeholderTextColor={colors.textFaintBrown}
               />
-              <TouchableOpacity onPress={handleAddTag} style={styles.editProfileButton}>
-                <Text>Add Preference</Text>
+              <TouchableOpacity onPress={handleAddTag} style={styles.addPreferenceButton}>
+                <Text style={styles.addPreferenceText}>Add</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.saveCancelContainer}>
               <TouchableOpacity style={styles.saveButton} onPress={handleSavePreferences}>
-                <Text>Save</Text>
+                <Text style={styles.saveText}>Save Preferences</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.cancelButton} onPress={() => setEditingPreferences(false)}>
-                <Text>Cancel</Text>
+                <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -180,25 +182,26 @@ const MyPreferences = () => {
             <View style={styles.tagList}>
               {tags.map((tag, i) => (
                 <View style={styles.tagWithDelete} key={i}>
-                  <Text>{tag}</Text>
+                  <Text style={styles.tagText}>{tag}</Text>
                 </View>
               ))}
             </View>
             <TouchableOpacity onPress={() => setEditingPreferences(true)}>
-              <Text>Edit Preferences</Text>
+              <Text style={styles.editText}>Edit Preferences</Text>
             </TouchableOpacity>
           </View>
         )}
 
+      {/* Allergens Container */}
         <Text style={styles.sectionHeader}>Allergens</Text>
         {editingAllergies ? (
           <View style={styles.editingContainer}>
             <View style={styles.tagList}>
               {allergens.map((allergy, i) => (
-                <View style={styles.tagWithDelete} key={i}>
-                  <Text>{allergy}</Text>
+                <View style={styles.tagWithDelete2} key={i}>
+                  <Text style={styles.tagText}>{allergy}</Text>
                   <TouchableOpacity onPress={() => handleDeleteAllergy(i)}>
-                    <Text style={styles.tagDeleteButton}>x</Text>
+                    <Image source={require('../assets/x_icon.png')} style={{width: 8, height: 8, marginLeft: 8}}/>
                   </TouchableOpacity>
                 </View>
               ))}
@@ -210,8 +213,8 @@ const MyPreferences = () => {
                 onChangeText={setAllergensInput}
                 placeholder="Add a new allergy"
               />
-              <TouchableOpacity onPress={handleAddAllergy} style={styles.editProfileButton}>
-                <Text>Add Allergy</Text>
+              <TouchableOpacity onPress={handleAddAllergy} style={styles.addPreferenceButton}>
+                <Text>Add</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.saveCancelContainer}>
@@ -227,13 +230,13 @@ const MyPreferences = () => {
           <View style={styles.displayContainer}>
             <View style={styles.tagList}>
               {allergens.map((allergy, i) => (
-                <View style={styles.tagWithDelete} key={i}>
-                  <Text>{allergy}</Text>
+                <View style={styles.tagWithDelete2} key={i}>
+                  <Text style={styles.tagText}>{allergy}</Text>
                 </View>
               ))}
             </View>
             <TouchableOpacity onPress={() => setEditingAllergies(true)}>
-              <Text>Edit Allergens</Text>
+              <Text style={styles.editText}>Edit Allergens</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -246,11 +249,11 @@ const MyPreferences = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingLeft: 20,
+    paddingLeft: 30,
     backgroundColor: colors.backgroundGray,
   },
   backButtonContainer: {
-    marginTop: 50,
+    marginTop: 60,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -288,12 +291,17 @@ const styles = StyleSheet.create({
   sectionHeader: {
     fontSize: 20,
     fontFamily: 'Satoshi-Medium',
-    fontWeight: 'bold',
+    color: colors.textGray,
     textAlign: 'left',
     marginBottom: 10,
   },
   editingContainer: {
     marginBottom: 20,
+  },
+  editText: {
+    fontFamily: 'Satoshi-Regular',
+    color: colors.textGray,
+    marginBottom: 30,
   },
   tagList: {
     flexDirection: 'row',
@@ -303,9 +311,20 @@ const styles = StyleSheet.create({
   tagWithDelete: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#e0e0e0', // Light gray background color
-    padding: 8,
-    borderRadius: 15, // Rounded edges
+    backgroundColor: colors.highRating,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 15,
+    marginRight: 5,
+    marginBottom: 5,
+  },
+  tagWithDelete2: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.warningPink,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    borderRadius: 15,
     marginRight: 5,
     marginBottom: 5,
   },
@@ -313,8 +332,14 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     color: 'red',
   },
+  tagText: {
+    fontFamily: 'Satoshi-Medium',
+    color: colors.textGray,
+  },
   tagContainer: {
+    // fontFamily: 'Satoshi-Medium',
     flexDirection: 'row',
+    width: '90%',
     alignItems: 'center',
   },
   tagInput: {
@@ -324,26 +349,47 @@ const styles = StyleSheet.create({
     padding: 8,
     flex: 1,
   },
-  editProfileButton: {
+  addPreferenceButton: {
     marginLeft: 10,
-    padding: 10,
-    backgroundColor: colors.primary,
-    borderRadius: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    backgroundColor: colors.commentContainer,
+    borderRadius: 10,
+  },
+  addPreferenceText: {
+    fontFamily: 'Satoshi-Medium',
+    fontSize: 14,
+    color: colors.textGray,
   },
   saveCancelContainer: {
+    width: '90%',
     flexDirection: 'row',
-    marginTop: 10,
+    marginTop: 30,
     justifyContent: 'space-between',
   },
   saveButton: {
-    backgroundColor: colors.primary,
-    padding: 10,
-    borderRadius: 5,
+    backgroundColor: colors.commentContainer,
+    paddingVertical: 9,
+    paddingHorizontal: 10,
+    borderRadius: 15,
+  },
+  saveText: {
+    fontFamily: 'Satoshi-Medium',
+    fontSize: 14,
+    color: colors.textGray,
   },
   cancelButton: {
-    backgroundColor: '#ddd',
-    padding: 10,
-    borderRadius: 5,
+    // backgroundColor: colors.commentContainer,
+    paddingHorizontal: 10,
+    paddingTop: 7,
+    borderWidth: 1,
+    borderRadius: 15,
+    borderColor: colors.outlineBrown,
+  },
+  cancelText: {
+    fontFamily: 'Satoshi-Medium',
+    fontSize: 14,
+    color: colors.textGray,
   },
   displayContainer: {
     marginBottom: 20,

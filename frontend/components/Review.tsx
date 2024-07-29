@@ -430,7 +430,9 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     userInfoText: {
+        fontFamily: 'Satoshi-Medium',
         fontSize: 13,
+        color: colors.textGray,
     },
     timestampText:{
         color: '#7C7C7C',               
@@ -445,7 +447,9 @@ const styles = StyleSheet.create({
         paddingTop: 10,
     },
     reviewFoodName: {
+        fontFamily: 'Satoshi-Medium',
         fontSize: 16,
+        color: colors.textGray,
     },
     tagContainer: {
         flexDirection: 'row',
@@ -483,17 +487,24 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
     tagText: {
+        fontFamily: 'Satoshi-Medium',
         fontSize: 12,
+        color: colors.textGray,
     },
     reviewComment: {
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 14,
+        color: colors.textGray,
         marginBottom: 10,
         lineHeight: 20,
     },
     taste: {
+        fontFamily: 'Satoshi-Regular',
         fontSize: 11,
         marginBottom: 5
     },
     health: {
+        fontFamily: 'Satoshi-Regular',
         fontSize: 11,
         marginBottom: 5
     },
@@ -509,9 +520,13 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     likeText: {
+        fontFamily: 'Satoshi-Medium',
         marginLeft: 3,
     },
     likeNumber: {
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 13,
+        color: colors.textGray,
         marginLeft: 4
     },
     sublikeNumber: {
@@ -580,6 +595,7 @@ const styles = StyleSheet.create({
         fontSize: 13,
     },
     subCommentContent: {
+        fontFamily: 'Satoshi-Medium',
         fontSize: 13
     },
     subCommentContainer: {
