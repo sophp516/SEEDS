@@ -116,13 +116,13 @@ const Ranking = () => {
       }
   };
 
-
     return (
       <View style={styles.container}>
         <View style={{alignItems: 'flex-start', flexDirection:'row', marginRight: '45%'}}>
           <Text style={styles.header}>Leaderboard</Text>
         </View>
         
+        {/* Section toggle */}
         <View style={styles.toggleContainer}>
                 <TouchableOpacity onPress={()=>setToggle(true)} style={toggle ? styles.activeToggle : styles.inactiveToggle}>
                     <Text style={toggle ? styles.btnText1 : styles.btnText2}>Food</Text>
@@ -132,9 +132,10 @@ const Ranking = () => {
                 </TouchableOpacity>
          </View>
 
+        {/* Dropdown toggle */}
          <View style={{justifyContent:'center'}}>
             <View style={styles.sortContainer}>
-                <TouchableOpacity onPress={()=>setOpen(!open)} style={{ paddingHorizontal: 10, paddingVertical: 10 ,flexDirection: 'row', justifyContent: 'space-between'} }>
+                <TouchableOpacity onPress={()=>setOpen(!open)} style={{ paddingHorizontal: 10, paddingVertical: 7 ,flexDirection: 'row', justifyContent: 'space-between'} }>
                   <Text style={{fontFamily: 'Satoshi-Medium', color: colors.textGray, marginRight: 3}}> {selectedValue} </Text>
                   <View style={{justifyContent: 'center', alignItems: 'center'}}>
                   <Image source={require('../assets/dropdown.png')} style={{width: 13, height: 10, marginLeft: 1, resizeMode: 'contain'}} />
@@ -149,20 +150,19 @@ const Ranking = () => {
         {/* Displays the leader board based off fetching  */}
         {toggle ? 
         <ScrollView style={{zIndex: -1}}>
-            {filteredFoodLeaderboard.map((food, index) => (
-              <View key={index} style={{marginHorizontal: 20}}>
-                <FoodRank rank={index} foodName={food.foodName} rating={food.averageRating} location={food.location}/>
-              </View>
-            ))}
-         </ScrollView >: 
-         <ScrollView style={{zIndex: -1, }}>
-              {users.map((user, index) => (
-                <View key={index}>
-                  <UserRank rank={index} displayName={user.displayName} likesCount={user.likesCount} profilePicture={user.profilePicture} />
-                </View>
-              ))}
-             
-          </ScrollView>}
+          {filteredFoodLeaderboard.map((food, index) => (
+            <View key={index} style={{marginHorizontal: 20}}>
+              <FoodRank rank={index} foodName={food.foodName} rating={food.averageRating} location={food.location}/>
+            </View>
+          ))}
+        </ScrollView >: 
+        <ScrollView style={{zIndex: -1, }}>
+          {users.map((user, index) => (
+            <View key={index}>
+              <UserRank rank={index} displayName={user.displayName} likesCount={user.likesCount} profilePicture={user.profilePicture} />
+            </View>
+          ))}
+        </ScrollView>}
 
         <View></View>
 

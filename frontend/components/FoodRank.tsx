@@ -6,6 +6,7 @@ import { getDoc, collection, doc} from 'firebase/firestore'
 import { db } from '../services/firestore'
 import FoodItem from './FoodItem';
 import { useState } from 'react';
+import colors from '../styles.js';
 
 type RootStackParamList = {
     SelectedMenu: { foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs , averageRating },
@@ -97,7 +98,6 @@ const FoodRank = ({rank, foodName, rating, location}) => {
     };
 
 
-
     return (
         <TouchableOpacity onPress={()=>{navigateToReviews()}}>
         <View style={rank < 3 ?  [styles.rankContainer,{backgroundColor: '#F9A05F'} ]: [styles.rankContainer, {backgroundColor: '#E7E2DB'}] }>
@@ -128,13 +128,10 @@ const styles = StyleSheet.create({
         borderRadius: 15,
     },
     rankNum: {
-        color: '#35353E',
+        color: colors.textGray,
         fontSize: 24,
-        fontStyle: 'normal',
-        fontWeight: 'bold', // closest to '700' in React Native
         // lineHeight: 36, // Explicit pixel value
-        letterSpacing: -0.264,
-        fontFamily: 'Satoshi',
+        fontFamily: 'Satoshi-Bold',
         alignItems: 'center', 
         justifyContent: 'center',
         paddingRight: 15,
@@ -142,22 +139,17 @@ const styles = StyleSheet.create({
         textAlign: 'left',
     },
     foodText:{
-        color: '#35353E',
+        color: colors.textGray,
         fontSize: 16,
-        fontStyle: 'normal',
-        fontWeight: '500', 
-        lineHeight: 24,
-        letterSpacing: -0.176,
-        fontFamily: 'Satoshi' 
+        // lineHeight: 24,
+        fontFamily: 'Satoshi-Medium',
+        marginTop: 5,
     },
     rating:{
-        color: '#35353E',
+        color: colors.textGray,
         fontSize: 16,
-        fontStyle: 'normal',
-        fontWeight: '500', 
-        lineHeight: 24,
-        letterSpacing: -0.176,
-        fontFamily: 'Satoshi', 
+        // lineHeight: 24,
+        fontFamily: 'Satoshi-Medium', 
         paddingRight: 4,
     },
     star:{
