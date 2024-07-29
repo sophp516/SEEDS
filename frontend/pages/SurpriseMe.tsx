@@ -78,15 +78,23 @@ const DiningHome: React.FC<Props> = ({ route }) => {
     }
   };
 
+  const getRandomMenu = (menus) => {
+    if (menus.length > 0) {
+      const randomIndex = Math.floor(Math.random() * menus.length);
+      return menus[randomIndex];
+    }
+    return null;
+  };
+
+  const retrieveReviews = async () => {
+    setLoading(true);
+    const reviewsData = await fetchReviews(placeName);
+    setAllMenus(reviewsData);
+    const randomMenu = getRandomMenu(reviewsData);
+    setRandomMenu(randomMenu);
+  };
+
   useEffect(() => {
-    const retrieveReviews = async () => {
-      const reviewsData = await fetchReviews(placeName);
-      setAllMenus(reviewsData);
-      if (reviewsData.length > 0) {
-        const randomIndex = Math.floor(Math.random() * reviewsData.length);
-        setRandomMenu(reviewsData[randomIndex]);
-      }
-    };
     retrieveReviews();
   }, [placeName]);
 
@@ -113,6 +121,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
           <>
             <View style={styles.confettiContainer}>
               <Image source={require('../assets/confetti3.gif')} style={styles.confetti} />
+              <Image source={require('../assets/anotherGif.gif')} style={styles.overlayGif} />
             </View>
             {randomMenu && (
               <SmallMenu
@@ -136,6 +145,9 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                 protein={randomMenu.protein}
               />
             )}
+            <TouchableOpacity style={styles.anotherSurpriseButton} onPress={retrieveReviews}>
+              <Text style={styles.anotherSurpriseButtonText}>Another Surprise?</Text>
+            </TouchableOpacity>
           </>
         )}
       </View>
@@ -202,7 +214,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Satoshi-Medium',
     color: colors.orangeHighlight,
     marginTop: 10,
-
   },
   confettiContainer: {
     position: 'absolute',
@@ -211,11 +222,33 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     zIndex: 1,
-    pointerEvents: 'none', // Apply pointerEvents to the container, not the Image
+    pointerEvents: 'none',
   },
   confetti: {
     width: '100%',
     height: '100%',
+  },
+  overlayGif: {
+    width: '100%',
+    height: '90%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  },
+  anotherSurpriseButton: {
+    backgroundColor: colors.orangeHighlight, // You can customize the button color
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginTop: 20,
+    padding: 10,
+    top: 20,
+    left: -5,
+  },
+  anotherSurpriseButtonText: {
+    fontSize: 18,
+    fontFamily: 'Satoshi-Medium',
+    color: "#FFFFFF",
   },
 });
 
