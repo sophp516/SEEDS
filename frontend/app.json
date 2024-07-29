@@ -6,15 +6,10 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "ios": {
       "googleServicesFile": "./ios/GoogleService-Info.plist",
       "supportsTablet": true,
-      "bundleIdentifier": "com.team2.SEEDS"
+      "bundleIdentifier": "com.team2.SEEDS",
     },
     "android": {
       "adaptiveIcon": {

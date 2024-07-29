@@ -1,5 +1,5 @@
-import { useState, useEffect , useCallback} from 'react';
 import React from 'react';
+import { useState, useEffect , useCallback} from 'react';
 import { Image, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Modal , KeyboardAvoidingView} from 'react-native';
 import { useNavigation, NavigationProp, ParamListBase } from '@react-navigation/native';
 import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
@@ -19,6 +19,7 @@ import ImageSlider from '../components/ImageSlider.tsx';
 import preferences from '../services/Preferences.json';
 import Allergens from '../services/Allergens.json';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+import colors from '../styles.js';
 import {ACCESS_TOKEN} from "@env";
 
 interface newPost{
@@ -68,6 +69,7 @@ const Post = () => {
     const [selectedImg, setSelectedImg] = useState<string | null>(null);
     const navigation = useNavigation<NavigationProp<ParamListBase>>();
     const [toggle, setToggle] = useState<boolean>(true); // true = post, false = review 
+    const [loading, setLoading] = useState<boolean>(false);
     const [post, setPost] = useState<newPost>({
         comment: '',
         images: [],
@@ -108,6 +110,7 @@ const Post = () => {
 
     const handleCreatePost = async() => {
         try{
+            setLoading(true);
             console.log(userId);
             const userData = await verifyUser();
             if (!userData) return; 
@@ -151,6 +154,7 @@ const Post = () => {
             
             console.log("Post added to Firestore with ID:", postRef.id);
             setPost({ images: [],comment: '', userId: userId, isReview: true, subComments: []}); // reset the post
+            setLoading(false);
         }catch{
             console.error("Error adding post to Firestore, have you signed in yet");
         }
@@ -168,6 +172,7 @@ const Post = () => {
     
     const handleCreateReview = async () =>{
         try{
+            setLoading(true);
             // Verifies user
             const userData = await verifyUser();
             if (!userData) return; 
@@ -224,6 +229,7 @@ const Post = () => {
             setReview({ userId: userId, foodName: '',location: '',price: null, taste: 0,health: 0,
                 images:[],tags: [], allergens:[], comment: '',likes: [],timestamp: null,isReview: false, subComments: [],
             }); // reset the review
+            setLoading(false);
             navigation.goBack();
         }catch{
             console.error("Error adding review to Firestore, have you signed in yet?");
@@ -379,9 +385,6 @@ const Post = () => {
     useEffect(()=>{
         edit();
     }, [])
-
-
-
 
 
     const updateTagFrequency = async(foodName, tags, allergens) =>{
@@ -626,9 +629,10 @@ const Post = () => {
 
         return tags.map((tag, index) => (
             <View key={index} style={[styles.tags, {backgroundColor: getTagColor(type, tag)}]}>
-                <Text>{tag}</Text>
+                <Text style={styles.tagsText}>{tag}</Text>
                 <TouchableOpacity onPress={() => handleDelete(index)}>
-                    <Text> x </Text>
+                    <Image source={require('../assets/x_icon.png')} style={{width: 8, height: 8, marginLeft: 10}} />
+                    {/* <Text style={styles.tagsText}> x </Text> */}
                 </TouchableOpacity>
             </View>
         ));
@@ -652,29 +656,23 @@ const Post = () => {
 
     }
 
-
-             /* <View style={styles.tagsContainer} > 
-                            {review.tags && review.tags.map((tag, index) =>
-                                <View key={index} style={styles.tags}>
-                                    <Text >{tag}</Text>
-                                    <TouchableOpacity onPress={()=>handleDeleteTag(index)}>
-                                        <Text> x </Text>
-                                    </TouchableOpacity>
-                                </View>)}   
-                        </View> */
     return (
         <View style={styles.container}>
-               
                <View style={{margin: 15}}></View>
-           
+                {loading === true ? 
+                  <View style={{zIndex: 1, position:'absolute', backgroundColor: 'rgba(0,0,0,0.3)', width: '100%', height:'100%'}}>
+                    <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 , top: 430, left: 180}} />
+                </View>
+                : <View/>}
+
                 {toggle ? 
-                 <View style={{  alignItems: 'flex-start', flexDirection:'row', marginRight: '41%'}}>
+                 <View style={{ alignItems: 'flex-start', flexDirection:'row' }}>
                     {/* <TouchableOpacity onPress={handleExit}>
                         <Text>Exit</Text>
                     </TouchableOpacity> */}
-                    <Text style={[styles.header,  {alignItems: 'flex-start', flexDirection:'row',}]}>Create a new post</Text>
+                    <Text style={[styles.header]}>Create a new post</Text>
                 </View>
-                :    <View style={{justifyContent: 'center', alignItems: 'flex-start', flexDirection:'row', marginRight: '35.5%'}}>
+                :    <View style={{ alignItems: 'flex-start', flexDirection:'row' }}>
                     {/* <TouchableOpacity onPress={handleExit}>
                         <Text>Exit</Text>
                     </TouchableOpacity> */}
@@ -705,7 +703,7 @@ const Post = () => {
                         numberOfLines={100}
                         multiline={true}
                         onChangeText={(text)=> setPost(prevPost => ({...prevPost, comment: text}))}
-                        placeholder='Share thoughts, updates, or questions about your campus dining'
+                        placeholder='Share thoughts, updates, or questions about your campus dining!'
                         autoCapitalize="none"
                     />
                     <View >
@@ -791,37 +789,36 @@ const Post = () => {
                  
                     <View style={styles.reviewContentContainer}>
 
-                        <Text style={styles.text}> Food name </Text>
+                        <Text style={styles.text}>Food name</Text>
                             <View style={{position:'relative', marginTop: 0}}>
                             <FoodDropdown 
                                 onChangeText={handleChangeFoodName}
                                 onSelectItem={handleSelectedFood}
                                 onClear={()=>setReview(prevReview => ({...prevReview, foodName: ''}))}
-                                value={review.foodName}
+                                food={review.foodName}
                             />
                         </View>
                            
-                        <Text style={styles.text}> Location </Text>
+                        <Text style={styles.text}>Location</Text>
                             <GeneralDropdown 
                                 data={diningLocation} 
                                 onChangeText={(text)=> {setLocationInput (text)}}
                                 onClear={() => setLocationInput('')}
                                 value={locationInput}
                                 onSelectItem={handleSelectItem}
-                                placeholder= {'Enter location'}
+                                placeholder='Enter location'
+                            />   
 
-                                />
-                           
-
-                        <Text style={styles.text}> Price </Text>
+                        <Text style={styles.text}>Price</Text>
                             <TextInput 
                                 style={styles.textbox}
                                 value={review.price ? review.price.toString() :  null}
                                 keyboardType='decimal-pad'
                                 onChangeText={handlePriceChange}
                                 placeholder='Enter price (if none, leave blank)'
+                                placeholderTextColor={colors.textFaintBrown}
                             />
-                        <Text style={styles.text}> Taste </Text>
+                        <Text style={styles.text}>Taste</Text>
                             <CustomSlider 
                                     minimumValue={1} 
                                     maximumValue={5}
@@ -831,7 +828,7 @@ const Post = () => {
                                     sliderColor='#F9A05F'
                                     trackColor='#E7E2DB'         
                             />
-                        <Text style={styles.text}> Health</Text>
+                        <Text style={styles.text}>Health</Text>
                             <CustomSlider 
                                     minimumValue={1} 
                                     maximumValue={5}
@@ -843,7 +840,7 @@ const Post = () => {
                             />
 
 
-                        <Text style={styles.text}> Add Tags</Text>
+                        <Text style={styles.text}>Add tags</Text>
                         
                         {review.tags.length > 0 ?
                          <View style={styles.tagsContainer}>
@@ -861,7 +858,7 @@ const Post = () => {
                         />
 
 
-                        <Text style={styles.text}> Add allergens</Text>
+                        <Text style={styles.text}>Add allergens</Text>
                         { review.allergens.length > 0 ?
                              <View style={styles.tagsContainer}>
                              {tagsContainer("allergens", review.allergens, handleDeleteAllergen)}
@@ -873,12 +870,11 @@ const Post = () => {
                                 onClear={() => setAllergen('')}
                                 value={allergen}
                                 onSelectItem={handleSelectAllergen}
-                                placeholder= {'Enter a allergen'}
+                                placeholder= {'Enter an allergen'}
                                 handleSubmit={handleSubmitAllergen}
                             />
 
-                        <Text style={styles.text}> Comment </Text>
-                        
+                        <Text style={styles.text}>Comment</Text>
                              <TextInput 
                                 style={styles.commentBox}
                                 value={review.comment}
@@ -890,6 +886,7 @@ const Post = () => {
                                 />
                            
                         </View>
+
                         <TouchableOpacity onPress={handleCreateReview} style={styles.addReviewBtn}>
                             <Text style={styles.btnText2}>Add review</Text>
                         </TouchableOpacity>
@@ -908,60 +905,54 @@ const Post = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop:60,
+        paddingTop: 60,
         alignItems: 'center',
         backgroundColor: '#FBFAF5', 
-        
     },
     containerTop: {
-      padding: 20,
-      height: 200,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'white', 
+        padding: 20,
+        height: 200,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'white', 
     },
     text: {
-        color: '#000',
-        fontFamily: 'Satoshi',
-        fontSize: 16,
-        fontStyle: 'normal',
-        fontWeight: '500',
-        lineHeight: 18,
-        letterSpacing: 0.1,
-        textAlign: 'left',
-        paddingVertical: 12,
+        color: colors.textGray,
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 17,
+        // lineHeight: 18,
+        // textAlign: 'left',
+        paddingVertical: 10,
     },
     header:{
-        color: '#35353E',
-        fontFamily: 'Space Grotesk', 
+        color: colors.textGray,
+        fontFamily: 'SpaceGrotesk-SemiBold', 
         fontSize: 24,
         fontStyle: 'normal',
-        fontWeight: '500', 
         lineHeight: 36,
-        letterSpacing: -0.264,
         textAlign: 'left',
+        // letterSpacing: -0.264,
     },
     btnText1:{ // white
         color: '#35353E',
-        fontFamily: 'Satoshi', 
+        fontFamily: 'Satoshi-Medium', 
         fontSize: 14,
         fontStyle: 'normal',
         fontWeight: '500',
         lineHeight: 21, 
-        letterSpacing: -0.154,
+        // letterSpacing: -0.154,
         textAlign: 'center',
     },
     btnText2:{ // white
-        color: '#FFFFFF',
-        fontFamily: 'Satoshi', 
-        fontSize: 14,
+        color: colors.backgroundGray,
+        fontFamily: 'SpaceGrotesk-SemiBold', 
+        fontSize: 16,
         fontStyle: 'normal',
         fontWeight: '500',
         lineHeight: 21, 
-        letterSpacing: -0.154,
         textAlign: 'center',
+        // letterSpacing: -0.154,
     },
-
     slider:{
         width: 200, 
         height: 40, 
@@ -1022,7 +1013,7 @@ const styles = StyleSheet.create({
     },
     addImageButton:{
         position: 'absolute',
-        bottom: 25,  // Adjust top and right as needed to position the button in the desired corner
+        bottom: 0,  // Adjust top and right as needed to position the button in the desired corner
         right: -60,
         width: 65,  // Set the size of the button
         height: 65,
@@ -1030,28 +1021,33 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     textbox: {
-        borderColor: 'black',
-        backgroundColor: '#E7E2DB',
+        // borderColor: 'black',
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 15,
+        color: colors.textGray,
+        backgroundColor: colors.commentContainer,
         width: 350,
         height: 35,
         borderRadius: 10,
-        paddingHorizontal: 10,
+        paddingHorizontal: 12,
     },
     commentContainer:{
         justifyContent: 'center',  // Centers children vertically
         width: '100%',
     },
     commentBox:{
-        backgroundColor: '#E7E2DB',
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 15,
+        color: colors.textFaintBrown,
+        backgroundColor: colors.commentContainer,
         height: 200,
         width: 350,
         borderColor: 'black',
         borderRadius: 10,
-        padding: 20,
+        padding: 13,
         textAlign: 'left',
         textAlignVertical: 'top',
         flexWrap: 'wrap',
-        
     },
     cameraIcon:{
         width: "30%",
@@ -1071,7 +1067,6 @@ const styles = StyleSheet.create({
         margin: 10,
         width: 350,
     },
-
     postImgicon:{
         width: 45,
         height: 31,
@@ -1083,22 +1078,33 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderColor: '#D1CABF',
         borderStyle: 'solid',
-        borderWidth: 1,
+        borderWidth: 2,
         alignItems: 'center',
         width: 350,
-        paddingVertical: 5,
+        paddingVertical: 4,
+        paddingLeft: 5,
         marginVertical: 10,
         marginTop:-2,
     },
     tags:{
         paddingHorizontal: 10,
-        paddingVertical: 3,
+        paddingVertical: 4,
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 15,
         flexDirection: 'row',
         marginHorizontal: 5,
         marginVertical: 5,
+    },
+    tagsText: {
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 14,
+        color: colors.textGray,
+    },
+    tagsX: {
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 14,
+        color: colors.textGray,
     },
     allergens:{
         paddingHorizontal: 10,
@@ -1117,7 +1123,7 @@ const styles = StyleSheet.create({
         height: 40,
         alignItems: 'center',
         justifyContent: 'center',
-        margin: 10,
+        margin: 15,
     },
     addPostBtn:{ // incase there may be difference styles
         borderRadius: 15,

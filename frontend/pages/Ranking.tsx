@@ -149,14 +149,14 @@ const Ranking = () => {
 
         {/* Displays the leader board based off fetching  */}
         {toggle ? 
-        <ScrollView style={{zIndex: -1, width: '100%'}}>
+        <ScrollView style={{zIndex: -1}}>
             {filteredFoodLeaderboard.map((food, index) => (
               <View key={index} style={{marginHorizontal: 20}}>
                 <FoodRank rank={index} foodName={food.foodName} rating={food.averageRating} location={food.location}/>
               </View>
             ))}
          </ScrollView >: 
-         <ScrollView style={{zIndex: -1}}>
+         <ScrollView style={{zIndex: -1, }}>
               {users.map((user, index) => (
                 <View key={index}>
                   <UserRank rank={index} displayName={user.displayName} likesCount={user.likesCount} profilePicture={user.profilePicture} />
