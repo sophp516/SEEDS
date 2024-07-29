@@ -31,7 +31,7 @@ const TimeDisplay = ({ isMenu, timestamp, textStyle }) => {
       {isMenu ? (
         <Text style={textStyle}>last updated {uploadTime}</Text>
       ) : (
-        <Text style={textStyle}>{uploadTime}</Text>
+        <Text style={textStyle}>  {uploadTime}</Text>
       )}
     </View>
   );
