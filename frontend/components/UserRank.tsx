@@ -12,7 +12,7 @@ const UserRank = ({rank, displayName, profilePicture, likesCount}) => {
         <View style={rank < 3 ?  [styles.userRankContainer,{backgroundColor: '#F9A05F'} ]: [styles.userRankContainer, {backgroundColor: '#E7E2DB'}]}>
             <View style={styles.userInfoContainer}>
                 <Text style={styles.rankNum}>{rank + 1}</Text>
-                <Image style={styles.img} source={require('../assets/profile.jpeg')} />
+                {profilePicture !== 'N/A' ? <Image style={styles.img} source={{uri: profilePicture}} /> : <Image style={styles.img} source={require('../assets/profile.jpeg')} />}
                 <Text style={styles.nameText}>{displayName}</Text>
             </View>
             <View style={styles.likesContainer}>

@@ -30,7 +30,7 @@ const Ranking = () => {
                   return [{
                      displayName: doc.data().displayName ?? 'Anonymous',
                      likesCount: doc.data().likesCount ?? '0',
-                      profilePicture: doc.data().profilePicture ?? 'N/A',
+                      profilePicture: doc.data().profileImage ?? 'N/A',
                   }];
               });
 
