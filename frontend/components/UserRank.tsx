@@ -2,12 +2,10 @@ import { StyleSheet, Text, View , Image} from 'react-native'
 import React, {useEffect, useState} from 'react'
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../services/firestore';
-
+import colors from '../styles.js';
 
 const UserRank = ({rank, displayName, profilePicture, likesCount}) => {
    
-
-
     return (
         <View style={rank < 3 ?  [styles.userRankContainer,{backgroundColor: '#F9A05F'} ]: [styles.userRankContainer, {backgroundColor: '#E7E2DB'}]}>
             <View style={styles.userInfoContainer}>
@@ -51,12 +49,9 @@ const styles = StyleSheet.create({
         height: 18,
     },
     rankNum: {
-        color: '#35353E',
+        color: colors.textGray,
         fontSize: 24,
-        fontStyle: 'normal',
-        fontWeight: 'bold', // closest to '700' in React Native
-        letterSpacing: -0.264,
-        fontFamily: 'Satoshi',
+        fontFamily: 'Satoshi-Bold',
         alignItems: 'center', 
         justifyContent: 'center',
         paddingRight: 15,
@@ -65,22 +60,16 @@ const styles = StyleSheet.create({
         width: 55,
     },
     nameText:{
-        color: '#35353E',
+        color: colors.textGray,
         fontSize: 16,
-        fontStyle: 'normal',
-        fontWeight: '500', 
-        lineHeight: 24,
-        letterSpacing: -0.176,
-        fontFamily: 'Satoshi' 
+        // lineHeight: 24,
+        fontFamily: 'Satoshi-Medium' 
     },
     likesText:{
-        color: '#35353E',
+        color: colors.textGray,
         fontSize: 16,
-        fontStyle: 'normal',
-        fontWeight: '500', 
         lineHeight: 24,
-        letterSpacing: -0.176,
-        fontFamily: 'Satoshi', 
+        fontFamily: 'Satoshi-Medium', 
         paddingRight: 4,
         marginRight: 4,
 
