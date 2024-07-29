@@ -18,7 +18,7 @@ import TagDropdown from '../components/TagDropdown.tsx';
 import ImageSlider from '../components/ImageSlider.tsx';
 import preferences from '../services/Preferences.json';
 import Allergens from '../services/Allergens.json';
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+import Toast from 'react-native-toast-message';
 import colors from '../styles.js';
 import {ACCESS_TOKEN} from "@env";
 
@@ -155,6 +155,15 @@ const Post = () => {
             console.log("Post added to Firestore with ID:", postRef.id);
             setPost({ images: [],comment: '', userId: userId, isReview: true, subComments: []}); // reset the post
             setLoading(false);
+            navigation.goBack();
+            Toast.show({
+                type: 'success',
+                position: 'bottom',
+                text1: 'Post submitted',
+                text2: 'Thank you for sharing!',
+                visibilityTime: 2000,
+                autoHide: true,
+            });
         }catch{
             console.error("Error adding post to Firestore, have you signed in yet");
         }
@@ -231,6 +240,14 @@ const Post = () => {
             }); // reset the review
             setLoading(false);
             navigation.goBack();
+            Toast.show({
+                type: 'success',
+                position: 'bottom',
+                text1: 'Review submitted',
+                text2: 'Thank you for your review!',
+                visibilityTime: 2000,
+                autoHide: true,
+            });
         }catch{
             console.error("Error adding review to Firestore, have you signed in yet?");
             alert("Error adding review to Firestore");

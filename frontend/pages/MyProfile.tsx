@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, TextInput, Image } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, TextInput, Image, Platform } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { collection, query, where, getDocs, updateDoc } from 'firebase/firestore';
-import { db } from '../services/firestore.js'; // Adjust the path if needed
+import { db, storage } from '../services/firestore.js'; // Adjust the path if needed
 import { useAuth } from '../context/authContext.js'; // Adjust the path if needed
 import Toast from 'react-native-toast-message';
 import * as ImagePicker from 'expo-image-picker';
 import Navbar from '../components/Navbar.jsx';
 import colors from '../styles.js';
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage';
 
 type RootStackParamList = {
   Profile: undefined;
@@ -27,6 +28,8 @@ const MyProfile = () => {
   const [emailInput, setEmailInput] = useState(email || '');
 
   const [profileImage, setProfileImage] = useState<string | null>(null);
+
+  console.log(profileImage)
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -258,6 +261,61 @@ const saveProfileImage = async (imageUri) => {
     });
   }
 };
+    /******* FUNCTIONS FOR UPLOAD IMAGES ******/
+    // Read more about documentation here: https://docs.expo.dev/versions/latest/sdk/imagepicker/
+    // If have time, can set as a component 
+    const getPermission = async() =>{
+        if (Platform.OS === 'ios'){
+            const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted'){
+                alert('Please grant access to library to upload photos')
+                return false;
+            }
+        }
+        return true;
+    }
+    const selectImage = async() => {
+        // const foodItem = fetchReviews(review.location);
+        // console.log("foodItem:", foodItem);
+        const permissionStatus = await getPermission();
+        if (!permissionStatus) return; 
+
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            // allowsEditing: true,
+            aspect:[4,3],
+            allowsMultipleSelection: true,
+            quality:1, // we can edit later for more
+        })
+        // console.log("image:", result);        
+        if (!result.canceled){ // if image is selected, then save the latest upload
+            let selected = result.assets.map((image) => image.uri);
+        }
+    }
+    // console.log("review:", review.foodName);
+
+    // How multiple images upload will work:
+    // 1. User selects multiple images from gallery
+    // 2. Images are stored in an array
+    // 3. User clicks submit
+    // 4. Images are uploaded to Firebase Storage one by one, the images in the final array are the URLs
+    // 5. The URLs are stored in the Firestore document
+    
+    const handleUploadImage = async (image: string) => {
+        try{
+            const response = await fetch(image);
+            const blob = await response.blob(); // convert 
+            const imgName = `img-${new Date().getTime()}-${Math.random().toString(36).substring(2, 15)}`;
+            const storageRef = ref(storage, `images/${imgName}.jpg`)
+            const snapshop = await uploadBytesResumable(storageRef, blob);
+            const imageUrl = await getDownloadURL(storageRef);
+            return imageUrl
+        }
+        catch{
+            console.error("Error uploading image to Firestore");
+        }
+    }
+
 
   return (
     <View style={styles.container}>
@@ -268,7 +326,7 @@ const saveProfileImage = async (imageUri) => {
       
       <Text style={styles.header}>My Profile</Text>
 
-      <TouchableOpacity onPress={pickImage}>
+      <TouchableOpacity onPress={selectImage}>
         <Image
           source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
           style={styles.profileImage}
