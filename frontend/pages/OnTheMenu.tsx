@@ -150,7 +150,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
       const filterApplied = filters.preferred.length > 0 || filters.allergens.length > 0 || filters.time.length > 0 || filters.taste > 1 || filters.health > 1 || searchChange !== '' || simpleFilter !== '';
       const filterOnTheMenu = useMemo(() => applyFilters(onTheMenu), [filters, simpleFilter, searchChange]);
       const filterOrNone = filterApplied ? filterOnTheMenu : onTheMenu;
-
+      const sortedFilterOrNone = filterOrNone.sort((a, b) => b.updatedTime - a.updatedTime); // sort by most recent 
 
     const toggleBottomSheet = () => {
       setIsBottomSheetOpen(!isBottomSheetOpen);
@@ -194,7 +194,7 @@ const DiningHome: React.FC<Props> = ({ route }) => {
             </View>
             : <ScrollView style={styles.contentScrollContainer}>
                 {filterOrNone.length > 0 ? (
-                    filterOrNone.map((review, i) => {
+                    sortedFilterOrNone.map((review, i) => {
                         // return <Review key={review.id} reviewId={review} />
                         return <FoodItem 
                             key={i}
