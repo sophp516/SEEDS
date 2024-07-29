@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { useAuth } from '../context/authContext.js';
 import { signOut } from "firebase/auth";
-import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
-import { db, auth, storage } from '../services/firestore.js';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { db, auth } from '../services/firestore.js';
 import Toast from 'react-native-toast-message';
 import * as ImagePicker from 'expo-image-picker';
 import Navbar from '../components/Navbar.jsx';
@@ -26,6 +26,7 @@ const Profile = () => {
     const [userInfo, setUserInfo] = useState(null);
     const [fetchTags, setFetchTags] = useState<string[]>([]);
     const [fetchAllergies, setFetchAllergies] = useState<string[]>([]);
+    const [loading, setLoading] = useState(true);
     const { loggedInUser, displayName } = user;
 
     useEffect(() => {
@@ -40,60 +41,54 @@ const Profile = () => {
                     const userDoc = querySnapshot.docs[0];
                     const userData = userDoc.data();
                     setUserInfo(userData);
-                    setProfileImage(userData.profileImage);
+                    if (userData.profileImage) {
+                        setProfileImage(userData.profileImage);
+                    }
                 }
             } catch (err) {
                 console.log(err);
             }
         };
-        fetchUserData();
-    }, []);
 
-    useEffect(() => {
-      const fetchTags = async () => {
+        const fetchTags = async () => {
+            if (!user.id) return;
+            try {
+                const userId = user.id;
+                const usersRef = collection(db, 'users');
+                const q = query(usersRef, where('id', '==', userId));
+                const querySnapshot = await getDocs(q);
 
-  
-        if (!user.id) return;
-        try {
-          const userId = user.id 
-  
-          if (userId) {
-            const usersRef = collection(db, 'users');
-            const q = query(usersRef, where('id', '==', userId));
-            const querySnapshot = await getDocs(q);
-    
-            if (!querySnapshot.empty) {
-              const userDoc = querySnapshot.docs[0];
-              const userData = userDoc.data();
-    
-              if (userData.tags && Array.isArray(userData.tags)) {
-                setFetchTags(userData.tags);
-              } else {
-                setFetchTags([]);
-              }
-              if (userData.allergens && Array.isArray(userData.allergens)) {
-                setFetchAllergies(userData.allergens);
-              } else {
-                setFetchAllergies([]);
-              }
-            } else {
-              setFetchTags([]);
-              setFetchAllergies([]);
+                if (!querySnapshot.empty) {
+                    const userDoc = querySnapshot.docs[0];
+                    const userData = userDoc.data();
+
+                    if (userData.tags && Array.isArray(userData.tags)) {
+                        setFetchTags(userData.tags);
+                    } else {
+                        setFetchTags([]);
+                    }
+                    if (userData.allergens && Array.isArray(userData.allergens)) {
+                        setFetchAllergies(userData.allergens);
+                    } else {
+                        setFetchAllergies([]);
+                    }
+                } else {
+                    setFetchTags([]);
+                    setFetchAllergies([]);
+                }
+            } catch (e) {
+                console.error('Error fetching tags:', e);
             }
-          } else {
-            // Handle the case where the user is not logged in
-            setFetchTags([]);
-            setFetchAllergies([]);
-          }
-        } catch (e) {
-          console.error('Error fetching tags:', e);
-        }
-      };
-  
-      fetchTags();
-      
+        };
+
+        const fetchData = async () => {
+            setLoading(true);
+            await Promise.all([fetchUserData(), fetchTags()]);
+            setLoading(false);
+        };
+
+        fetchData();
     }, [loggedInUser]);
-    
 
     const handleNavigation = (dest) => {
         if (!user.id) {
@@ -102,46 +97,52 @@ const Profile = () => {
                 text1: 'Log in to unlock more features',
             });
         } else {
-            navigation.navigate(dest)
+            navigation.navigate(dest);
         }
-    }
-
+    };
 
     const asyncSignOut = async () => {
         try {
             await signOut(auth);
             setLoggedInUser(null);
-            setProfileImage(null);
         } catch (err) {
             console.error(err);
         }
     };
 
     const getTagStyle = (tag) => {
-      if (["Breakfast", "Lunch", "Dinner"].includes(tag)) {
-          return styles.tagYellow;
-      } else if (Preferences.id.includes(tag)) {
-          return styles.tagGreen;
-      }
-      return styles.tagGray;
-  };
+        if (["Breakfast", "Lunch", "Dinner"].includes(tag)) {
+            return styles.tagYellow;
+        } else if (Preferences.id.includes(tag)) {
+            return styles.tagGreen;
+        }
+        return styles.tagGray;
+    };
 
     const getAllergenStyle = (allergen) => {
         return Preferences.id.includes(allergen) ? styles.tagRed : styles.tagGray;
     };
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={colors.primary} />
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
             <Text style={styles.header}>Profile</Text>
             <Text></Text>
             {user?.displayName ? (
-              <View style={styles.profileContainer}>
-                  <View style={styles.profileBox}>
-                      <Image
-                          source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
-                          style={styles.profileImage}
-                      />
-                      <View style={styles.displayContainer}>
+                <View style={styles.profileContainer}>
+                    <View style={styles.profileBox}>
+                        <Image
+                            source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
+                            style={styles.profileImage}
+                        />
+                        <View style={styles.displayContainer}>
                             <View style={styles.nameContainer}>
                                 <Text style={styles.atSymbol}>@</Text>
                                 <Text style={styles.displayName}>{user?.displayName}</Text>
@@ -153,18 +154,15 @@ const Profile = () => {
                                         <Text>{tag}</Text>
                                     </View>
                                 ))}
-
                                 {fetchAllergies.map((tag, index) => (
                                     <View style={[styles.tagWithDelete, getAllergenStyle(tag)]} key={index}>
                                         <Text>{tag}</Text>
                                     </View>
                                 ))}
                             </View>
-                      </View>
-                  </View>
-
+                        </View>
+                    </View>
                 </View>
-
             ) : (
                 <View style={styles.profileBox}>
                     <Image
@@ -409,6 +407,5 @@ const styles = StyleSheet.create({
         backgroundColor: colors.yellow,
     },
 });
-
 
 export default Profile;

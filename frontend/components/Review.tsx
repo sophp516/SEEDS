@@ -7,6 +7,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import colors from "../styles.js";
 import Preferences from "../services/Preferences.json";
 import TimeDisplay from "./TimeDisplay.tsx";
+import Toast from "react-native-toast-message";
 
 interface Comment {
     id: string;
@@ -72,7 +73,13 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
         }, [sublikes, loggedInUser]);
     
         const handleSubLike = async () => {
-            if (!user.id) return;
+            if (!user.id) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Log in to unlock more features'
+                });
+                return;
+            }
     
             try {
                 const userId = user.id;
@@ -194,7 +201,7 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
     }, [comments]);
 
     useEffect(() => {
-        if (!loggedInUser) return;
+        if (!user.id) return;
         const fetchLikeData = async () => {
             try {
                 const reviewRef = doc(db, 'globalSubmissions', reviewId);
@@ -216,7 +223,13 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
     }, [loggedInUser, reviewId]);
 
     const handleLike = async () => {
-        if (!user.id) return;
+        if (!user.id) {
+            Toast.show({
+                type: 'error',
+                text1: 'Log in to unlock more features'
+            });
+            return;
+        }
 
         try {
             const userId = user.id;
@@ -270,7 +283,13 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
     };
 
     const asyncSubmitComment = async () => {
-        if (!loggedInUser) return;
+        if (!user.id) {
+            Toast.show({
+                type: 'error',
+                text1: 'Log in to unlock more features'
+            });
+            return;
+        }
     
         const commentCollectionRef = collection(db, 'comments');
     
