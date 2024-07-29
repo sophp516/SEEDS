@@ -62,7 +62,7 @@ const MyProfile = () => {
 
   const handleSaveUsername = async () => {
     try {
-      const userId = loggedInUser?.uid;
+      const userId = user.id;
 
       if (!userId) {
         Toast.show({
@@ -124,7 +124,7 @@ const MyProfile = () => {
 
   const handleSaveEmail = async () => {
     try {
-      const userId = loggedInUser?.uid;
+      const userId = user.id;
 
       if (!userId) {
         Toast.show({
@@ -201,7 +201,52 @@ const MyProfile = () => {
     if (!result.canceled && result.assets && result.assets.length > 0) {
         setProfileImage(result.assets[0].uri);
     }
-};
+
+    try {
+      const userId = user.id;
+
+      if (!userId) {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'No user is currently logged in.',
+        });
+        return;
+      }
+
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('id', '==', userId));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'User not found.',
+        });
+        return;
+      }
+
+      const userDoc = querySnapshot.docs[0];
+      const userDocRef = userDoc.ref;
+
+      await updateDoc(userDocRef, { profileImage: profileImage });
+
+      Toast.show({
+        type: 'success',
+        text1: 'Profile Updated',
+        text2: 'Your profile has been updated successfully!',
+      });
+
+      setEditingEmail(false);
+      // Optionally, update the email in the context
+      setLoggedInUser(prev => ({
+        ...prev,
+        email: emailInput,
+      }));
+    } catch (err) {
+      console.log(err)
+    }}
 
   return (
     <View style={styles.container}>
@@ -209,7 +254,7 @@ const MyProfile = () => {
         <Image style={styles.backArrow} source={require('../assets/backArrow.png')} resizeMode="contain"/>
         <Text style={styles.backButtonText}>Back</Text>
       </TouchableOpacity>
-
+      
       <Text style={styles.header}>My Profile</Text>
 
       <TouchableOpacity onPress={pickImage}>
