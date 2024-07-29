@@ -1,5 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
+import colors from '../styles.js'
 
 const TimeDropdown = ({setSelectedValue, filterFoodLeaderboard}) => {
   return (
@@ -27,19 +28,20 @@ const TimeDropdown = ({setSelectedValue, filterFoodLeaderboard}) => {
 export default TimeDropdown
 
 const styles = StyleSheet.create({
-    dropdown:{
-        flexDirection: 'row',
-        padding: 5,
-        margin: 1,
-        // borderRadius: 5,
-        // backgroundColor: '#C6C6C5',
-        width:'100%',
-        justifyContent: 'center'
-      },
-      textStyle:{
-        textAlign:'center',
-        lineHeight: 15,
-        fontFamily: 'Satoshi',
-        fontSize: 14,
-      },
+  dropdown:{
+    flexDirection: 'row',
+    padding: 5,
+    margin: 1,
+    // borderRadius: 5,
+    // backgroundColor: '#C6C6C5',
+    width:'100%',
+    justifyContent: 'center'
+  },
+  textStyle:{
+    textAlign:'center',
+    lineHeight: 15,
+    fontFamily: 'Satoshi-Medium',
+    fontSize: 14,
+    color: colors.textGray,
+  },
 })

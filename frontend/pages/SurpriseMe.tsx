@@ -102,13 +102,14 @@ const DiningHome: React.FC<Props> = ({ route }) => {
     <View style={styles.container}>
       <View style={styles.diningHomeHeader}>
         <View style={styles.diningHomeHeaderTop}>
-          <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.backButtonContainer}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButtonContainer}>
             <Image style={styles.backArrow} source={require('../assets/backArrow.png')} resizeMode="contain" />
             <Text style={styles.backButtonText}>Back</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.diningHomeHeaderBottom}>
-          <Text style={styles.placeNameText}>Surprise Me!</Text>
+          <Text style={styles.placeNameText}>Surprise!</Text>
+          <Text style={styles.subtext}>Here's what we picked for you.</Text>
         </View>
       </View>
       <View style={styles.menuContainer}>
@@ -123,27 +124,30 @@ const DiningHome: React.FC<Props> = ({ route }) => {
               <Image source={require('../assets/confetti3.gif')} style={styles.confetti} />
               <Image source={require('../assets/anotherGif.gif')} style={styles.overlayGif} />
             </View>
+            
             {randomMenu && (
-              <SmallMenu
-                reviewIds={randomMenu.reviewIds}
-                key={`random-${randomMenu.foodName}`}
-                id={randomMenu.foodName}
-                foodName={randomMenu.foodName}
-                location={randomMenu.location}
-                price={randomMenu.price}
-                taste={randomMenu.taste}
-                tags={randomMenu.tags}
-                allergens={randomMenu.allergens}
-                health={randomMenu.health}
-                averageRating={randomMenu.averageRating}
-                createdAt={randomMenu.createdAt}
-                images={randomMenu.images}
-                serving={randomMenu.serving}
-                calories={randomMenu.calories}
-                carbs={randomMenu.carbs}
-                fat={randomMenu.fat}
-                protein={randomMenu.protein}
-              />
+              <View style={styles.smallMenu}>
+                <SmallMenu
+                  reviewIds={randomMenu.reviewIds}
+                  key={`random-${randomMenu.foodName}`}
+                  id={randomMenu.foodName}
+                  foodName={randomMenu.foodName}
+                  location={randomMenu.location}
+                  price={randomMenu.price}
+                  taste={randomMenu.taste}
+                  tags={randomMenu.tags}
+                  allergens={randomMenu.allergens}
+                  health={randomMenu.health}
+                  averageRating={randomMenu.averageRating}
+                  createdAt={randomMenu.createdAt}
+                  images={randomMenu.images}
+                  serving={randomMenu.serving}
+                  calories={randomMenu.calories}
+                  carbs={randomMenu.carbs}
+                  fat={randomMenu.fat}
+                  protein={randomMenu.protein}
+                />
+              </View>
             )}
             <TouchableOpacity style={styles.anotherSurpriseButton} onPress={retrieveReviews}>
               <Text style={styles.anotherSurpriseButtonText}>Another Surprise?</Text>
@@ -159,7 +163,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.backgroundGray,
-    width: '100%',
   },
   backButtonContainer: {
     paddingLeft: 5,
@@ -179,11 +182,17 @@ const styles = StyleSheet.create({
   placeNameText: {
     fontSize: 26,
     fontFamily: 'SpaceGrotesk-SemiBold',
-    color: colors.textPrimary,
-    paddingLeft: 2,
+    marginTop: 10,
+    // paddingLeft: 2,
+  },
+  subtext: {
+    fontSize: 16,
+    fontFamily: 'Satoshi-Medium',
+    color: colors.textGray,
+    marginTop: 10,
   },
   diningHomeHeader: {
-    paddingTop: 50,
+    paddingTop: 70,
     width: '100%',
     paddingHorizontal: 20,
     justifyContent: 'center',
@@ -194,7 +203,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   diningHomeHeaderBottom: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     paddingTop: 10,
     paddingBottom: 20,
   },
@@ -202,7 +211,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    // padding: 20,
+  },
+  smallMenu: {
+    marginTop: -100,
+    marginRight: -18,
   },
   loadingContainer: {
     flex: 1,

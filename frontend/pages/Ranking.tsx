@@ -119,8 +119,7 @@ const Ranking = () => {
 
     return (
       <View style={styles.container}>
-        <View style={{margin: 30}}></View>
-        <View style={{  alignItems: 'flex-start', flexDirection:'row', marginRight: '50%'}}>
+        <View style={{alignItems: 'flex-start', flexDirection:'row', marginRight: '45%'}}>
           <Text style={styles.header}>Leaderboard</Text>
         </View>
         
@@ -136,9 +135,9 @@ const Ranking = () => {
          <View style={{justifyContent:'center'}}>
             <View style={styles.sortContainer}>
                 <TouchableOpacity onPress={()=>setOpen(!open)} style={{ paddingHorizontal: 10, paddingVertical: 10 ,flexDirection: 'row', justifyContent: 'space-between'} }>
-                  <Text style={{marginRight: 3}}> {selectedValue} </Text>
+                  <Text style={{fontFamily: 'Satoshi-Medium', color: colors.textGray, marginRight: 3}}> {selectedValue} </Text>
                   <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                  <Image source={require('../assets/dropdown.png')} style={{width: 15, height: 12, marginLeft: 1}} />
+                  <Image source={require('../assets/dropdown.png')} style={{width: 13, height: 10, marginLeft: 1, resizeMode: 'contain'}} />
                   </View>
                 </TouchableOpacity>
             </View>
@@ -182,17 +181,12 @@ const styles = StyleSheet.create({
       flexDirection: 'column',
       width: '100%',
     },
-    leaderboardText: {
-      marginTop: 60,
-      fontSize: 20,
-    },
     header:{
-      color: colors.textGray,
       fontFamily: 'SpaceGrotesk-SemiBold', 
       fontSize: 24,
-      lineHeight: 36,
-      letterSpacing: -0.264,
+      color: colors.textGray,
       textAlign: 'left',
+      marginTop: 96,
   },
     toggleContainer: {
       flexDirection: 'row',
@@ -223,24 +217,18 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignContent: 'center',
   },
-  btnText1:{ // white
-      color: '#35353E',
-      fontFamily: 'Satoshi', 
-      fontSize: 14,
-      fontStyle: 'normal',
-      fontWeight: '500',
-      lineHeight: 21, 
-      letterSpacing: -0.154,
-      textAlign: 'center',
-  },
-  btnText2:{ // white
+  btnText1:{ 
     color: '#35353E',
-    fontFamily: 'Satoshi', 
+    fontFamily: 'Satoshi-Medium', 
     fontSize: 14,
-    fontStyle: 'normal',
-    fontWeight: '500',
     lineHeight: 21, 
-    letterSpacing: -0.154,
+    textAlign: 'center',
+  },
+  btnText2:{ 
+    color: '#35353E',
+    fontFamily: 'Satoshi-Medium', 
+    fontSize: 14,
+    lineHeight: 21, 
     textAlign: 'center',
   },
   dropdown:{
@@ -266,14 +254,15 @@ const styles = StyleSheet.create({
   },
   sortContainer: {
     backgroundColor: '#E7E2DB', 
-    marginBottom: 10,
+    marginBottom: 15,
     marginTop: 5, 
     marginLeft: "60%",
     borderRadius: 30,
     justifyContent:'center', 
     alignContent: 'center',
     alignItems: "center", 
-    height: 35, 
-    width:100}
+    // height: 35, 
+    // width: 100
+  }
   });
 export default Ranking;

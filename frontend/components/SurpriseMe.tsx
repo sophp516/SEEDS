@@ -23,12 +23,11 @@ const SurpriseMe: React.FC<SurpriseMeProps> = ({ placeName }) => {
               <Image source={require('../assets/present.gif')} style={styles.image} />
           </View>
           <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('SurpriseMe', { placeName })}>
-              <Text style={styles.buttonText}>Surprise Me!</Text>
+              <Text style={styles.buttonText}>Surprise me!</Text>
           </TouchableOpacity>
       </View>
   );
 }
-
 
 const styles = StyleSheet.create({
     top:{
@@ -36,23 +35,25 @@ const styles = StyleSheet.create({
       justifyContent: 'space-between',
     },
     container: {
-        backgroundColor: '#FFFFFF', 
-        borderColor: colors.grayStroke,
+        backgroundColor: '#FFFFFF', // Set the background color to white
+        borderColor: colors.outlineBrown,
         borderWidth: 1,
-        paddingBottom: 10,
-        paddingTop: 7,
-        paddingHorizontal: 7,
         borderRadius: 10,
+        padding: 10,
+        // paddingBottom: 10,
+        // paddingTop: 7,
+        // paddingHorizontal: 10,
         marginRight: 18,
-        
     },
     text: {
+        fontFamily: 'Satoshi-Bold',
         fontSize: 18,
-        marginBottom: 10,
-        fontFamily: 'SpaceGrotesk-Bold',
-        fontWeight: 'bold',
-        alignItems: 'center',
-        justifyContent: 'center',
+        marginTop: 8,
+        marginLeft: 3,
+        // marginBottom: 10,
+        // fontFamily: 'SpaceGrotesk-SemiBold',
+        // alignItems: 'center',
+        // justifyContent: 'center',
         color: colors.orangeHighlight,
     },
     image: {
@@ -60,13 +61,14 @@ const styles = StyleSheet.create({
         height: 50,
     },
     button: {
-        backgroundColor: colors.orangeHighlight,
-        paddingHorizontal: 20,
+        backgroundColor: colors.orangeHighlight, // You can customize the button color
+        paddingHorizontal: 15,
         paddingVertical: 10,
         borderRadius: 5,
     },
     buttonText: {
-        color: '#FFFFFF', 
+        fontFamily: 'Satoshi-Bold',
+        color: colors.backgroundGray, // You can customize the text color
         fontSize: 16,
     },
 });
