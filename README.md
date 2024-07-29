@@ -157,7 +157,7 @@ Kathy Chen - [@Linkedin](https://www.linkedin.com/in/kathy-chen-b35b532a6/) - em
 
 Joyce Zou - [@Linkedin](https://www.linkedin.com/in/joyce-zou-57196a26b/) - email: joyce.zou.27@dartmouth.edu
 
-Racheal Huang - [@Linkedin](https://www.linkedin.com/in/rachaelhuang/) - email: rachael.huang.27@dartmouth.edu
+Rachael Huang - [@Linkedin](https://www.linkedin.com/in/rachaelhuang/) - email: rachael.huang.27@dartmouth.edu
 
 
 
