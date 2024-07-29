@@ -24,6 +24,7 @@ import { ActivityIndicator, View, Text } from 'react-native';
 import { useFonts } from "expo-font";
 import RecommendedForYou from './pages/RecommendedForYou.tsx';
 import CustomSplashScreen from './pages/CustomSplashScreen.js';
+import SurpriseMe from './pages/SurpriseMe.tsx';
 
 const Stack = createStackNavigator();
 
@@ -75,6 +76,7 @@ export default function App() {
           <Stack.Screen name="MyActivity" component={MyActivity} options={{ headerShown: false }} />
           <Stack.Screen name="MyPreferences" component={MyPreferences} options={{ headerShown: false }} />
           <Stack.Screen name="MyProfile" component={MyProfile} options={{ headerShown: false }} /> 
+          <Stack.Screen name="SurpriseMe" component={SurpriseMe} options={{ headerShown: false }} /> 
         </Stack.Navigator>
       </NavigationContainer>
       <Toast />  
