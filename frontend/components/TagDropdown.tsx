@@ -55,7 +55,7 @@ const TagDropdown = ({value, data, onChangeText, onClear, onSelectItem, placehol
         textInputProps ={{
             placeholder: placeholder,
             placeholderTextColor: colors.textFaintBrown,
-            value: input,
+            value: value,
             autoCorrect: false,
             autoCapitalize: 'none',
             onSubmitEditing(e) {
