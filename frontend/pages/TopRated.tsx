@@ -148,7 +148,7 @@ const DinningHome: React.FC<Props> = ({ route }) => {
       }
       // For the filter
       const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-      const [simpleFilter, setSimpleFilter] = useState(''); // State for simple filter
+      const [simpleFilter, setSimpleFilter] = useState(''); 
       const [filters, setFilters] = useState<{ preferred: string[]; allergens: string[]; time: string[]; taste:number; health:number }>({
         preferred: [],
         allergens: [],
