@@ -166,9 +166,12 @@ const Discover = () => {
 };
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    flex: 1,
+    backgroundColor: colors.backgroundGray,
+  },
   header: {
-    width: '100%',
-    marginTop: '15%',
+    marginTop: 96,
     backgroundColor: colors.primary, // Ensure this is a visible color
     alignItems: 'flex-start',
     justifyContent: 'center',
@@ -178,10 +181,6 @@ const styles = StyleSheet.create({
     fontFamily: 'SpaceGrotesk-SemiBold', 
     color: colors.textGray, 
     paddingHorizontal: 30,
-  },
-  outerContainer: {
-    flex: 1,
-    backgroundColor: colors.backgroundGray,
   },
   filter: {
     alignItems: 'center',

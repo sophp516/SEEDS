@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
         fontFamily: 'SpaceGrotesk-SemiBold',
         fontSize: 24,
         color: colors.textGray,
-        marginTop: 50,
+        marginTop: 96,
         marginLeft: 36,
     },
     profileBox: {

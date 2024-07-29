@@ -352,6 +352,7 @@ useEffect(() => {
                         <View>
                           <Text></Text>
                           <SurpriseMe placeName={placeName}/>
+
                             <View style={styles.recHeader}>
                                 <Text style={styles.recHeaderText}>Top rated</Text>
                                 <TouchableOpacity style={styles.seeAllContainer} onPress={() => navigation.navigate('TopRated', { placeName })}>
@@ -512,6 +513,7 @@ const styles = StyleSheet.create({
     width: '100%'
   },
   backButtonContainer: {
+    marginTop: 10,
     paddingLeft: 5,
     flexDirection: 'row',
     alignItems: 'center',
@@ -538,8 +540,10 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   closingText: {
+    fontFamily: 'Satoshi-Regular',
     fontSize: 12,
     color: colors.textFaintBrown,
+    marginTop: 5,
   },
   loadingScreen: {
     width: '100%',
@@ -558,6 +562,7 @@ const styles = StyleSheet.create({
     fontSize: 26,
     fontFamily: 'SpaceGrotesk-SemiBold',
     paddingLeft: 2,
+    marginTop: 15,
   },
   diningHomeHeader: {
     paddingTop: 50,
@@ -607,6 +612,7 @@ const styles = StyleSheet.create({
     marginRight: 20,
   },
   noResultText: {
+    fontFamily: 'Satoshi-Medium',
     textAlign: 'center',
     marginTop: 20,
     fontSize: 16,
