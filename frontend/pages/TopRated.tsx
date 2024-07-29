@@ -148,7 +148,7 @@ const DinningHome: React.FC<Props> = ({ route }) => {
       }
       // For the filter
       const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-      const [simpleFilter, setSimpleFilter] = useState(''); // State for simple filter
+      const [simpleFilter, setSimpleFilter] = useState(''); 
       const [filters, setFilters] = useState<{ preferred: string[]; allergens: string[]; time: string[]; taste:number; health:number }>({
         preferred: [],
         allergens: [],
@@ -200,6 +200,7 @@ const DinningHome: React.FC<Props> = ({ route }) => {
             {loading ?
             <View style={styles.loadingScreen}>
                 <LoadingScreen />
+                <Text style={styles.loadingText}>Preparing Top Rated...</Text>
 
             </View>
             : <ScrollView style={styles.contentScrollContainer}>
@@ -333,6 +334,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
     color: colors.textGray,
+  },
+  loadingText: {
+    fontSize: 18,
+    fontFamily: 'Satoshi-Medium',
+    color: colors.orangeHighlight,
+    marginTop: 10,
+
   },
 })
 

@@ -15,7 +15,6 @@ type SurpriseMeProps = {
 
 const SurpriseMe: React.FC<SurpriseMeProps> = ({ placeName }) => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [allMenus, setAllMenus] = useState([]);
 
   return (
       <View style={styles.container}>

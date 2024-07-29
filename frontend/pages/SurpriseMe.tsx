@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Image, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../services/firestore.js';
 import colors from '../styles.js';
 import { useAuth } from '../context/authContext.js';
 import SmallMenu from '../components/SmallMenu';
-import LoadingScreen from '../components/LoadingScreen.js';
+import LoadingScreen from '../components/LoadingScreen.tsx';
 
 type RootStackParamList = {
   Home: undefined,
@@ -22,7 +22,6 @@ type Props = {
 
 const DiningHome: React.FC<Props> = ({ route }) => {
   const { placeName } = route.params;
-
   const { user } = useAuth();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [loading, setLoading] = useState(true);
@@ -79,15 +78,23 @@ const DiningHome: React.FC<Props> = ({ route }) => {
     }
   };
 
+  const getRandomMenu = (menus) => {
+    if (menus.length > 0) {
+      const randomIndex = Math.floor(Math.random() * menus.length);
+      return menus[randomIndex];
+    }
+    return null;
+  };
+
+  const retrieveReviews = async () => {
+    setLoading(true);
+    const reviewsData = await fetchReviews(placeName);
+    setAllMenus(reviewsData);
+    const randomMenu = getRandomMenu(reviewsData);
+    setRandomMenu(randomMenu);
+  };
+
   useEffect(() => {
-    const retrieveReviews = async () => {
-      const reviewsData = await fetchReviews(placeName);
-      setAllMenus(reviewsData);
-      if (reviewsData.length > 0) {
-        const randomIndex = Math.floor(Math.random() * reviewsData.length);
-        setRandomMenu(reviewsData[randomIndex]);
-      }
-    };
     retrieveReviews();
   }, [placeName]);
 
@@ -107,11 +114,15 @@ const DiningHome: React.FC<Props> = ({ route }) => {
       </View>
       <View style={styles.menuContainer}>
         {loading ? (
-          <ActivityIndicator size="large" color={colors.primary} />
+          <View style={styles.loadingContainer}>
+            <LoadingScreen />
+            <Text style={styles.loadingText}>Preparing Your Surprise...</Text>
+          </View>
         ) : (
           <>
             <View style={styles.confettiContainer}>
-              <Image source={require('../assets/confetti.gif')} style={styles.confetti} />
+              <Image source={require('../assets/confetti3.gif')} style={styles.confetti} />
+              <Image source={require('../assets/anotherGif.gif')} style={styles.overlayGif} />
             </View>
             
             {randomMenu && (
@@ -138,6 +149,9 @@ const DiningHome: React.FC<Props> = ({ route }) => {
                 />
               </View>
             )}
+            <TouchableOpacity style={styles.anotherSurpriseButton} onPress={retrieveReviews}>
+              <Text style={styles.anotherSurpriseButtonText}>Another Surprise?</Text>
+            </TouchableOpacity>
           </>
         )}
       </View>
@@ -163,6 +177,7 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontFamily: 'Satoshi-Medium',
     fontSize: 16,
+    color: colors.textPrimary,
   },
   placeNameText: {
     fontSize: 26,
@@ -202,6 +217,17 @@ const styles = StyleSheet.create({
     marginTop: -100,
     marginRight: -18,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 18,
+    fontFamily: 'Satoshi-Medium',
+    color: colors.orangeHighlight,
+    marginTop: 10,
+  },
   confettiContainer: {
     position: 'absolute',
     width: '120%',
@@ -209,11 +235,33 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     zIndex: 1,
-    pointerEvents: 'none', // Apply pointerEvents to the container, not the Image
+    pointerEvents: 'none',
   },
   confetti: {
     width: '100%',
     height: '100%',
+  },
+  overlayGif: {
+    width: '100%',
+    height: '90%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  },
+  anotherSurpriseButton: {
+    backgroundColor: colors.orangeHighlight, 
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginTop: 20,
+    padding: 10,
+    top: 20,
+    left: -5,
+  },
+  anotherSurpriseButtonText: {
+    fontSize: 18,
+    fontFamily: 'Satoshi-Medium',
+    color: "#FFFFFF",
   },
 });
 
