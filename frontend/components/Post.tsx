@@ -6,6 +6,7 @@ import { View, Text, Image, StyleSheet, TextInput } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import colors from "../styles.js";
 import TimeDisplay from "./TimeDisplay.tsx";
+import Toast from "react-native-toast-message";
 
 interface Comment {
     id: string;
@@ -49,7 +50,13 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
         }, [sublikes, loggedInUser]);
     
         const handleSubLike = async () => {
-            if (!user.id) return;
+            if (!user.id) {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Log in to unlock more features'
+                });
+                return;
+            }
     
             try {
                 const userId = user.id;
@@ -189,8 +196,13 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
     }, [postId]);
 
     const handleLike = async () => {
-        if (!user.id) return;
-
+        if (!user.id) {
+            Toast.show({
+                type: 'error',
+                text1: 'Log in to unlock more features'
+            });
+            return;
+        }
         try {
             const userId = user.id;
             const postRef = doc(db, 'globalSubmissions', postId);
@@ -214,7 +226,15 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
     };
 
     const asyncSubmitComment = async () => {
-        if (!loggedInUser || !commentInput.trim()) return;
+        if (!user.id) {
+            Toast.show({
+                type: 'error',
+                text1: 'Log in to unlock more features'
+            });
+            return;
+        }
+
+        if (!commentInput.trim()) return;
 
         const commentCollectionRef = collection(db, 'comments');
 
