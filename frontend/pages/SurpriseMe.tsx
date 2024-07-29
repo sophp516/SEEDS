@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Image, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { db } from '../services/firestore.js';
@@ -22,7 +22,6 @@ type Props = {
 
 const DiningHome: React.FC<Props> = ({ route }) => {
   const { placeName } = route.params;
-
   const { user } = useAuth();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [loading, setLoading] = useState(true);
@@ -106,12 +105,14 @@ const DiningHome: React.FC<Props> = ({ route }) => {
       </View>
       <View style={styles.menuContainer}>
         {loading ? (
-          <LoadingScreen />
+          <View style={styles.loadingContainer}>
+            <LoadingScreen />
+            <Text style={styles.loadingText}>Preparing Your Surprise...</Text>
+          </View>
         ) : (
           <>
             <View style={styles.confettiContainer}>
-              <Image source={require('../assets/confetti.gif')} style={styles.confetti} />
-              
+              <Image source={require('../assets/confetti3.gif')} style={styles.confetti} />
             </View>
             {randomMenu && (
               <SmallMenu
@@ -161,10 +162,12 @@ const styles = StyleSheet.create({
   backButtonText: {
     fontFamily: 'Satoshi-Medium',
     fontSize: 16,
+    color: colors.textPrimary,
   },
   placeNameText: {
     fontSize: 26,
     fontFamily: 'SpaceGrotesk-SemiBold',
+    color: colors.textPrimary,
     paddingLeft: 2,
   },
   diningHomeHeader: {
@@ -188,6 +191,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 18,
+    fontFamily: 'Satoshi-Medium',
+    color: colors.orangeHighlight,
+    marginTop: 10,
+
   },
   confettiContainer: {
     position: 'absolute',
