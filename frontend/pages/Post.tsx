@@ -567,7 +567,11 @@ const Post = () => {
     const removeImage = (index) =>{
         const newImages = review.images.filter((_, idx) => idx !== index);
         setReview(prevReview => ({...prevReview, images: newImages}));
+    }
 
+    const removePostImage = (index) =>{
+        const newImages = post.images.filter((_, idx) => idx !== index);
+        setPost(prevPost => ({...prevPost, images: newImages}));
     }
    
     /* function handleExit(): Brings user back to the last visited page
@@ -735,6 +739,10 @@ const Post = () => {
                   <View style={styles.postUploadedImages}>
                     <ScrollView horizontal showsHorizontalScrollIndicator={true} style={{}}>
                       {post.images.map((image, index) => (
+                        <View>
+                          <TouchableOpacity style={styles.removePostImgBtn} onPress={()=> removePostImage(index)}>
+                          <Image style={{ width: '25%', height: '25%', resizeMode: 'contain' }} source={require('../assets/x_icon.png')} />
+                         </TouchableOpacity>
                         <View key={index}>
                           {modalVisible ? (
                             <Modal
@@ -750,24 +758,29 @@ const Post = () => {
                                 <TouchableOpacity onPress={() => setModalVisible(false)}>
                                   <Text style={{ fontFamily: 'Satoshi-Medium', fontSize: 16, color: colors.textGray }}>Close</Text>
                                 </TouchableOpacity>
+                                
                               </View>
+
+
                             </Modal>
+                            
                           ) : (
                             <TouchableOpacity onPress={() => setModalVisible(true)}>
                               <Image source={{ uri: post.images[index] || null }} style={{ width: 100, height: 100, marginRight: 10, marginBottom: 10, borderRadius: 10 }} />
                             </TouchableOpacity>
                           )}
                         </View>
+                        </View>
                       ))}
                     </ScrollView>
                   </View>
                 ) : (
+                <TouchableOpacity onPress={selectImage}>
                   <View style={styles.postImgIconContainer}>
-                    <TouchableOpacity onPress={selectImage}>
                       <Image source={require('../assets/imageBrown.png')} style={styles.postImgicon} />
-                    </TouchableOpacity>
                     <Text style={styles.addImageText2}>Add image</Text>
                   </View>
+                  </TouchableOpacity>
                 )}
       
                 <View style={{ alignItems: 'center', justifyContent: 'center' }}>
@@ -1056,6 +1069,19 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
        
+    },
+    removePostImgBtn:{
+        backgroundColor:'#EEE9E3', 
+        width: 18, 
+        height: 18, 
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 10,
+        position: 'absolute',
+        top: 5,
+        right: 15,
+        zIndex: 1,
+        
     },
     addImageText: {
         color: colors.textFaintBrown,
