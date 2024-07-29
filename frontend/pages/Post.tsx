@@ -94,6 +94,7 @@ const Post = () => {
         isReview: true,
         subComments: [],
     });
+
     const [modalVisible, setModalVisible] = useState(false);
     const [tagsData, setTagsData] = useState(preferences.id.map((tag, index)=>{
         return{
