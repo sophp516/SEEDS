@@ -64,7 +64,7 @@
 [[Figma Board]](https://www.figma.com/design/k86T2yRbwF2zjODRGxbXwE/SEEDS-2024?node-id=1-5&t=wXXycmiHbe2SY9XC-0)
 [[Data Schema]](https://github.com/sophp516/SEEDS/issues/118)
 
-As college students, eating outside of campus is often not financially viable, leading most students to have their meals at campus dining halls. However, many students feel dissatisfied with the dining hall options and are concerned about food waste. Additionally, during busy hours, the lines at dining stations can become quite long, making it difficult to choose where to eat. The food review app provides students with a platform to share their dining experiences and helps them make informed choices about which dining hall to visit and find healthy, tasty food that matches their preferences.
+As college students, eating outside of campus is often not financially viable, leading most students to have their meals at campus dining halls. However, many students feel dissatisfied with the dining hall options and are concerned about food waste. Furthermore, college students are increasingly focused on eating healthy on campus, seeking nutritious options that support their academic and physical well-being. The food review app provides students with a platform to share their dining experiences and helps them make informed choices about which dining hall to visit, allowing them to find healthy, tasty food that matches their preferences.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

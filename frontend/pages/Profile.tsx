@@ -27,12 +27,11 @@ const Profile = () => {
     const [fetchTags, setFetchTags] = useState<string[]>([]);
     const [fetchAllergies, setFetchAllergies] = useState<string[]>([]);
     const { loggedInUser, displayName } = user;
-    console.log(user.id);
 
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                if (!user) return;
+                if (!user.id) return;
                 const usersRef = collection(db, 'users');
                 const q = query(usersRef, where('id', '==', user?.id));
                 const querySnapshot = await getDocs(q);
@@ -410,5 +409,6 @@ const styles = StyleSheet.create({
         backgroundColor: colors.yellow,
     },
 });
+
 
 export default Profile;
