@@ -203,57 +203,12 @@ const MyProfile = () => {
         setProfileImage(result.assets[0].uri);
         await saveProfileImage(selectedImage);
     }
-
-    try {
-      const userId = user.id;
-
-      if (!userId) {
-        Toast.show({
-          type: 'error',
-          text1: 'Error',
-          text2: 'No user is currently logged in.',
-        });
-        return;
-      }
-
-      const usersRef = collection(db, 'users');
-      const q = query(usersRef, where('id', '==', userId));
-      const querySnapshot = await getDocs(q);
-
-      if (querySnapshot.empty) {
-        Toast.show({
-          type: 'error',
-          text1: 'Error',
-          text2: 'User not found.',
-        });
-        return;
-      }
-
-      const userDoc = querySnapshot.docs[0];
-      const userDocRef = userDoc.ref;
-
-      await updateDoc(userDocRef, { profileImage: profileImage });
-
-      Toast.show({
-        type: 'success',
-        text1: 'Profile Updated',
-        text2: 'Your profile has been updated successfully!',
-      });
-
-      setEditingEmail(false);
-      // Optionally, update the email in the context
-      setLoggedInUser(prev => ({
-        ...prev,
-        email: emailInput,
-      }));
-    } catch (err) {
-      console.log(err)
-    }}
+}
 
 
 const saveProfileImage = async (imageUri) => {
   try {
-    const userId = loggedInUser?.uid;
+    const userId = user.id;
 
     if (!userId) {
       Toast.show({
