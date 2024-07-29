@@ -6,20 +6,58 @@ import ProgressBar from 'react-native-progress-bar-horizontal';
 import Preferences from '../services/Preferences.json';
 import Allergens from '../services/Allergens.json';
 import ImageSlider from './ImageSlider';
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp, collection, getDocs, orderBy, query } from 'firebase/firestore';
 import TimeDisplay from './TimeDisplay';
+import { db } from '../services/firestore';
 
 type RootStackParamList = {
     SelectedMenu: { foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs , averageRating },
 };
 
 const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, tags, allergens, serving, calories, protein, fat, carbs, averageRating, updatedTime}) => {
-  const defaultImage = require('../assets/image.png');
+    const defaultImage = require('../assets/image.png');
+    // console.log("image", image)
+    
     let parsedRating = parseFloat(averageRating).toFixed(1);
     let parsedPrice = '$' + parseFloat(price).toFixed(2);
     if (Number.isNaN(parseFloat(price))) {
         parsedPrice = '$ N/A';
     }
+    const [topTags, setTopTags] = React.useState([]);
+    const [topAllergens, setTopAllergens] = React.useState([]);
+
+    useEffect(() => {
+        const fetchTopTags = async () => {
+            try{
+                const tagCollection = collection(db, 'colleges', 'Dartmouth College', 'foodList', foodName, 'tagsCollection');
+                const q = query(tagCollection, orderBy('frequency', 'desc'));
+                const querySnapshot = await getDocs(q);
+                const topTagsData = querySnapshot.docs.map(doc => doc.id);
+                setTopTags(topTagsData);
+            }catch(error){
+                console.log("Error fetching top tags frequency");
+            }
+        }
+        const fetchAllergens = async () => {
+            try{
+                const allergenCollection = collection(db, 'colleges', 'Dartmouth College', 'foodList', foodName, 'allergensCollection');
+                const q = query(allergenCollection);
+                const querySnapshot = await getDocs(q);
+                const allergensData = querySnapshot.docs.map(doc => doc.id);
+                setTopAllergens(allergensData);
+
+            }catch{
+                console.log("Error fetching allergens frequency");
+            }
+        }
+        fetchTopTags();
+        fetchAllergens();
+    },[])
+    console.log("topTags", topTags);
+    console.log("topAllergens", topAllergens);
+    console.log("")
+
+
 
 
     if (image.length === 0) {
@@ -94,12 +132,12 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
                     <Text style={styles.reviewCount}>({reviewIds.length} reviews)</Text>
                 </View>
                 <View style={styles.tagContainer}>
-                    {tags.length > 0 && tags.map((tag, i) => (
+                    {topTags.length > 0 && topTags.map((tag, i) => (
                         <View style={[styles.tagBlob, getTagStyle(tag)]} key={i}>
                             <Text style={styles.tagText}>{tag}</Text>
                         </View>
                     ))}
-                    {allergens.length > 0 && allergens.map((allergens, i) => (
+                    {topAllergens.length > 0 && allergens.map((allergens, i) => (
                         <View style={[styles.tagBlob, getAllergenStyle(allergens)]} key={i}>
                             <Text style={styles.tagText}>{allergens}</Text>
                         </View>
@@ -293,6 +331,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         marginVertical: 5,
+        height: 50,
+        width: 200,
+        overflow: 'hidden',
     },
     ratingContainer: {
       flexDirection: 'column',
