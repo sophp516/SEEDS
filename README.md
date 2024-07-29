@@ -140,6 +140,8 @@ Main Features:
 
 * Ranking Page - [[Demo]](https://github.com/user-attachments/assets/b5a231cd-6495-4dcc-a987-e3ecd4f294d1)
 
+* Surprise Me Button
+
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
