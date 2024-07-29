@@ -664,24 +664,23 @@ const Post = () => {
     return (
         <View style={styles.container}>
                
-               <View style={{margin: 15}}></View>
-           
-                {toggle ? 
-                 <View style={{ alignItems: 'flex-start', flexDirection:'row' }}>
+               <View style={{ margin: 15 }}></View>
+                {toggle ? (
+                <View style={styles.headerContainer}>
                     {/* <TouchableOpacity onPress={handleExit}>
                         <Text>Exit</Text>
                     </TouchableOpacity> */}
-                    <Text style={[styles.header]}>Create a new post</Text>
+                    <Text style={styles.header}>Create a new post</Text>
                 </View>
-                :    <View style={{ alignItems: 'flex-start', flexDirection:'row' }}>
+                ) : (
+                <View style={styles.headerContainer}>
                     {/* <TouchableOpacity onPress={handleExit}>
                         <Text>Exit</Text>
                     </TouchableOpacity> */}
-                    <Text style={[styles.header]}>Create a new review</Text>
-                    </View>
-                }
+                    <Text style={styles.header}>Create a new review</Text>
+                </View>
+                )}
            
-
             <View style={styles.toggleContainer}>
                 
                 <TouchableOpacity onPress={()=>setToggle(true)} style={toggle ? styles.activeToggle : styles.inactiveToggle}>
@@ -696,7 +695,7 @@ const Post = () => {
                 // Post Section
                 <View style={{justifyContent: 'center'}}>
 
-                    <Text style={[styles.text, {flexDirection:'row', alignItems:'flex-start'}]}> Comments </Text>
+                    <Text style={[styles.text, {flexDirection:'row', alignItems:'flex-start'}]}>Comments </Text>
 
                     <TextInput 
                         style={styles.commentBox}
@@ -705,6 +704,7 @@ const Post = () => {
                         multiline={true}
                         onChangeText={(text)=> setPost(prevPost => ({...prevPost, comment: text}))}
                         placeholder='Share thoughts, updates, or questions about your campus dining!'
+                        placeholderTextColor={colors.textFaintBrown}
                         autoCapitalize="none"
                     />
                     <View >
@@ -713,43 +713,42 @@ const Post = () => {
                                 <ScrollView horizontal showsHorizontalScrollIndicator={true} style={{}}>
                                     {post.images.map((image, index) =>(
                                         <View>
-                                        {modalVisible ? 
-                                        <Modal
-                                            animationType="slide"
-                                            transparent={true}
-                                            visible={modalVisible}
-                                            onRequestClose={() => {
-                                                setModalVisible(!modalVisible);
-                                            }}
-                                        >
-                                        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)'}}>
-                                                <Image source={{uri: post.images[index] || null}} style={{width: 400, height: 400, margin: 10}} />
+                                            {modalVisible ? 
+                                            <Modal
+                                                animationType="slide"
+                                                transparent={true}
+                                                visible={modalVisible}
+                                                onRequestClose={() => {
+                                                    setModalVisible(!modalVisible);
+                                                }}
+                                            >
+                                            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)'}}>
+                                                <Image source={{uri: post.images[index] || null}} style={{width: 400, height: 400, margin: 10, borderRadius: 10}} />
                                                 <TouchableOpacity onPress={()=>setModalVisible(false)}>
-                                                    <Text>Close</Text>
+                                                    <Text style={{fontFamily: 'Satoshi-Medium', fontSize: 16, color: colors.textGray}}>Close</Text>
                                                 </TouchableOpacity>
                                             </View>
 
-                                        </Modal>
-                                        :
-                                         <TouchableOpacity onPress={()=>setModalVisible(true)}>
-                                         <Image key={index} source={{uri: post.images[index] || null}} style={{width: 100, height: 100, margin: 10}} />
-                                     
-                                         </TouchableOpacity>
-                                        }
-                                       
+                                            </Modal>
+                                            :
+                                            <TouchableOpacity onPress={()=>setModalVisible(true)}>
+                                                <Image key={index} source={{uri: post.images[index] || null}} style={{width: 100, height: 100, marginRight: 10, marginBottom: 10, borderRadius: 10}} />
+                                            </TouchableOpacity>
+                                            }
                                         </View>
-                                      
-
                                     ))}
                                 </ScrollView>
-                                <TouchableOpacity onPress={selectImage} >
+
+                                {/* <TouchableOpacity onPress={selectImage} >
                                     <Image source={require('../assets/postImg.png')} style={styles.postImgicon} />
-                                </TouchableOpacity>
+                                </TouchableOpacity> */}
                         </View>
                     :
-                        <TouchableOpacity onPress={selectImage} >
-                            <Image source={require('../assets/postImg.png')} style={styles.postImgicon} />
-                        </TouchableOpacity>
+                        <View style={styles.postImgIconContainer}>
+                            <TouchableOpacity onPress={selectImage} >
+                                <Image source={require('../assets/imageBrown.png')} style={styles.postImgicon} />
+                            </TouchableOpacity>
+                        </View>
                     }
                    
                         <View style={{alignItems: 'center', justifyContent: 'center'}}>
@@ -783,7 +782,8 @@ const Post = () => {
                         </View>
                         :
                         <TouchableOpacity onPress={selectImage} style={styles.imagebox}>
-                          <Image source={require('../assets/image.png')} style={styles.cameraIcon} />
+                          <Image source={require('../assets/imageBrown.png')} style={styles.cameraIcon} />
+                          <Text style={styles.addImageText}>Add image</Text>
                       </TouchableOpacity>
                     
                     }
@@ -924,6 +924,7 @@ const styles = StyleSheet.create({
         // lineHeight: 18,
         // textAlign: 'left',
         paddingVertical: 10,
+        marginLeft: 3,
     },
     header:{
         color: colors.textGray,
@@ -934,6 +935,12 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         // letterSpacing: -0.264,
     },
+    headerContainer: {
+        width: '100%',
+        paddingHorizontal: 40, 
+        alignItems: 'flex-start',
+        flexDirection: 'row',
+      },
     btnText1:{ // white
         color: '#35353E',
         fontFamily: 'Satoshi-Medium', 
@@ -1004,7 +1011,7 @@ const styles = StyleSheet.create({
         // justifyContent: 'space-between'
     },
     imagebox:{
-        backgroundColor: '#E7E2DB',
+        backgroundColor: colors.commentContainer,
         borderRadius: 10,
         alignItems: 'center',
         justifyContent: 'center',
@@ -1020,6 +1027,12 @@ const styles = StyleSheet.create({
         height: 65,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    addImageText: {
+        color: colors.textFaintBrown,
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 16,
+        marginTop: 5,
     },
     textbox: {
         // borderColor: 'black',
@@ -1039,7 +1052,7 @@ const styles = StyleSheet.create({
     commentBox:{
         fontFamily: 'Satoshi-Medium',
         fontSize: 15,
-        color: colors.textFaintBrown,
+        color: colors.textGray,
         backgroundColor: colors.commentContainer,
         height: 200,
         width: 350,
@@ -1052,8 +1065,9 @@ const styles = StyleSheet.create({
     },
     cameraIcon:{
         width: "30%",
-        height: "50%",
+        height: "30%",
         justifyContent: 'center',
+        resizeMode: 'contain',
     },
     uploadedImageContainer : {
         width: 350, 
@@ -1065,13 +1079,18 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        margin: 10,
-        width: 350,
+        marginTop: 10,
+        // width: 350,
     },
     postImgicon:{
-        width: 45,
-        height: 31,
-        margin: 10,
+        width: 30,
+        height: 30,
+        // margin: 10,
+        resizeMode: 'contain',
+    },
+    postImgIconContainer:{
+        backgroundColor: colors.commentContainer,
+        borderRadius: 10,
     },
     tagsContainer: {
         flexDirection: 'row',
