@@ -136,41 +136,48 @@ const Profile = () => {
             <Text></Text>
             {user?.displayName ? (
               <View style={styles.profileContainer}>
-                  <View style={styles.profileBox}>
-                      <Image
-                          source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
-                          style={styles.profileImage}
-                      />
-                      <View style={styles.displayContainer}>
-                            <View style={styles.nameContainer}>
-                                <Text style={styles.atSymbol}>@</Text>
-                                <Text style={styles.displayName}>{user?.displayName}</Text>
-                            </View>
-                            <Text style={styles.schoolName}>{userInfo?.schoolName}</Text>
-                            <View style={styles.tagList}>
-                                {fetchTags.map((tag, index) => (
-                                    <View style={[styles.tagWithDelete, getTagStyle(tag)]} key={index}>
-                                        <Text style={styles.tagText}>{tag}</Text>
-                                    </View>
-                                ))}
 
-                                {fetchAllergies.map((tag, index) => (
-                                    <View style={[styles.tagWithDelete, getAllergenStyle(tag)]} key={index}>
-                                        <Text style={styles.tagText}>{tag}</Text>
-                                    </View>
-                                ))}
-                            </View>
-                      </View>
-                  </View>
+                {/* Signed in user */}
+                <View style={styles.profileBox}>
+                    <View style={styles.profileImageContainer}>
+                        <Image
+                        source={profileImage ? { uri: profileImage } : require('../assets/profile.png')}
+                        style={styles.profileImage}
+                        />
+                    </View>
+                    <View style={styles.displayContainer}>
+                        <View style={styles.nameContainer}>
+                            <Text style={styles.atSymbol}>@</Text>
+                            <Text style={styles.displayName}>{user?.displayName}</Text>
+                        </View>
+                        <Text style={styles.schoolName}>{userInfo?.schoolName}</Text>
+                        <View style={styles.tagList}>
+                            {fetchTags.map((tag, index) => (
+                                <View style={[styles.tagWithDelete, getTagStyle(tag)]} key={index}>
+                                    <Text style={styles.tagText}>{tag}</Text>
+                                </View>
+                            ))}
 
+                            {fetchAllergies.map((tag, index) => (
+                                <View style={[styles.tagWithDelete, getAllergenStyle(tag)]} key={index}>
+                                    <Text style={styles.tagText}>{tag}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    </View>
                 </View>
+            </View>
 
             ) : (
+                // Guest user
                 <View style={styles.profileBox}>
-                    <Image
-                        source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
-                        style={styles.profileImage}
-                    />
+                    <View style={styles.guestProfileImageContainer}>
+                        <Image
+                        source={profileImage ? { uri: profileImage } : require('../assets/profile.png')}
+                        style={styles.guestProfileImage}
+                        />
+                    </View>
+            
                     <View style={styles.guestProfileButtonContainer}>
                         <Text style={styles.displayName}>Guest</Text>
                         <TouchableOpacity onPress={() => navigation.navigate('LogIn')} style={styles.createAccountButton}>
@@ -226,13 +233,32 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         // justifyContent: 'center',
     },
-    profileImage: {
+    profileImageContainer: {
+        backgroundColor: colors.backgroundGray,
+        borderRadius: 100,
+        marginRight: 20,
+        marginBottom: 10,
+        overflow: 'hidden',
         width: 100,
         height: 100,
-        borderRadius: 50,
-        marginBottom: 10,
-        marginRight: 30,
+    },
+    profileImage: {
+        resizeMode: 'cover',
+        width: '100%',
+        height: '100%',
+    },
+    guestProfileImageContainer: {
         backgroundColor: colors.backgroundGray,
+        marginRight: 30,
+        borderRadius: 100,
+        padding: 20,
+        marginBottom: 10,
+        overflow: 'hidden',
+    },
+    guestProfileImage: {
+        resizeMode: 'contain',
+        width: 60,
+        height: 60,
     },
     atSymbol: {
         fontFamily: 'SpaceGrotesk-Regular',

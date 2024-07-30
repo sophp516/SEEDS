@@ -325,13 +325,18 @@ const saveProfileImage = async (imageUri) => {
       </TouchableOpacity>
       
       <Text style={styles.header}>My Profile</Text>
+      
+      <View style={styles.profileImageWrapper}>
+        <View style={styles.profileImageContainer}>
+          <TouchableOpacity onPress={selectImage}>
+              <Image
+              source={profileImage ? { uri: profileImage } : require('../assets/profile.png')}
+              style={styles.profileImage}
+              />
+          </TouchableOpacity>
+        </View>
+      </View>
 
-      <TouchableOpacity onPress={selectImage}>
-        <Image
-          source={profileImage ? { uri: profileImage } : require('../assets/profile.jpeg')}
-          style={styles.profileImage}
-        />
-      </TouchableOpacity>
 
       <Text style={styles.text}>Username</Text>
       <View style={styles.usernameContainer}>
@@ -393,6 +398,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.backgroundGray,
     paddingHorizontal: 30,
+    
   },
   backButtonContainer: {
     marginTop: 50,
@@ -416,11 +422,22 @@ const styles = StyleSheet.create({
     marginTop: 40,
     // marginLeft: 5,
   },
+  profileImageWrapper: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  profileImageContainer: {
+    backgroundColor: colors.commentContainer,
+    borderRadius: 100,
+    padding: 20, 
+    alignItems: 'center', // Center the image horizontally within the container
+  },
   profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginTop: 13,
+    backgroundColor: colors.commentContainer,
+    borderRadius: 100,
+    resizeMode: 'contain',
+    width: 70,
+    height: 70,
   },
   text: {
     fontSize: 20,
