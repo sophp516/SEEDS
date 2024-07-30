@@ -365,7 +365,7 @@ const Post = () => {
                 // \. means optional decimal
                 // \d* will match zero or more digits
                 // parentheses are used to capture the values
-                const nutritionRegex = /Per (\d+) ?(g| bowl| package| cup|oz| | cups| container| serving) - Calories: (\d+)kcal \| Fat: (\d+\.?\d*)g \| Carbs: (\d+\.?\d*)g \| Protein: (\d+\.?\d*)g/;
+                const nutritionRegex = /Per (\d+) ?(g| bowl| package| cup|oz| | cups| container| serving | burger) - Calories: (\d+)kcal \| Fat: (\d+\.?\d*)g \| Carbs: (\d+\.?\d*)g \| Protein: (\d+\.?\d*)g/;
                 const matches = nutrients.match(nutritionRegex);
                 const serving = matches[1] + matches[2];     // Serving size
                 const calories = matches[3];   // Calories value
@@ -392,16 +392,26 @@ const Post = () => {
 
 
     //code for updating nutrients for a specific food item, turn test as false when no need to make any updates
-    const [test, setTest] = useState(true);
-    const edit = async()=>{
+    // handles when nutrients fetching fails, which commonly due to serving not matching the regex
+    const [test, setTest] = useState(false);
+    const editFirebase = async()=>{
         if (test === true){
-            const [serving, calories, fat, carbs, protein] = await fetchNutrients("Toast");
-            console.log("Serving:", serving);
+            const foodNames = ["Korean Bulgogi Bowl", "Yogurt Parfait", "Tofu Burger"]
+            for (const foodName of foodNames){
+                try{
+                    const docpath = doc(db, 'colleges', 'Dartmouth College', 'foodList', foodName);
+                    const [serving, calories, fat, carbs, protein] = await fetchNutrients(foodName);
+                    console.log("Nutrients:", foodName,  serving, calories, fat, carbs, protein);
+                    await updateDoc(docpath, {serving: serving, calories: calories, fat: fat, carbs: carbs, protein: protein});
+                }catch{
+                    console.error("Error updating nutrients");
+                }
+            }
         }
         setTest(false);
     }
     useEffect(()=>{
-        edit();
+        editFirebase();
     }, [])
 
 

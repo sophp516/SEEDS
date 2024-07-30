@@ -164,7 +164,9 @@ const Ranking = () => {
           ))}
         </ScrollView>}
 
-        <View></View>
+        <View style={{margin: 20, padding: 20}}>
+
+        </View>
 
 
         <Navbar />
