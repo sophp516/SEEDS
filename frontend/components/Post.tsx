@@ -369,7 +369,7 @@ const styles =  StyleSheet.create({
     reviewContainer: {
         borderBottomWidth: 1,
         width: '100%',
-        borderColor: colors.grayStroke,
+        borderColor: colors.outlineBrown,
         paddingBottom: 10,
         marginBottom: 10,
     },

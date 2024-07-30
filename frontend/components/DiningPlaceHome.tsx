@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     diningPlaceContainer: {
         flexDirection: 'column',
         backgroundColor: colors.primaryWhite,
-        borderColor: colors.grayStroke,
+        borderColor: colors.outlineBrown,
         borderWidth: 1,
         paddingTop: 13,
         paddingBottom: 13,
