@@ -180,7 +180,8 @@ useEffect(() => {
 useEffect(() => {
     const retrieveReviews = async () => {
         const reviewsData = await fetchReviews(placeName);
-        setAllMenus(reviewsData);
+        reviewsData.sort((a, b) => {return b.createdAt - a.createdAt;});
+        setAllMenus(reviewsData); 
     }
     retrieveReviews();
 }, [])
