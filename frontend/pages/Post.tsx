@@ -382,10 +382,11 @@ const Post = () => {
 
                 return [serving, calories, fat, carbs, protein];
             } else {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                return ['N/A', 'N/A', 'N/A', 'N/A', 'N/A'];
             }
         } catch (error) {
-            console.error("Error fetching nutrient data", error);
+            console.log("Error fetching nutrient data");
+            return ['N/A', 'N/A', 'N/A', 'N/A', 'N/A'];
         }
     };
 
