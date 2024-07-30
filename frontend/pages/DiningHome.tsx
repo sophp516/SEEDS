@@ -347,79 +347,39 @@ useEffect(() => {
             </View>
 
             <View style={styles.contentContainer}>
+              
                 <ScrollView style={styles.contentScrollContainer} contentContainerStyle={{ paddingBottom: 100 }}>
                     <View style={styles.recHolder}>
-                        <View>
-                          <Text></Text>
-                          <SurpriseMe placeName={placeName}/>
-
-                            <View style={styles.recHeader}>
-                                <Text style={styles.recHeaderText}>Top rated</Text>
-                                <TouchableOpacity style={styles.seeAllContainer} onPress={() => navigation.navigate('TopRated', { placeName })}>
-                                    <Text style={styles.seeAllText}>See all</Text>
-                                </TouchableOpacity>
-                            </View>
+                      <Text></Text>
+                      <View style={{marginLeft: 20}}><SurpriseMe placeName={placeName}/></View>
+                        
+                        {/* Top rated section */}
+                        <View style={styles.sectionContainer}>
+                          <View style={styles.recHeader}>
+                            <Text style={styles.recHeaderText}>Top rated</Text>
+                            <TouchableOpacity style={styles.seeAllContainer} onPress={() => navigation.navigate('TopRated', { placeName })}>
+                              <Text style={styles.seeAllText}>See all</Text>
+                              <View style={styles.seeAllArrow}>
+                                <Image source={require('../assets/rightArrow.png')} style={{ width: 15, height: 15, resizeMode: 'contain'}} />
+                              </View>
+                            </TouchableOpacity>
+                          </View>
                             {loading ? (
                             <View style={styles.loadingScreen}>
                               <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
-                              <Text>loading...</Text>
-
-
+                              <Text>Loading...</Text>
                             </View>
+                            
                           ) : topRatedMenus.length === 0 ? (
                             <Text style={styles.noResultText}>No meals match your filter...</Text>
                           ) : (
                             <ScrollView horizontal={true} style={styles.horizontalScrollView}>
                               <View style={styles.smallMenuContainer}>
                                 {topRatedMenus.map((item, i) => (
-                                  <SmallMenu
-                                    reviewIds={item.reviewIds}
-                                    key={`toprated-${i}`}
-                                    id={item.id}
-                                    foodName={item.foodName}
-                                    location={item.location}
-                                    price={item.price}
-                                    taste={item.taste}
-                                    tags={item.tags}
-                                    allergens={item.allergens}
-                                    health={item.health}
-                                    averageRating={item.averageRating}
-                                    createdAt={item.createdAt}
-                                    images={item.images}
-                                    serving={item.serving}
-                                    calories={item.calories}
-                                    carbs={item.carbs}
-                                    fat={item.fat}
-                                    protein={item.protein}
-
-                                  />
-                                ))}
-                              </View>
-                            </ScrollView>
-                          )}
-                        </View>
-                        <View>
-                            <View style={styles.recHeader}>
-                                <Text style={styles.recHeaderText}>On the menu</Text>
-                                <TouchableOpacity style={styles.seeAllContainer} onPress={() => navigation.navigate('OnTheMenu', { placeName })}>
-                                    <Text style={styles.seeAllText}>See all</Text>
-                                </TouchableOpacity>
-                            </View>
-                            {loading ? (
-                              <View style={styles.loadingScreen}>
-                                <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
-                                <Text>loading...</Text>
-
-                              </View>
-                            ) : allMenus.length === 0 ? (
-                              <Text style={styles.noResultText}>No meals match your filter...</Text>
-                            ) : (
-                              <ScrollView horizontal={true} style={styles.horizontalScrollView}>
-                                <View style={styles.smallMenuContainer}>
-                                  {allMenus.map((item, i) => (
+                                  <View key={`toprated-${i}`} style={i === 0 ? styles.firstItemWrapper : null}>
                                     <SmallMenu
                                       reviewIds={item.reviewIds}
-                                      key={`allmenu-${i}`}
+                                      key={`toprated-${i}`}
                                       id={item.id}
                                       foodName={item.foodName}
                                       location={item.location}
@@ -437,18 +397,73 @@ useEffect(() => {
                                       fat={item.fat}
                                       protein={item.protein}
                                     />
+                                  </View>
+                                ))}
+                              </View>
+                            </ScrollView>
+                          )}
+                        </View>
+
+                        {/* On the menu section */}
+                        <View style={styles.sectionContainer}>
+                          <View style={styles.recHeader}>
+                            <Text style={styles.recHeaderText}>On the menu</Text>
+                            <TouchableOpacity style={styles.seeAllContainer} onPress={() => navigation.navigate('OnTheMenu', { placeName })}>
+                              <Text style={styles.seeAllText}>See all</Text>
+                              <View style={styles.seeAllArrow}>
+                                <Image source={require('../assets/rightArrow.png')} style={{ width: 15, height: 15, resizeMode: 'contain'}} />
+                              </View>
+                            </TouchableOpacity>
+                          </View>
+                            {loading ? (
+                              <View style={styles.loadingScreen}>
+                                <Image source={require('../assets/Loading.gif')} style={{ width: 30, height: 30, marginBottom: 10 }} />
+                                <Text>Loading...</Text>
+                              </View>
+                            ) : allMenus.length === 0 ? (
+                              <Text style={styles.noResultText}>No meals match your filter...</Text>
+                            ) : (
+                              <ScrollView horizontal={true} style={styles.horizontalScrollView}>
+                                <View style={styles.smallMenuContainer}>
+                                  {allMenus.map((item, i) => (
+                                    <View key={`all-${i}`} style={i === 0 ? styles.firstItemWrapper : null}>
+                                      <SmallMenu
+                                        reviewIds={item.reviewIds}
+                                        key={`allmenu-${i}`}
+                                        id={item.id}
+                                        foodName={item.foodName}
+                                        location={item.location}
+                                        price={item.price}
+                                        taste={item.taste}
+                                        tags={item.tags}
+                                        allergens={item.allergens}
+                                        health={item.health}
+                                        averageRating={item.averageRating}
+                                        createdAt={item.createdAt}
+                                        images={item.images}
+                                        serving={item.serving}
+                                        calories={item.calories}
+                                        carbs={item.carbs}
+                                        fat={item.fat}
+                                        protein={item.protein}
+                                      />
+                                    </View>
                                   ))}
                                 </View>
                               </ScrollView>
                             )}
-
                         </View>
-                        <View>
+
+                        {/* Recommended section */}
+                        <View style={styles.sectionContainer}>
                             <View style={styles.recHeader}>
-                                <Text style={styles.recHeaderText}>Recommended for you</Text>
-                                <TouchableOpacity style={styles.seeAllContainer} onPress={handleSeeAllRecommended}>
-                                    <Text style={styles.seeAllText}>See all</Text>
-                                </TouchableOpacity>
+                              <Text style={styles.recHeaderText}>Recommended for you</Text>
+                              <TouchableOpacity style={styles.seeAllContainer} onPress={handleSeeAllRecommended}>
+                                <Text style={styles.seeAllText}>See all</Text>
+                                <View style={styles.seeAllArrow}>
+                                  <Image source={require('../assets/rightArrow.png')} style={{ width: 15, height: 15, resizeMode: 'contain'}} />
+                                </View>
+                              </TouchableOpacity>
                             </View>
                             {loading ? ( 
                               <View style={styles.loadingScreen}>
@@ -461,30 +476,31 @@ useEffect(() => {
                               <Text style={styles.noResultText}>No meals match your preferences...</Text>
                             ) : (
                              
-                              
                               <ScrollView horizontal={true} style={styles.horizontalScrollView}>
                                 <View style={styles.smallMenuContainer}>
                                   {recommendedMenus.map((item, i) => (
-                                    <SmallMenu
-                                      reviewIds={item.reviewIds}
-                                      key={`recommended-${i}`}
-                                      id={item.id}
-                                      foodName={item.foodName}
-                                      location={item.location}
-                                      price={item.price}
-                                      taste={item.taste}
-                                      tags={item.tags}
-                                      allergens={item.allergens}
-                                      health={item.health}
-                                      averageRating={item.averageRating}
-                                      createdAt={item.createdAt}
-                                      images={item.images}
-                                      serving={item.serving}
-                                      calories={item.calories}
-                                      carbs={item.carbs}
-                                      fat={item.fat}
-                                      protein={item.protein}
-                                    />
+                                    <View key={`recommended-${i}`} style={i === 0 ? styles.firstItemWrapper : null}>
+                                      <SmallMenu
+                                        reviewIds={item.reviewIds}
+                                        key={`recommended-${i}`}
+                                        id={item.id}
+                                        foodName={item.foodName}
+                                        location={item.location}
+                                        price={item.price}
+                                        taste={item.taste}
+                                        tags={item.tags}
+                                        allergens={item.allergens}
+                                        health={item.health}
+                                        averageRating={item.averageRating}
+                                        createdAt={item.createdAt}
+                                        images={item.images}
+                                        serving={item.serving}
+                                        calories={item.calories}
+                                        carbs={item.carbs}
+                                        fat={item.fat}
+                                        protein={item.protein}
+                                      />
+                                    </View>
                                   ))}
                                 </View>
                               </ScrollView>
@@ -500,8 +516,7 @@ useEffect(() => {
               setIsVisible={setIsBottomSheetOpen}
               />
             <Navbar />
-            
-            
+  
         </View>
     )
 }
@@ -551,6 +566,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
+  sectionContainer: {
+    borderBottomColor: colors.outlineBrown,
+    borderBottomWidth: 1,
+    paddingBottom: 20,
+  },
   recHeader: {
     paddingBottom: 13,
     marginTop: 20,
@@ -583,10 +603,11 @@ const styles = StyleSheet.create({
   recHeaderText: {
     fontSize: 22,
     fontFamily: 'SpaceGrotesk-Medium',
+    marginLeft: 20,
   },
   contentContainer: {
     flex: 1,
-    marginLeft: 20,
+    // marginLeft: 20,
   },
   contentScrollContainer: {
     flexGrow: 1,
@@ -596,17 +617,32 @@ const styles = StyleSheet.create({
   },
   smallMenuContainer: {
     flexDirection: 'row',
-    marginBottom: 10,
+    // marginBottom: 10,
   },
   horizontalScrollView: {
     flexDirection: 'row',
   },
+  firstItemWrapper: {
+    marginLeft: 20,
+  },
   seeAllText: {
-    fontSize: 18,
-    fontFamily: 'Satoshi-Regular',
+    fontSize: 16,
+    fontFamily: 'Satoshi-Medium',
+    color: colors.G,
+    marginRight: 7,
   },
   seeAllContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingRight: 20,
+  },
+  seeAllArrow: {
+    backgroundColor: colors.commentContainer,
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 15,
+    borderColor: colors.outlineBrown,
+    borderWidth: 1,
   },
   filterContainer: {
     marginRight: 20,

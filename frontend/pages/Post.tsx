@@ -94,6 +94,7 @@ const Post = () => {
         isReview: true,
         subComments: [],
     });
+
     const [modalVisible, setModalVisible] = useState(false);
     const [tagsData, setTagsData] = useState(preferences.id.map((tag, index)=>{
         return{
@@ -563,6 +564,16 @@ const Post = () => {
             console.error("Error uploading image to Firestore");
         }
     }
+
+    const removeImage = (index) =>{
+        const newImages = review.images.filter((_, idx) => idx !== index);
+        setReview(prevReview => ({...prevReview, images: newImages}));
+    }
+
+    const removePostImage = (index) =>{
+        const newImages = post.images.filter((_, idx) => idx !== index);
+        setPost(prevPost => ({...prevPost, images: newImages}));
+    }
    
     /* function handleExit(): Brings user back to the last visited page
     * Also resets the data stored in the use state
@@ -729,6 +740,10 @@ const Post = () => {
                   <View style={styles.postUploadedImages}>
                     <ScrollView horizontal showsHorizontalScrollIndicator={true} style={{}}>
                       {post.images.map((image, index) => (
+                        <View>
+                          <TouchableOpacity style={styles.removePostImgBtn} onPress={()=> removePostImage(index)}>
+                          <Image style={{ width: '25%', height: '25%', resizeMode: 'contain' }} source={require('../assets/x_icon.png')} />
+                         </TouchableOpacity>
                         <View key={index}>
                           {modalVisible ? (
                             <Modal
@@ -744,24 +759,29 @@ const Post = () => {
                                 <TouchableOpacity onPress={() => setModalVisible(false)}>
                                   <Text style={{ fontFamily: 'Satoshi-Medium', fontSize: 16, color: colors.textGray }}>Close</Text>
                                 </TouchableOpacity>
+                                
                               </View>
+
+
                             </Modal>
+                            
                           ) : (
                             <TouchableOpacity onPress={() => setModalVisible(true)}>
                               <Image source={{ uri: post.images[index] || null }} style={{ width: 100, height: 100, marginRight: 10, marginBottom: 10, borderRadius: 10 }} />
                             </TouchableOpacity>
                           )}
                         </View>
+                        </View>
                       ))}
                     </ScrollView>
                   </View>
                 ) : (
+                <TouchableOpacity onPress={selectImage}>
                   <View style={styles.postImgIconContainer}>
-                    <TouchableOpacity onPress={selectImage}>
                       <Image source={require('../assets/imageBrown.png')} style={styles.postImgicon} />
-                    </TouchableOpacity>
                     <Text style={styles.addImageText2}>Add image</Text>
                   </View>
+                  </TouchableOpacity>
                 )}
       
                 <View style={{ alignItems: 'center', justifyContent: 'center' }}>
@@ -782,7 +802,14 @@ const Post = () => {
                 <View style={styles.reviewContainer}>
                   {review.images.length > 0 ? (
                     <View>
+                        {/* doesn't work well rn, but at least allow remove something */}
                       <ImageSlider images={review.images} />
+                      {review.images.map((image, index) => (
+                        <TouchableOpacity style={styles.removeImageButton} onPress={()=> removeImage(index)}>
+                            <Image style={{ width: '20%', height: '20%', resizeMode: 'contain' }} source={require('../assets/x_icon.png')} />
+                        </TouchableOpacity>
+                      ))}
+
                       <TouchableOpacity style={styles.addImageButton} onPress={selectImage}>
                         <Image style={{ width: '100%', height: '100%', resizeMode: 'contain' }} source={require('../assets/addMoreImage.png')} />
                       </TouchableOpacity>
@@ -857,7 +884,7 @@ const Post = () => {
       
                     <TagDropdown
                       data={tagsData}
-                      onChangeText={(text) => { setTag(text) }}
+                      onChangeText={(text) => {setTag(text) }}
                       onClear={() => setTag('')}
                       value={tag}
                       onSelectItem={handleSelectTag}
@@ -1033,6 +1060,29 @@ const styles = StyleSheet.create({
         height: 65,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    removeImageButton:{
+        position: 'absolute',
+        bottom: 180,  
+        right: -75,
+        width: 50,  // Set the size of the button
+        height: 55,
+        justifyContent: 'center',
+        alignItems: 'center',
+       
+    },
+    removePostImgBtn:{
+        backgroundColor:'#EEE9E3', 
+        width: 18, 
+        height: 18, 
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 10,
+        position: 'absolute',
+        top: 5,
+        right: 15,
+        zIndex: 1,
+        
     },
     addImageText: {
         color: colors.textFaintBrown,

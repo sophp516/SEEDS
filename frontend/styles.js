@@ -1,6 +1,7 @@
 const colors = {
     backgroundGray: '#fbfaf5',
     primaryWhite: '#ffffff',
+    offWhite: '#FDFDFB',
     grayStroke: '#919191',
     orangeHighlight: '#e36609',
     navbarBackground: '#efe9df',
