@@ -182,11 +182,10 @@ const Post = () => {
     
     const handleCreateReview = async () =>{
         try{
-            setLoading(true);
             // Verifies user
             const userData = await verifyUser();
             if (!userData) return; 
-
+            setLoading(true);
             let finalReview = {...review};
             const imageURls = [];
             // // object version of the timestamp for firebase filtering 
@@ -212,7 +211,7 @@ const Post = () => {
             }
 
             // Adding to review in the global collection where the information of each individual reviews are stored
-            console.log(finalReview);
+            // console.log(finalReview);
             const reviewRef = await addDoc(collection(db, 'globalSubmissions'), finalReview);
             const reviewId = reviewRef.id;
             console.log("userID:", reviewId);
@@ -243,11 +242,11 @@ const Post = () => {
             navigation.goBack();
             Toast.show({
                 type: 'success',
-                position: 'bottom',
+                position: 'top',
                 text1: 'Review submitted',
                 text2: 'Thank you for your review!',
-                visibilityTime: 2000,
-                autoHide: true,
+                visibilityTime: 4000,
+                autoHide: false,
             });
         }catch{
             console.error("Error adding review to Firestore, have you signed in yet?");
@@ -366,7 +365,7 @@ const Post = () => {
                 // \. means optional decimal
                 // \d* will match zero or more digits
                 // parentheses are used to capture the values
-                const nutritionRegex = /Per (\d+) ?(g| bowl| package| cup|oz| serving) - Calories: (\d+)kcal \| Fat: (\d+\.?\d*)g \| Carbs: (\d+\.?\d*)g \| Protein: (\d+\.?\d*)g/;
+                const nutritionRegex = /Per (\d+) ?(g| bowl| package| cup|oz| | cups| container| serving) - Calories: (\d+)kcal \| Fat: (\d+\.?\d*)g \| Carbs: (\d+\.?\d*)g \| Protein: (\d+\.?\d*)g/;
                 const matches = nutrients.match(nutritionRegex);
                 const serving = matches[1] + matches[2];     // Serving size
                 const calories = matches[3];   // Calories value
@@ -440,7 +439,6 @@ const Post = () => {
             return
         }
     }
-
 
     const calculateAverageRating = async (foodName, location, health, taste) => {
         try{
@@ -523,11 +521,11 @@ const Post = () => {
             // allowsEditing: true,
             aspect:[4,3],
             allowsMultipleSelection: true,
-            quality:1, // we can edit later for more
+            quality:0.8, // we can edit later for more
         })
         // console.log("image:", result);        
         if (!result.canceled){ // if image is selected, then save the latest upload
-            let selected = result.assets.map((image) => image.uri);
+            let selected = result.assets.map((image, index) => image.uri);
             if (toggle == true){
                 setPost(prevPost => ({...prevPost, images: [...(prevPost.images || []), ...selected]}));
             }else{
