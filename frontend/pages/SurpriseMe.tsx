@@ -190,12 +190,14 @@ const styles = StyleSheet.create({
     fontFamily: 'Satoshi-Medium',
     color: colors.textGray,
     marginTop: 10,
+
   },
   diningHomeHeader: {
     paddingTop: 70,
     width: '100%',
     paddingHorizontal: 20,
     justifyContent: 'center',
+    backgroundColor: colors.inputGray,
   },
   diningHomeHeaderTop: {
     flexDirection: 'row',
@@ -243,9 +245,9 @@ const styles = StyleSheet.create({
   },
   overlayGif: {
     width: '100%',
-    height: '90%',
+    height: '80%',
     position: 'absolute',
-    top: 0,
+    top: -50,
     left: 0,
   },
   anotherSurpriseButton: {
