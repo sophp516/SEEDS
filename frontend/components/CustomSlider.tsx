@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Slider from '@react-native-community/slider';
+import colors from '../styles.js';
 
 const CustomSlider = ({ minimumValue, maximumValue, step, value,  onValueChange, sliderColor, trackColor }) => {
   const [sliderValue, setSliderValue] = useState(minimumValue);
@@ -80,14 +81,11 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   labelText: {
-    color: '#706F6F',
+    color: colors.textGray,
     textAlign: 'center',
-    fontFamily: 'Montserrat',
+    fontFamily: 'Satoshi-Bold',
     fontSize: 14,
-    fontStyle: 'normal',
-    fontWeight: '500',
     lineHeight: 18,
-    letterSpacing: 0.1,
   }
 });
 

@@ -264,7 +264,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
                 onValueChange={(value)=> setReview(prevReview => ({...prevReview, taste: value }))}
                 value={review.taste}
                 sliderColor='#F9A05F'
-                trackColor='white'         
+                trackColor={colors.offWhite}         
               />
               </View>
           </View>
@@ -279,7 +279,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
                 onValueChange={(value)=> setReview(prevReview => ({...prevReview, health: value }))}
                 value={review.health}
                 sliderColor='#7FB676'
-                trackColor='white'         
+                trackColor={colors.offWhite}           
               />
               </View>
           </View>
@@ -372,8 +372,8 @@ const styles = StyleSheet.create({
       width: 0,
       height: 2, 
     },
-    shadowOpacity: 0.8, 
-    shadowRadius: 40, 
+    shadowOpacity: 0.3, 
+    shadowRadius: 10, 
   },
   dropDownContainer: {
     marginTop: 10,
