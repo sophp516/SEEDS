@@ -14,25 +14,29 @@ const AllFilter: React.FC<{
   
 }> = ({ isDisabled, toggleBottomSheet, handleFilterClick, resetSimpleFilter, onSimpleFilterChange, onSearchChange }) => {
   return (
-    <View style={styles.containerTop}>
-      <View style={styles.searchFilterRow}>
-        <View style={styles.searchBarContainer}>
-          <SearchBar disabled={isDisabled}   onSearchChange={(search) => {onSearchChange(search);}} />
+    <View>
+      <View style={styles.containerTop}>
+        <View style={styles.searchFilterRow}>
+          <View style={styles.searchBarContainer}>
+            <SearchBar disabled={isDisabled}   onSearchChange={(search) => {onSearchChange(search);}} />
+          </View>
+          <View style={styles.filterContainer}>
+            <Filter toggleBottomSheet={toggleBottomSheet} onFilterClick={handleFilterClick} />
+          </View>
         </View>
-        <Filter toggleBottomSheet={toggleBottomSheet} onFilterClick={handleFilterClick} />
       </View>
+
       <View style={styles.simpleFilterContainer}>
         <SimpleFilter disable={isDisabled} reset={resetSimpleFilter} onSimpleFilterChange={onSimpleFilterChange} />
       </View>
     </View>
+   
   );
 };
 
 const styles = StyleSheet.create({
   containerTop: {
     padding: 20,
-    alignItems: 'center',
-    marginTop: 40,
   },
   searchFilterRow: {
     justifyContent: 'space-between',
@@ -41,10 +45,15 @@ const styles = StyleSheet.create({
   },
   searchBarContainer: {
     flex: 8,
+    alignItems: 'center',
+    marginTop: 40,
+  },
+  filterContainer: {
+    marginTop: 40,
   },
   simpleFilterContainer: {
-    marginTop: 16,
     width: '100%',
+    paddingHorizontal: -20,
   },
 });
 
