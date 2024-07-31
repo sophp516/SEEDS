@@ -6,7 +6,7 @@ import SvgIcon from './SvgIcon';
 const Navbar = () => {
     
     const selectedColor = '#E36609';
-    const unselectedColor = 'black';
+    const unselectedColor = colors.textGray;
 
     const navigation = useNavigation();
     const route = useRoute();
