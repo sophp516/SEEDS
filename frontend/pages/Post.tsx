@@ -182,11 +182,10 @@ const Post = () => {
     
     const handleCreateReview = async () =>{
         try{
-            setLoading(true);
             // Verifies user
             const userData = await verifyUser();
             if (!userData) return; 
-
+            setLoading(true);
             let finalReview = {...review};
             const imageURls = [];
             // // object version of the timestamp for firebase filtering 
@@ -212,7 +211,7 @@ const Post = () => {
             }
 
             // Adding to review in the global collection where the information of each individual reviews are stored
-            console.log(finalReview);
+            // console.log(finalReview);
             const reviewRef = await addDoc(collection(db, 'globalSubmissions'), finalReview);
             const reviewId = reviewRef.id;
             console.log("userID:", reviewId);
@@ -243,11 +242,11 @@ const Post = () => {
             navigation.goBack();
             Toast.show({
                 type: 'success',
-                position: 'bottom',
+                position: 'top',
                 text1: 'Review submitted',
                 text2: 'Thank you for your review!',
-                visibilityTime: 2000,
-                autoHide: true,
+                visibilityTime: 4000,
+                autoHide: false,
             });
         }catch{
             console.error("Error adding review to Firestore, have you signed in yet?");
@@ -366,7 +365,7 @@ const Post = () => {
                 // \. means optional decimal
                 // \d* will match zero or more digits
                 // parentheses are used to capture the values
-                const nutritionRegex = /Per (\d+) ?(g| bowl| package| cup|oz| serving) - Calories: (\d+)kcal \| Fat: (\d+\.?\d*)g \| Carbs: (\d+\.?\d*)g \| Protein: (\d+\.?\d*)g/;
+                const nutritionRegex = /Per (\d+) ?(g| bowl| package| cup|oz| | cups| container| serving | burger) - Calories: (\d+)kcal \| Fat: (\d+\.?\d*)g \| Carbs: (\d+\.?\d*)g \| Protein: (\d+\.?\d*)g/;
                 const matches = nutrients.match(nutritionRegex);
                 const serving = matches[1] + matches[2];     // Serving size
                 const calories = matches[3];   // Calories value
@@ -383,25 +382,36 @@ const Post = () => {
 
                 return [serving, calories, fat, carbs, protein];
             } else {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                return ['N/A', 'N/A', 'N/A', 'N/A', 'N/A'];
             }
         } catch (error) {
-            console.error("Error fetching nutrient data", error);
+            console.log("Error fetching nutrient data");
+            return ['N/A', 'N/A', 'N/A', 'N/A', 'N/A'];
         }
     };
 
 
     //code for updating nutrients for a specific food item, turn test as false when no need to make any updates
-    const [test, setTest] = useState(true);
-    const edit = async()=>{
+    // handles when nutrients fetching fails, which commonly due to serving not matching the regex
+    const [test, setTest] = useState(false);
+    const editFirebase = async()=>{
         if (test === true){
-            const [serving, calories, fat, carbs, protein] = await fetchNutrients("Toast");
-            console.log("Serving:", serving);
+            const foodNames = ["Korean Bulgogi Bowl", "Yogurt Parfait", "Tofu Burger"]
+            for (const foodName of foodNames){
+                try{
+                    const docpath = doc(db, 'colleges', 'Dartmouth College', 'foodList', foodName);
+                    const [serving, calories, fat, carbs, protein] = await fetchNutrients(foodName);
+                    console.log("Nutrients:", foodName,  serving, calories, fat, carbs, protein);
+                    await updateDoc(docpath, {serving: serving, calories: calories, fat: fat, carbs: carbs, protein: protein});
+                }catch{
+                    console.error("Error updating nutrients");
+                }
+            }
         }
         setTest(false);
     }
     useEffect(()=>{
-        edit();
+        editFirebase();
     }, [])
 
 
@@ -440,7 +450,6 @@ const Post = () => {
             return
         }
     }
-
 
     const calculateAverageRating = async (foodName, location, health, taste) => {
         try{
@@ -523,11 +532,11 @@ const Post = () => {
             // allowsEditing: true,
             aspect:[4,3],
             allowsMultipleSelection: true,
-            quality:1, // we can edit later for more
+            quality:0.8, // we can edit later for more
         })
         // console.log("image:", result);        
         if (!result.canceled){ // if image is selected, then save the latest upload
-            let selected = result.assets.map((image) => image.uri);
+            let selected = result.assets.map((image, index) => image.uri);
             if (toggle == true){
                 setPost(prevPost => ({...prevPost, images: [...(prevPost.images || []), ...selected]}));
             }else{

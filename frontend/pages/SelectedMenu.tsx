@@ -130,7 +130,8 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                     <View style={styles.headerContent}>
                         <Text style={styles.foodNameText}>{foodName}</Text>
                         <View style={[styles.ratingBackground, { backgroundColor: getRatingBackgroundColor(taste) }]}>
-                            <Text style={styles.starText}>{parsedAverageRating} stars</Text>
+                            <Text style={styles.starText}>{parsedAverageRating} </Text>
+                            <Image source={require('../assets/star.png')} style={{width: 13, height: 13}}/>
                         </View>
                     </View>
                     <Text style={styles.locationText}>{location}</Text>
@@ -170,8 +171,8 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                                 <View style={styles.tagContent}> 
                                     {tags.map((item, i) => {
                                         return (
-                                            <View style={times.includes(item) ? [styles.tagBlob, {backgroundColor:'#F2C897'}] : styles.tagBlob } key={i}>
-                                                <Text>{item}</Text>
+                                            <View style={times.includes(item) ? [styles.tagBlob, {backgroundColor:'#F2C897', marginRight: 5}] : styles.tagBlob } key={i}>
+                                                <Text style={{fontFamily: 'Satoshi-Medium', fontSize: 15, color: colors.textGray}}>{item}</Text>
                                             </View>
                                         )
                                     })}
@@ -184,7 +185,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                                     {allergens.map((item, i) => {
                                         return (
                                             <View style={styles.allergenBlob} key={i}>
-                                                <Text>{item}</Text>
+                                                <Text style={{fontFamily: 'Satoshi-Medium', fontSize: 15, color: colors.textGray}}>{item}</Text>
                                             </View>
                                         )
                                     })}
@@ -290,6 +291,8 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginTop: 5,
         alignSelf: 'flex-start',
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     smallGrayText: {
         color: colors.grayStroke,
@@ -299,7 +302,9 @@ const styles = StyleSheet.create({
         marginTop: 3,
     },
     starText: {
-        fontSize: 12,
+        fontFamily: 'Satoshi-Bold',
+        fontSize: 13,
+        color: colors.textGray,
     },
     outerHeader: {
         flexDirection: 'column',
@@ -386,6 +391,7 @@ const styles = StyleSheet.create({
         marginRight: 20,
         fontSize: 20,
         fontFamily: 'Satoshi-Medium',
+        color: colors.textGray,
     },
     tagContent: {
         flexDirection: 'row',
@@ -397,7 +403,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 3,
         borderRadius: 15,
-        marginRight: 3,
+        marginRight: 7,
         marginBottom: 3,
         backgroundColor: colors.highRating,
     },
@@ -411,7 +417,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 3,
         borderRadius: 15,
-        marginRight: 3,
+        marginRight: 7,
         marginBottom: 3,
         backgroundColor: colors.warningPink,
     },

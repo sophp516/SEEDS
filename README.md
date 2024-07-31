@@ -18,16 +18,16 @@
 <h3 align="center">Dineable</h3>
 
   <p align="center">
-    Dineable lets students share dining experiences and helps them choose the best dining halls and healthy, tasty food.
+    Dineable lets college students share their dining experiences and discover the best options at campus dining halls, making it easy to find healthy and delicious food enjoyed by fellow students.
     <br />
     <a href="https://github.com/sophp516/SEEDS"><strong>Explore the docs »</strong></a>
     <br />
     <br />
     <a href="https://github.com/user-attachments/assets/0193d6cf-907d-4280-83ad-f1b5c627ff5a">View Demo</a>
     ·
-    <a href="https://github.com/sophp516/SEEDS/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    <a href="https://github.com/sophp516/SEEDS/issues/new?labels=bug&template=bug-report---.md">Report Bugs</a>
     ·
-    <a href="https://github.com/sophp516/SEEDS/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+    <a href="https://github.com/sophp516/SEEDS/issues/new?labels=enhancement&template=feature-request---.md">Request Features</a>
   </p>
 </div>
 
@@ -64,7 +64,7 @@
 [[Figma Board]](https://www.figma.com/design/k86T2yRbwF2zjODRGxbXwE/SEEDS-2024?node-id=1-5&t=wXXycmiHbe2SY9XC-0)
 [[Data Schema]](https://github.com/sophp516/SEEDS/issues/118)
 
-As college students, eating outside of campus is often not financially viable, leading most students to have their meals at campus dining halls. However, many students feel dissatisfied with the dining hall options and are concerned about food waste. Furthermore, college students are increasingly focused on eating healthy on campus, seeking nutritious options that support their academic and physical well-being. The food review app provides students with a platform to share their dining experiences and helps them make informed choices about which dining hall to visit, allowing them to find healthy, tasty food that matches their preferences.
+As college students, eating outside of campus is often not financially viable, leading most students to have their meals at campus dining halls. However, many students feel dissatisfied with their dining hall options and are concerned about food waste. Furthermore, college students are increasingly focused on eating healthy on campus, seeking nutritious options that support their academic and physical well-being. Dineable provides students with a platform to share their dining experiences and helps them make informed choices about which dining options they choose, allowing them to find healthy, tasty food that matches their dietary preferences.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -132,11 +132,11 @@ Main Features:
 
 * Adding User Preferences - [[Demo]](https://github.com/user-attachments/assets/e11a13dd-452a-4d57-82e8-eba6a46150b2)
 
-* Dinning Home Menu Pages Filtering - [[Demo]](https://github.com/user-attachments/assets/0096bea7-3d50-4f18-b815-172e3298c1ad)
+* Dining Home Menu Page Filtering - [[Demo]](https://github.com/user-attachments/assets/0096bea7-3d50-4f18-b815-172e3298c1ad)
 
 * Selected Menu and Add Review- [[Demo]](https://github.com/user-attachments/assets/ddbcd6fb-a78e-42b9-a90b-4c69e833c6d8)
 
-* Discover Page Commenting and Add Post- [[Demo]](https://github.com/user-attachments/assets/ef5e1368-f400-4f5c-a9c3-439eb415065f)
+* Discover Page: Commenting and Adding Post- [[Demo]](https://github.com/user-attachments/assets/ef5e1368-f400-4f5c-a9c3-439eb415065f)
 
 * Ranking Page - [[Demo]](https://github.com/user-attachments/assets/b5a231cd-6495-4dcc-a987-e3ecd4f294d1)
 
@@ -170,7 +170,7 @@ Rachael Huang - [@Linkedin](https://www.linkedin.com/in/rachaelhuang/) - email: 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* [Dandilyoon Seed](https://www.dandilyonn.com/)
+* [Dandilyonn SEEDS Program](https://www.dandilyonn.com/)
 * [Gorhom's Bottom Sheet](https://www.npmjs.com/package/@gorhom/bottom-sheet)
 * [Drop Down Picker](https://www.npmjs.com/package/react-native-dropdown-picker)
 * [React Native Progress Bar](https://www.npmjs.com/package/react-native-progress-bar-horizontal)

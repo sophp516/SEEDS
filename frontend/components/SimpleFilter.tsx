@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, TouchableOpacity, Text, StyleSheet, ScrollView, Animated } from 'react-native';
 import colors from '../styles';
 import Preferences from '../services/Preferences.json';
 
@@ -11,6 +11,7 @@ interface SimpleFilterProps {
 
 const SimpleFilter: React.FC<SimpleFilterProps> = ({ disable, reset, onSimpleFilterChange }) => {
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
+  const scrollX = useRef(new Animated.Value(0)).current;
 
   const handlePress = (item: string) => {
     if (disable) return;
@@ -20,8 +21,6 @@ const SimpleFilter: React.FC<SimpleFilterProps> = ({ disable, reset, onSimpleFil
       onSimpleFilterChange(newFilter);
       return newFilter;
     });
-    
-    
   };
 
   // Effect to reset the selected filter when the filter is clicked
@@ -32,7 +31,15 @@ const SimpleFilter: React.FC<SimpleFilterProps> = ({ disable, reset, onSimpleFil
   }, [disable]);
 
   return (
-    <ScrollView horizontal={true} style={styles.scrollContainer}>
+    <Animated.ScrollView
+      horizontal
+      style={styles.scrollContainer}
+      onScroll={Animated.event(
+        [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+        { useNativeDriver: false }
+      )}
+      showsHorizontalScrollIndicator={false}
+    >
       <View style={styles.container}>
         {/* Meal Options */}
         {['Breakfast', 'Lunch', 'Dinner'].map((meal, index) => (
@@ -40,6 +47,7 @@ const SimpleFilter: React.FC<SimpleFilterProps> = ({ disable, reset, onSimpleFil
             key={index}
             style={[
               styles.button,
+              { marginLeft: index === 0 ? 20 : 5 }, // Apply margin only to the first item
               selectedFilter === meal && styles.selectedButton
             ]}
             onPress={() => handlePress(meal)}
@@ -55,6 +63,7 @@ const SimpleFilter: React.FC<SimpleFilterProps> = ({ disable, reset, onSimpleFil
             key={index}
             style={[
               styles.button,
+              { marginLeft: 5 }, // Apply consistent margin to all items
               selectedFilter === item && styles.selectedButton
             ]}
             onPress={() => handlePress(item)}
@@ -64,7 +73,7 @@ const SimpleFilter: React.FC<SimpleFilterProps> = ({ disable, reset, onSimpleFil
           </TouchableOpacity>
         ))}
       </View>
-    </ScrollView>
+    </Animated.ScrollView>
   );
 };
 
@@ -78,20 +87,19 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: colors.inputGray,
-    paddingVertical: 4,
+    paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 20,
-    marginHorizontal: 5,
-    borderWidth: 2,
-    borderColor: 'transparent',
+    marginHorizontal: 5, // Consistent margin for all items
   },
   selectedButton: {
     backgroundColor: colors.grayStroke,
     borderColor: colors.grayStroke,
   },
   buttonText: {
-    color: colors.textGray,
     fontFamily: 'Satoshi-Medium',
+    color: colors.textGray,
+    fontSize: 14,
   },
 });
 

@@ -53,8 +53,8 @@ const foodDropdown = ( {onChangeText,onSelectItem,onClear, food}) => {
                 id: item.id,
                 title: item.title,
             }));
-        console.log(q);
-        console.log(suggestions)
+        // console.log(q);
+        // console.log(suggestions)
         setSuggestionsList(suggestions);
 
         // setLoading(false);

@@ -88,7 +88,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
                 <View style={styles.subCommentUser}>
                     <Image 
                     style={styles.subCommentProfile}
-                    source={commentUser?.profileImage ? { uri: commentUser.profileImage } : require('../assets/profile.jpeg')}
+                    source={commentUser?.profileImage ? { uri: commentUser.profileImage } : require('../assets/defaultProfileImage.png')}
                     />
                     <Text style={styles.subCommentName}>{commentUser?.displayName}</Text>
                 </View>
@@ -267,7 +267,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
                     {userInfo && (
                         <View style={styles.profileBox}>
                             <Image
-                                source={userInfo.profileImage ? { uri: userInfo.profileImage } : require('../assets/profile.jpeg')}
+                                source={userInfo.profileImage ? { uri: userInfo.profileImage } : require('../assets/defaultProfileImage.png')}
                                 style={{ width: 30, height: 30, borderRadius: 25, marginRight: 10 }}
                             />
                             <Text style={styles.userInfoText}>{userInfo.displayName}</Text>
@@ -280,7 +280,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
                     <View style={styles.imageContainer}>
                         {image?.map((item, i) => (
                             <View key={i}>
-                                <Image source={{ uri: item }} style={{ width: 100, height: 100 }} />
+                                <Image source={{ uri: item }} style={{ width: 110, height: 110, borderRadius: 15}} />
                             </View>
                         ))}
                     </View>
@@ -302,13 +302,13 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
                     {comments.length > 0 &&
                     comments.map((comment: Comment, i) => {
                         return <SubComment
-                                key={i}
-                                content={comment.content}
-                                userId={comment.userId}
-                                commentId={comment.id}
-                                postId={postId}
-                                sublikes={comment.likes}
-                                />
+                            key={i}
+                            content={comment.content}
+                            userId={comment.userId}
+                            commentId={comment.id}
+                            postId={postId}
+                            sublikes={comment.likes}
+                            />
                     })}
                 </View>
                 <View style={styles.commentInputRow}>
@@ -317,6 +317,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
                     style={styles.textInput}
                     value={commentInput}
                     onChangeText={(text) => setCommentInput(text)} 
+                    autoCapitalize='none'  
                     />
                     <TouchableOpacity style={styles.replyButton} onPress={asyncSubmitComment}>
                         <Text style={{fontFamily: 'Satoshi-Medium', fontSize: 13, color: colors.textGray}}>Reply</Text>
@@ -344,7 +345,7 @@ const styles =  StyleSheet.create({
     },
     textInput: {
         fontFamily: 'Satoshi-Medium',
-        backgroundColor: 'white',
+        backgroundColor: colors.offWhite,
         paddingVertical: 4,
         paddingHorizontal: 10,
         width: '85%',
@@ -369,7 +370,7 @@ const styles =  StyleSheet.create({
     reviewContainer: {
         borderBottomWidth: 1,
         width: '100%',
-        borderColor: colors.grayStroke,
+        borderColor: colors.outlineBrown,
         paddingBottom: 10,
         marginBottom: 10,
     },
@@ -413,7 +414,7 @@ const styles =  StyleSheet.create({
     },
     health: {
         fontSize: 11,
-        marginBottom: 5
+        marginBottom: 5,
     },
     reviewBottom: {
         flexDirection: 'row-reverse',
@@ -431,10 +432,10 @@ const styles =  StyleSheet.create({
     },
     commentContainer: {
         backgroundColor: colors.inputGray,
-        marginTop: 8,
-        paddingTop: 20,
-        paddingBottom: 8,
-        paddingHorizontal: 6,
+        borderRadius: 15,
+        marginTop: 15,
+        paddingVertical: 10,
+        paddingLeft: 8,
     },
     likeText: {
         marginLeft: 3,

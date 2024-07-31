@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, Platform, Image} from 'react-native';
 import { collection, query as firestoreQuery, where, getDocs, doc, setDoc } from 'firebase/firestore';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { AutocompleteDropdown } from 'react-native-autocomplete-dropdown';
@@ -142,12 +142,14 @@ const SignUp = () => {
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity onPress={() => navigation.navigate('Home')} style={styles.backButtonContainer}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButtonContainer}>
+                <Image style={styles.backArrow} source={require('../assets/backArrow.png')} resizeMode="contain"/>
                 <Text style={styles.backButtonText}>Back</Text>
             </TouchableOpacity>
+
             <View style={styles.welcomeContainer}>
                 <Text style={styles.welcomeText}>Welcome!</Text>
-                <Text style={styles.welcomeSubtext}>Sign up to post reviews and get recommendations. </Text>
+                <Text style={styles.welcomeSubtext}>Create an account to post reviews and get recommendations. </Text>
             </View>
             {loading ? (
                 <ActivityIndicator size="large" color="#0000ff" />
@@ -194,6 +196,7 @@ const SignUp = () => {
                         loading={loading}
                         textInputProps={{
                             placeholder: 'School Name (Type 3+ letters)',
+                            // placeholderTextColor: colors.textFaintBrown,
                             value: query,
                             autoCorrect: false,
                             autoCapitalize: 'none',
@@ -207,7 +210,7 @@ const SignUp = () => {
                                 fontFamily: 'Satoshi-Medium',
                                 color: colors.textGray,
                                 paddingLeft: 10,
-                                marginRight: 20,
+                                marginRight: 15,
                                 // marginBottom: 30,
                                 height: 50,
                                 width: '100%',
@@ -218,10 +221,10 @@ const SignUp = () => {
                             }
                         }}
                         rightButtonsContainerStyle={{
-                            right: 8,
+                            right: 2,
                             alignSelf: 'center',
                             borderRadius: 15,
-                            backgroundColor: colors.inputGray,
+                            // backgroundColor: colors.inputGray,
                             height: 40,
                             width: 40,
                             // marginBottom: 25,
@@ -234,7 +237,7 @@ const SignUp = () => {
                             marginBottom: 35,
                         }}
                         suggestionsListContainerStyle={{
-                            backgroundColor: colors.backgroundGray,
+                            backgroundColor: colors.offWhite,
                         }}
                         containerStyle={{ width: '100%', marginBottom: 0 }}
                         renderItem={(item) => (
@@ -281,23 +284,34 @@ const SignUp = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        // justifyContent: 'center',
+        // alignItems: 'center',
         padding: 30,
         backgroundColor: colors.backgroundGray,
     },
     backButtonContainer: {
-        position: 'absolute',
-        top: 50,
-        left: 20,
+        // marginTop: 60,
+        flexDirection: 'row',
+        alignItems: 'center',
+        position: 'absolute', // Make sure this is set to absolute
+        top: 60, // Adjust according to your layout needs
+        left: 30, // Adjust according to your layout needs
+        // paddingHorizontal: 30,
+    },
+    backArrow: {
+        width: 20,
+        height: 20,
+        marginRight: 10, // space between icon and text
     },
     backButtonText: {
-        fontSize: 15,
         fontFamily: 'Satoshi-Medium',
+        fontSize: 16,
+        color: colors.textGray,
     },
     welcomeContainer: {
         width: '100%',
-        marginBottom: 40,
+        marginTop: 100,
+        marginBottom: 30,
     },
     welcomeText: {
         fontSize: 26,
@@ -313,6 +327,7 @@ const styles = StyleSheet.create({
     logInNav: {
         paddingTop: 20,
         flexDirection: 'row',
+        justifyContent: 'center',
     },
     input: {
         fontFamily: 'Satoshi-Medium',

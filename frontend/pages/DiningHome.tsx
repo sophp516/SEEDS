@@ -180,7 +180,8 @@ useEffect(() => {
 useEffect(() => {
     const retrieveReviews = async () => {
         const reviewsData = await fetchReviews(placeName);
-        setAllMenus(reviewsData);
+        reviewsData.sort((a, b) => {return b.createdAt - a.createdAt;});
+        setAllMenus(reviewsData); 
     }
     retrieveReviews();
 }, [])
@@ -336,22 +337,20 @@ useEffect(() => {
             </View>
 
             <View style={styles.filter}>
-            <AllFilter 
-              isDisabled={isDisabled}
-              toggleBottomSheet={toggleBottomSheet}
-              handleFilterClick={handleFilterClick}
-              resetSimpleFilter={() => setIsDisabled(false)}
-              onSimpleFilterChange={(filter) => {setSimpleFilter(filter);}}
-              onSearchChange={(search) => {setSearchChange(search);}}
-              />
+              <AllFilter 
+                isDisabled={isDisabled}
+                toggleBottomSheet={toggleBottomSheet}
+                handleFilterClick={handleFilterClick}
+                resetSimpleFilter={() => setIsDisabled(false)}
+                onSimpleFilterChange={(filter) => {setSimpleFilter(filter);}}
+                onSearchChange={(search) => {setSearchChange(search);}}
+                />
             </View>
 
             <View style={styles.contentContainer}>
               
                 <ScrollView style={styles.contentScrollContainer} contentContainerStyle={{ paddingBottom: 100 }}>
                     <View style={styles.recHolder}>
-                      <Text></Text>
-                      <View style={{marginLeft: 20}}><SurpriseMe placeName={placeName}/></View>
                         
                         {/* Top rated section */}
                         <View style={styles.sectionContainer}>
@@ -507,6 +506,9 @@ useEffect(() => {
                             )}
 
                         </View>
+                        <Text></Text>
+                        <View style={{marginLeft: 20}}><SurpriseMe placeName={placeName}/></View>
+
                     </View>
                 </ScrollView>
             </View>

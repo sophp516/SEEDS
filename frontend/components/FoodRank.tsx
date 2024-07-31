@@ -103,7 +103,7 @@ const FoodRank = ({rank, foodName, rating, location}) => {
         <View style={rank < 3 ?  [styles.rankContainer,{backgroundColor: '#F9A05F'} ]: [styles.rankContainer, {backgroundColor: '#E7E2DB'}] }>
             <View style={{flexDirection:'row'}}>
                 <Text style={styles.rankNum}>{rank + 1}</Text>
-                <Text style={styles.foodText}>{foodName}</Text>
+                <Text  numberOfLines={1} ellipsizeMode='tail' style={styles.foodText}>{foodName}</Text>
             </View>
             <View style={{flexDirection:'row'}}>
                 <Text style={styles.rating}>{formattedRating}</Text>
@@ -144,6 +144,7 @@ const styles = StyleSheet.create({
         // lineHeight: 24,
         fontFamily: 'Satoshi-Medium',
         marginTop: 5,
+        width: 200
     },
     rating:{
         color: colors.textGray,

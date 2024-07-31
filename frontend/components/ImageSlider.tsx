@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, Dimensions, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
+import colors from '../styles';
 
 const ImageSlider = ({ images }) => {
     const width = Dimensions.get('window').width - 50;
@@ -55,9 +56,11 @@ const styles = StyleSheet.create({
     imageContainer: {
         flex: 1,
         borderWidth: 1,
-        borderRadius: 10,
+        borderRadius: 15,
+        borderColor: colors.outlineBrown,
         justifyContent: 'center',
         alignItems: 'center',
+        overflow: 'hidden',
     },
     activityIndicator: {
         position: 'absolute',

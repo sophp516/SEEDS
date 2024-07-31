@@ -53,9 +53,9 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
         fetchTopTags();
         fetchAllergens();
     },[])
-    console.log("topTags", topTags);
-    console.log("topAllergens", topAllergens);
-    console.log("")
+    // console.log("topTags", topTags);
+    // console.log("topAllergens", topAllergens);
+    // console.log("")
 
 
 
@@ -151,7 +151,7 @@ const FoodItem = ({ foodName, reviewIds, image, location, price, taste, health, 
 
                   <View style={styles.tasteAndHealthContainer}>
                       
-                    <Text style={styles.ratingText}>Taste</Text>
+                    <Text style={styles.ratingText}>Taste  </Text>
 
                     <View style={styles.progressContainer}>
                       <ProgressBar
@@ -295,6 +295,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     reviewCount: {
+        fontFamily: 'Satoshi-Regular',
         color: colors.textFaintBrown,
         fontSize: 12,
         marginLeft: 5,

@@ -186,14 +186,16 @@ const MyPreferences = () => {
                 </View>
               ))}
             </View>
-            <TouchableOpacity onPress={() => setEditingPreferences(true)}>
-              <Text style={styles.editText}>Edit Preferences</Text>
-            </TouchableOpacity>
+            <View style={styles.editTextContainer}>
+              <TouchableOpacity onPress={() => setEditingPreferences(true)}>
+                <Text style={styles.editText}>Edit Preferences</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
 
       {/* Allergens Container */}
-        <Text style={styles.sectionHeader}>Allergens</Text>
+        <Text style={styles.sectionHeader}>Allergies</Text>
         {editingAllergies ? (
           <View style={styles.editingContainer}>
             <View style={styles.tagList}>
@@ -212,6 +214,7 @@ const MyPreferences = () => {
                 value={allergensInput}
                 onChangeText={setAllergensInput}
                 placeholder="Add a new allergy"
+                placeholderTextColor={colors.textFaintBrown}
               />
               <TouchableOpacity onPress={handleAddAllergy} style={styles.addPreferenceButton}>
                 <Text>Add</Text>
@@ -219,10 +222,10 @@ const MyPreferences = () => {
             </View>
             <View style={styles.saveCancelContainer}>
               <TouchableOpacity style={styles.saveButton} onPress={handleSaveAllergies}>
-                <Text>Save</Text>
+                <Text style={styles.saveText}>Save Allergies</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.cancelButton} onPress={() => setEditingAllergies(false)}>
-                <Text>Cancel</Text>
+                <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -235,9 +238,11 @@ const MyPreferences = () => {
                 </View>
               ))}
             </View>
-            <TouchableOpacity onPress={() => setEditingAllergies(true)}>
-              <Text style={styles.editText}>Edit Allergens</Text>
-            </TouchableOpacity>
+            <View style={styles.editTextContainer}>
+              <TouchableOpacity onPress={() => setEditingAllergies(true)}>
+                <Text style={styles.editText}>Edit Allergies</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </View>
@@ -298,15 +303,27 @@ const styles = StyleSheet.create({
   editingContainer: {
     marginBottom: 20,
   },
+  editTextContainer: {
+    alignSelf: 'flex-end', // Align the container to the right
+
+  },
   editText: {
     fontFamily: 'Satoshi-Regular',
     color: colors.textGray,
     marginBottom: 30,
+    marginRight: 35,
+    // textAlign: 'right',
   },
   tagList: {
+    borderWidth: 1.2,
+    borderRadius: 15,
+    borderColor: colors.outlineBrown,
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginBottom: 10,
+    marginRight: 30,
+    paddingVertical: 8,
+    paddingLeft: 8,
   },
   tagWithDelete: {
     flexDirection: 'row',
@@ -316,7 +333,6 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 15,
     marginRight: 5,
-    marginBottom: 5,
   },
   tagWithDelete2: {
     flexDirection: 'row',
@@ -326,7 +342,6 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 15,
     marginRight: 5,
-    marginBottom: 5,
   },
   tagDeleteButton: {
     marginLeft: 10,
@@ -343,7 +358,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   tagInput: {
-    borderColor: '#ccc',
+    fontFamily: 'Satoshi-Medium',
+    borderColor: colors.outlineBrown,
     borderWidth: 1,
     borderRadius: 15,
     padding: 8,

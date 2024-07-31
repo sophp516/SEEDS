@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Button, Alert, TouchableOpacity } from 'react-native';
 import { collection, query, where, getDocs, addDoc } from 'firebase/firestore';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, Image } from 'react-native';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { db, auth } from '../services/firestore.js';
 import { useAuth } from '../context/authContext.js';
@@ -43,7 +43,7 @@ const LogIn = () => {
                 Toast.show({
                     type: 'error',
                     text1: 'User Does Not Exist',
-                    text2: 'Please ensure your email is correct.'
+                    text2: 'Please ensure your email address is correct.'
                 });
                 setLoading(false);
                 return;
@@ -73,15 +73,16 @@ const LogIn = () => {
 
     return (
         <View style={styles.container}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButtonContainer}>
+                <Image style={styles.backArrow} source={require('../assets/backArrow.png')} resizeMode="contain"/>
+                <Text style={styles.backButtonText}>Back</Text>
+            </TouchableOpacity>
+
             <View style={styles.welcomeContainer}>
                 <Text style={styles.welcomeText}>Welcome back!</Text>
-                <Text style={styles.welcomeSubtext}>Log in to post reviews and get recommendations. </Text>
+                <Text style={styles.welcomeSubtext}>Log in to your account to post reviews and get recommendations. </Text>
             </View>
-            <View style={styles.backButtonContainer}>
-                <TouchableOpacity onPress={() => navigation.navigate('Home')}>
-                    <Text style={styles.backButtonText}>Back</Text>
-                </TouchableOpacity>
-            </View>
+
             {loading ? (
                 <ActivityIndicator size="large" color="#0000ff" />
             ) : (
@@ -126,17 +127,27 @@ const styles = StyleSheet.create({
         backgroundColor: colors.backgroundGray
     },
     backButtonContainer: {
-        position: 'absolute',
-        top: 50,
-        left: 20,
+        // marginTop: 60,
+        flexDirection: 'row',
+        alignItems: 'center',
+        position: 'absolute', // Make sure this is set to absolute
+        top: 60, // Adjust according to your layout needs
+        left: 30, // Adjust according to your layout needs
+        // paddingHorizontal: 30,
+    },
+    backArrow: {
+        width: 20,
+        height: 20,
+        marginRight: 10, // space between icon and text
     },
     backButtonText: {
-        fontSize: 15,
         fontFamily: 'Satoshi-Medium',
+        fontSize: 16,
+        color: colors.textGray,
     },
     welcomeContainer: {
         width: '100%',
-        marginBottom: 40,
+        marginBottom: 30,
     },
     welcomeText: {
         fontSize: 26,
