@@ -246,9 +246,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     profileImage: {
-        resizeMode: 'contain',
-        width: '80%',
-        height: '80%',
+        resizeMode: 'cover',
+        width: '100%',
+        height: '100%',
     },
     guestProfileImageContainer: {
         backgroundColor: colors.backgroundGray,
