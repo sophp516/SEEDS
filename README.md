@@ -18,7 +18,7 @@
 <h3 align="center">Dineable</h3>
 
   <p align="center">
-    Dineable lets students share dining experiences and helps them choose the best dining halls and healthy, tasty food.
+    Dineable lets college students share their dining experiences and discover the best options at campus dining halls, making it easy to find healthy and delicious food enjoyed by fellow students.
     <br />
     <a href="https://github.com/sophp516/SEEDS"><strong>Explore the docs »</strong></a>
     <br />
