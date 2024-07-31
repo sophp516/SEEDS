@@ -143,7 +143,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
     setAllergensValue(validAllergies);
   }
 
-  const snapPoints = useMemo(() => ['25%', '50%', '75%', '85%'], []); 
+  const snapPoints = useMemo(() => ['25%', '50%', '75%', '95%'], []); 
 
   //control the visibility of the bottom sheet
   useEffect(() => {
