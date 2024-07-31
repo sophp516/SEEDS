@@ -140,8 +140,9 @@ const Profile = () => {
                 {/* Signed in user */}
                 <View style={styles.profileBox}>
                     <View style={styles.profileImageContainer}>
+                        {/* Default profile picture */}
                         <Image
-                        source={profileImage ? { uri: profileImage } : require('../assets/profile.png')}
+                        source={profileImage ? { uri: profileImage } : require('../assets/defaultProfileImage2.png')}
                         style={styles.profileImage}
                         />
                     </View>
@@ -241,11 +242,13 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         width: 100,
         height: 100,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     profileImage: {
-        resizeMode: 'cover',
-        width: '100%',
-        height: '100%',
+        resizeMode: 'contain',
+        width: '80%',
+        height: '80%',
     },
     guestProfileImageContainer: {
         backgroundColor: colors.backgroundGray,
@@ -326,7 +329,7 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
         paddingHorizontal: 30,
         borderRadius: 10,
-        borderBottomColor: colors.outlineDarkBrown,
+        borderBottomColor: colors.outlineBrown,
         borderBottomWidth: 1,
     },
     profileContainer: {

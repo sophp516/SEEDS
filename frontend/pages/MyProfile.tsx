@@ -18,7 +18,7 @@ const MyProfile = () => {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { user, setLoggedInUser } = useAuth();
   const { loggedInUser, displayName, email } = user;
-  
+
   // State for username
   const [editingUsername, setEditingUsername] = useState(false);
   const [nameInput, setNameInput] = useState(displayName || '');
@@ -27,9 +27,8 @@ const MyProfile = () => {
   const [editingEmail, setEditingEmail] = useState(false);
   const [emailInput, setEmailInput] = useState(email || '');
 
+  // State for profile image
   const [profileImage, setProfileImage] = useState<string | null>(null);
-
-  console.log(profileImage)
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -52,6 +51,7 @@ const MyProfile = () => {
           const userData = userDoc.data();
           setNameInput(userData.displayName || '');
           setEmailInput(userData.email || '');
+          setProfileImage(userData.profileImage || '');
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -109,7 +109,6 @@ const MyProfile = () => {
       });
 
       setEditingUsername(false);
-      // Optionally, update the displayName in the context
       setLoggedInUser(prev => ({
         ...prev,
         displayName: nameInput,
@@ -171,7 +170,6 @@ const MyProfile = () => {
       });
 
       setEditingEmail(false);
-      // Optionally, update the email in the context
       setLoggedInUser(prev => ({
         ...prev,
         email: emailInput,
@@ -190,131 +188,96 @@ const MyProfile = () => {
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-        alert('Sorry, we need camera roll permissions to make this work!');
-        return;
+      alert('Sorry, we need camera roll permissions to make this work!');
+      return;
     }
 
     let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
     });
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
-        const selectedImage = result.assets[0].uri;
-        setProfileImage(result.assets[0].uri);
-        await saveProfileImage(selectedImage);
+      const selectedImageUri = result.assets[0].uri;
+      setProfileImage(selectedImageUri);
+
+      // Upload image to Firebase Storage
+      const imageUrl = await handleUploadImage(selectedImageUri);
+
+      if (imageUrl) {
+        // Update Firestore with the new image URL
+        await saveProfileImage(imageUrl);
+      }
     }
-}
+  };
 
+  const handleUploadImage = async (imageUri: string) => {
+    try {
+      const response = await fetch(imageUri);
+      const blob = await response.blob();
+      const imgName = `img-${new Date().getTime()}-${Math.random().toString(36).substring(2, 15)}`;
+      const storageRef = ref(storage, `images/${imgName}.jpg`);
+      await uploadBytesResumable(storageRef, blob);
+      const imageUrl = await getDownloadURL(storageRef);
+      return imageUrl;
+    } catch (error) {
+      console.error("Error uploading image to Firebase Storage", error);
+      return null;
+    }
+  };
 
-const saveProfileImage = async (imageUri) => {
-  try {
-    const userId = user.id;
+  const saveProfileImage = async (imageUrl: string) => {
+    try {
+      const userId = user.id;
 
-    if (!userId) {
+      if (!userId) {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'No user is currently logged in.',
+        });
+        return;
+      }
+
+      const usersRef = collection(db, 'users');
+      const q = query(usersRef, where('id', '==', userId));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'User not found.',
+        });
+        return;
+      }
+
+      const userDoc = querySnapshot.docs[0];
+      const userDocRef = userDoc.ref;
+
+      await updateDoc(userDocRef, { profileImage: imageUrl });
+
+      Toast.show({
+        type: 'success',
+        text1: 'Profile Updated',
+        text2: 'Your profile image has been updated successfully!',
+      });
+
+      setLoggedInUser(prev => ({
+        ...prev,
+        profileImage: imageUrl,
+      }));
+    } catch (error) {
+      console.error('Error updating profile image:', error);
       Toast.show({
         type: 'error',
-        text1: 'Error',
-        text2: 'No user is currently logged in.',
+        text1: 'Update Failed',
+        text2: 'There was an error updating your profile image. Please try again later.',
       });
-      return;
     }
-
-    const usersRef = collection(db, 'users');
-    const q = query(usersRef, where('id', '==', userId));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'User not found.',
-      });
-      return;
-    }
-
-    const userDoc = querySnapshot.docs[0];
-    const userDocRef = userDoc.ref;
-
-    await updateDoc(userDocRef, { profileImage: imageUri });
-
-    Toast.show({
-      type: 'success',
-      text1: 'Profile Updated',
-      text2: 'Your profile image has been updated successfully!',
-    });
-
-    // Optionally, update the profileImage in the context
-    setLoggedInUser(prev => ({
-      ...prev,
-      profileImage: imageUri,
-    }));
-
-  } catch (error) {
-    console.error('Error updating profile image:', error);
-    Toast.show({
-      type: 'error',
-      text1: 'Update Failed',
-      text2: 'There was an error updating your profile image. Please try again later.',
-    });
-  }
-};
-    /******* FUNCTIONS FOR UPLOAD IMAGES ******/
-    // Read more about documentation here: https://docs.expo.dev/versions/latest/sdk/imagepicker/
-    // If have time, can set as a component 
-    const getPermission = async() =>{
-        if (Platform.OS === 'ios'){
-            const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (status !== 'granted'){
-                alert('Please grant access to library to upload photos')
-                return false;
-            }
-        }
-        return true;
-    }
-    const selectImage = async() => {
-        // const foodItem = fetchReviews(review.location);
-        // console.log("foodItem:", foodItem);
-        const permissionStatus = await getPermission();
-        if (!permissionStatus) return; 
-
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
-            // allowsEditing: true,
-            aspect:[4,3],
-            allowsMultipleSelection: false,
-            quality:1, // we can edit later for more
-        })
-        // console.log("image:", result);        
-        if (!result.canceled){ // if image is selected, then save the latest upload
-            let selected = result.assets.map((image) => image.uri);
-        }
-    }
-    // console.log("review:", review.foodName);
-
-    // How multiple images upload will work:
-    // 1. User selects multiple images from gallery
-    // 2. Images are stored in an array
-    // 3. User clicks submit
-    // 4. Images are uploaded to Firebase Storage one by one, the images in the final array are the URLs
-    // 5. The URLs are stored in the Firestore document
-
-    const handleUploadImage = async (image: string) => {
-        try{
-            const response = await fetch(image);
-            const blob = await response.blob(); // convert 
-            const imgName = `img-${new Date().getTime()}-${Math.random().toString(36).substring(2, 15)}`;
-            const storageRef = ref(storage, `images/${imgName}.jpg`)
-            const snapshop = await uploadBytesResumable(storageRef, blob);
-            const imageUrl = await getDownloadURL(storageRef);
-            return imageUrl
-        }
-        catch{
-            console.error("Error uploading image to Firestore");
-        }
-    }
+  };
 
 
   return (
@@ -328,15 +291,19 @@ const saveProfileImage = async (imageUri) => {
       
       <View style={styles.profileImageWrapper}>
         <View style={styles.profileImageContainer}>
-          <TouchableOpacity onPress={selectImage}>
+          <TouchableOpacity onPress={pickImage}>
               <Image
-              source={profileImage ? { uri: profileImage } : require('../assets/profile.png')}
+              source={profileImage ? { uri: profileImage } : require('../assets/defaultProfileImage.png')}
               style={styles.profileImage}
               />
+                <View style={{alignItems: 'center', marginTop: 5}}>
+          <Text style={{fontFamily: 'Satoshi-Medium', color: colors.textGray}}>Edit</Text>
+        </View>
           </TouchableOpacity>
         </View>
+      
       </View>
-
+      
 
       <Text style={styles.text}>Username</Text>
       <View style={styles.usernameContainer}>
@@ -427,17 +394,15 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   profileImageContainer: {
-    backgroundColor: colors.commentContainer,
     borderRadius: 100,
-    padding: 20, 
-    alignItems: 'center', // Center the image horizontally within the container
+    // padding: 20, 
+    alignItems: 'center',
   },
   profileImage: {
-    backgroundColor: colors.commentContainer,
     borderRadius: 100,
-    resizeMode: 'contain',
-    width: 70,
-    height: 70,
+    resizeMode: 'cover',
+    width: 100,
+    height: 100,
   },
   text: {
     fontSize: 20,

@@ -364,7 +364,7 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
                     <View style={styles.imageContainer}>
                         {image?.map((item, i) => (
                             <View key={i}>
-                                <Image source={{ uri: item }} style={{ width: 100, height: 100 }} />
+                                <Image source={{ uri: item }} style={{ width: 100, height: 100, borderRadius: 15 }} />
                             </View>
                         ))}
                     </View>

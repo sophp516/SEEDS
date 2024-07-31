@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import colors from '../styles.js'
+
 const NutrientsDisplay = ({serving, calories, protein, fat, carbs}) => {
     let parsedCalories = 'N/A', parsedProtein = 'N/A', parsedFat = 'N/A', parsedCarbs = 'N/A'
     let parsedServing = 1;
