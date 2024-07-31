@@ -174,7 +174,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
         </TouchableOpacity>
       </View>
 
-      <ScrollView>
+      <ScrollView style={styles.filterBody}>
         <TouchableOpacity style={styles.bottomSheetButton} onPress={handleMyPreferences}>
           <View style={styles.myPreferencesButton}>
             <Text style={[styles.myPreferences]}>Use My Preferences</Text>
@@ -283,6 +283,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
               />
               </View>
           </View>
+
           
         </View>
       </ScrollView>
@@ -313,6 +314,10 @@ const styles = StyleSheet.create({
     color: colors.textGray,
     textAlign: 'center',
     fontFamily: 'Satoshi-Bold',
+  },
+  filterBody: {
+    marginBottom: 90,
+    backgroundColor: colors.inputGray,
   },
   buttonText: {
     fontSize: 16,
