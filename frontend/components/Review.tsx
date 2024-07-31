@@ -112,7 +112,7 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
                 <View style={styles.subCommentUser}>
                     <Image 
                     style={styles.subCommentProfile}
-                    source={commentUser?.profileImage ? { uri: commentUser.profileImage } : require('../assets/profile.jpeg')}
+                    source={commentUser?.profileImage ? { uri: commentUser.profileImage } : require('../assets/defaultProfileImage.png')}
                     />
                     <Text style={styles.subCommentName}>{commentUser?.displayName}</Text>
                 </View>
@@ -332,7 +332,7 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
                     {userInfo && (
                         <View style={styles.profileBox}>
                             <Image
-                                source={userInfo.profileImage ? { uri: userInfo.profileImage } : require('../assets/profile.jpeg')}
+                                source={userInfo.profileImage ? { uri: userInfo.profileImage } : require('../assets/defaultProfileImage.png')}
                                 style={{ width: 30, height: 30, borderRadius: 25, marginRight: 10 }}
                             />
                             <Text style={styles.userInfoText}>{userInfo.displayName}</Text>
@@ -364,7 +364,7 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
                     <View style={styles.imageContainer}>
                         {image?.map((item, i) => (
                             <View key={i}>
-                                <Image source={{ uri: item }} style={{ width: 100, height: 100, borderRadius: 15 }} />
+                                <Image source={{ uri: item }} style={{ width: 110, height: 110, borderRadius: 15, marginRight: 10 }} />
                             </View>
                         ))}
                     </View>
@@ -425,7 +425,7 @@ const styles = StyleSheet.create({
     },
     reviewContainer: {
         borderBottomWidth: 1,
-        borderColor: colors.grayStroke,
+        borderColor: colors.outlineBrown,
         paddingBottom: 10,
         marginBottom: 10,
     },
@@ -501,12 +501,12 @@ const styles = StyleSheet.create({
     taste: {
         fontFamily: 'Satoshi-Regular',
         fontSize: 11,
-        marginBottom: 5
+        marginBottom: 5,
     },
     health: {
         fontFamily: 'Satoshi-Regular',
         fontSize: 11,
-        marginBottom: 5
+        marginBottom: 10,
     },
     reviewBottom: {
         flexDirection: 'row-reverse',
