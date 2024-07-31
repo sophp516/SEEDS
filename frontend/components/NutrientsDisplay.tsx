@@ -27,21 +27,21 @@ const NutrientsDisplay = ({serving, calories, protein, fat, carbs}) => {
     return (
         <View style={styles.nutrientContainer}>
             <View style={styles.nutrientHeader}>
-                <Text>{parsedServing} serving:  </Text>
-                <Text>{parsedCalories} cal</Text>
+                <Text style={styles.servingText}>{parsedServing} serving: </Text>
+                <Text style={styles.servingText}>{parsedCalories} cal</Text>
             </View>
             <View style={styles.circleContainer}>
                 <View style={styles.circle}>
                     <Text style={styles.text1}>{parsedCarbs}g</Text>
-                    <Text>carbs</Text>
+                    <Text style={styles.macroText}>carbs</Text>
                 </View>
                 <View style={styles.circle}>
                     <Text style={styles.text1}>{parsedProtein}g</Text>
-                    <Text>protein</Text>
+                    <Text style={styles.macroText}>protein</Text>
                 </View>
                 <View style={styles.circle}>
                     <Text style={styles.text1}>{parsedFat}g</Text>
-                    <Text>fat</Text>
+                    <Text style={styles.macroText}>fat</Text>
                 </View>
             </View>
         </View>
@@ -55,8 +55,8 @@ const styles = StyleSheet.create({
         borderRadius: 15,
         justifyContent: 'center',
         alignItems: 'center',
-        borderWidth:2,
-        borderColor: '#91836E',
+        borderWidth: 1.5,
+        borderColor: colors.outlineBrown,
         backgroundColor: colors.backgroundGray,
         margin: 10,
         width: '100%', 
@@ -66,6 +66,11 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginBottom: 10,
     },
+    servingText: {
+        color: colors.textGray,
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 14,
+    },
     circleContainer:{
         flexDirection: 'row',
         justifyContent: 'space-evenly',
@@ -74,8 +79,8 @@ const styles = StyleSheet.create({
         width: '100%', 
     },
     circle:{
-        borderColor: '#BCBCBC',
-        borderWidth: 3,
+        borderColor: colors.outlineBrown,
+        borderWidth: 2,
         borderRadius: 100,
         padding: 10,
         height: 80,
@@ -85,13 +90,16 @@ const styles = StyleSheet.create({
         marginBottom: 25,
     },
     text1:{
-        color: '#35353E',
+        color: colors.textGray,
         textAlign: 'center',
-        fontFamily: 'Manrope', // Ensure this font is included in your project
-        fontSize: 20,
-        fontStyle: 'normal',
-        fontWeight: '500',
-        lineHeight: 30, // Previously 150% of 20px; in React Native use direct pixel value
-        letterSpacing: -0.22
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 18,
+        // lineHeight: 30,
+    },
+    macroText: {
+        color: colors.textGray,
+        textAlign: 'center',
+        fontFamily: 'Satoshi-Medium',
+        fontSize: 14,
     }
 })

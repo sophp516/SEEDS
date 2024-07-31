@@ -171,7 +171,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                                 <View style={styles.tagContent}> 
                                     {tags.map((item, i) => {
                                         return (
-                                            <View style={times.includes(item) ? [styles.tagBlob, {backgroundColor:'#F2C897'}] : styles.tagBlob } key={i}>
+                                            <View style={times.includes(item) ? [styles.tagBlob, {backgroundColor:'#F2C897', marginRight: 5}] : styles.tagBlob } key={i}>
                                                 <Text style={{fontFamily: 'Satoshi-Medium', fontSize: 15, color: colors.textGray}}>{item}</Text>
                                             </View>
                                         )
@@ -185,7 +185,7 @@ const SelectedMenu: React.FC<SelectedMenuProps> = ({ route }) => {
                                     {allergens.map((item, i) => {
                                         return (
                                             <View style={styles.allergenBlob} key={i}>
-                                                <Text>{item}</Text>
+                                                <Text style={{fontFamily: 'Satoshi-Medium', fontSize: 15, color: colors.textGray}}>{item}</Text>
                                             </View>
                                         )
                                     })}
@@ -403,7 +403,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 3,
         borderRadius: 15,
-        marginRight: 3,
+        marginRight: 7,
         marginBottom: 3,
         backgroundColor: colors.highRating,
     },
@@ -417,7 +417,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 3,
         borderRadius: 15,
-        marginRight: 3,
+        marginRight: 7,
         marginBottom: 3,
         backgroundColor: colors.warningPink,
     },
