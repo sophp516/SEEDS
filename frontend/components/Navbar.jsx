@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.navbarBackground, 
     paddingTop: 5, 
-    paddingBottom: 5,
+    paddingBottom: 9,
     paddingLeft: 10,
     paddingRight: 10,
     shadowColor: 'black',
