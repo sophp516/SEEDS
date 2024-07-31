@@ -302,13 +302,13 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
                     {comments.length > 0 &&
                     comments.map((comment: Comment, i) => {
                         return <SubComment
-                                key={i}
-                                content={comment.content}
-                                userId={comment.userId}
-                                commentId={comment.id}
-                                postId={postId}
-                                sublikes={comment.likes}
-                                />
+                            key={i}
+                            content={comment.content}
+                            userId={comment.userId}
+                            commentId={comment.id}
+                            postId={postId}
+                            sublikes={comment.likes}
+                            />
                     })}
                 </View>
                 <View style={styles.commentInputRow}>
@@ -317,6 +317,7 @@ const Post = ({ postId, comment, userId, timestamp, uploadCount, image}) => {
                     style={styles.textInput}
                     value={commentInput}
                     onChangeText={(text) => setCommentInput(text)} 
+                    autoCapitalize='none'  
                     />
                     <TouchableOpacity style={styles.replyButton} onPress={asyncSubmitComment}>
                         <Text style={{fontFamily: 'Satoshi-Medium', fontSize: 13, color: colors.textGray}}>Reply</Text>
@@ -344,7 +345,7 @@ const styles =  StyleSheet.create({
     },
     textInput: {
         fontFamily: 'Satoshi-Medium',
-        backgroundColor: 'white',
+        backgroundColor: colors.offWhite,
         paddingVertical: 4,
         paddingHorizontal: 10,
         width: '85%',
@@ -431,10 +432,10 @@ const styles =  StyleSheet.create({
     },
     commentContainer: {
         backgroundColor: colors.inputGray,
-        marginTop: 8,
-        paddingTop: 20,
-        paddingBottom: 8,
-        paddingHorizontal: 6,
+        borderRadius: 15,
+        marginTop: 15,
+        paddingVertical: 10,
+        paddingLeft: 8,
     },
     likeText: {
         marginLeft: 3,

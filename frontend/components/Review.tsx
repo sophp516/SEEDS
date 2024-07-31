@@ -401,9 +401,10 @@ const Review = ({ reviewId, subcomment, image, foodName, comment, health, taste,
                     style={styles.textInput}
                     value={commentInput}
                     onChangeText={(text) => setCommentInput(text)} 
+                    autoCapitalize='none'  
                     />
                     <TouchableOpacity style={styles.replyButton} onPress={asyncSubmitComment}>
-                        <Text>reply</Text>
+                        <Text style={{fontFamily: 'Satoshi-Medium', fontSize: 13, color: colors.textGray}}>Reply</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -482,6 +483,8 @@ const styles = StyleSheet.create({
     subreviewBottom: {
         flexDirection: 'row-reverse',
         alignItems: 'center',
+        marginTop: 10,
+        marginRight: 10,
     },
     reviewContent: {
         marginTop: 10,
@@ -530,6 +533,9 @@ const styles = StyleSheet.create({
         marginLeft: 4
     },
     sublikeNumber: {
+        fontFamily: 'Satoshi-Medium',
+        color: colors.textGray,
+        fontSize: 14,
         marginLeft: 5
     },
     icon: {
@@ -558,15 +564,16 @@ const styles = StyleSheet.create({
     },
     commentContainer: {
         backgroundColor: colors.inputGray,
-        marginTop: 8,
-        paddingTop: 20,
-        paddingBottom: 8,
-        paddingHorizontal: 6,
+        borderRadius: 15,
+        marginTop: 15,
+        paddingVertical: 10,
+        paddingLeft: 8,
     },
     textInput: {
-        backgroundColor: 'white',
+        fontFamily: 'Satoshi-Medium',
+        backgroundColor: colors.offWhite,
         paddingVertical: 4,
-        paddingHorizontal: 3,
+        paddingHorizontal: 10,
         width: '85%',
         borderRadius: 5
     },
