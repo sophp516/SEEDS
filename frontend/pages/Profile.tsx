@@ -202,7 +202,7 @@ const Profile = () => {
                 </TouchableOpacity>
             </View>
             <TouchableOpacity style={styles.signOutButton} onPress={asyncSignOut}>
-                <Text style={styles.signOutText}>Sign Out</Text>
+                <Text style={styles.signOutText}>Sign out</Text>
             </TouchableOpacity>
             <Navbar />
         </View>
