@@ -1,4 +1,4 @@
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { AuthProvider, useAuth } from './context/authContext.js';
 import { AutocompleteDropdownContextProvider } from 'react-native-autocomplete-dropdown';
@@ -59,7 +59,12 @@ export default function App() {
     <AuthProvider>
       <AutocompleteDropdownContextProvider>
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator
+          // disabled sliding animation 
+          screenOptions={{
+            cardStyleInterpolator: CardStyleInterpolators.forNoAnimation // Disable animation
+          }}>
+
           <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} /> 
           <Stack.Screen name="Post" component={Post} options={{ headerShown: false }} /> 
           <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
