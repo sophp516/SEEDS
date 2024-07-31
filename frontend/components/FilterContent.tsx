@@ -135,7 +135,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
     setReview({ taste: 1, health: 1 });
   };
 
-  const handelMyPreferences = () => {
+  const handleMyPreferences = () => {
     const validTags = fetchTags.filter(tag => preferences.id.includes(tag));
     const validAllergies = fetchAllergies.filter(allergy => preferences.id.includes(allergy));
 
@@ -168,20 +168,24 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
         <TouchableOpacity style={styles.bottomSheetButton} onPress={handleReset}>
           <Text style={styles.buttonText}>Reset</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomSheetButton} onPress={handelMyPreferences}>
-          <Text style={[styles.buttonText, styles.fancy]}>My Preferences</Text>
-        </TouchableOpacity>
+        <Text style={styles.filterHeader}>Filters</Text>
         <TouchableOpacity style={styles.bottomSheetButton} onPress={handleApplyFilter}>
           <Text style={styles.buttonText}>Apply </Text>
         </TouchableOpacity>
       </View>
 
-        
       <ScrollView>
+        <TouchableOpacity style={styles.bottomSheetButton} onPress={handleMyPreferences}>
+          <View style={styles.myPreferencesButton}>
+            <Text style={[styles.myPreferences]}>Use My Preferences</Text>
+          </View>
+        </TouchableOpacity>
+
         <View style={styles.content}>
           <Text style={styles.contentText}>Preferred</Text>
           <DropDownPicker
             style={styles.dropDownBox}
+            textStyle={styles.dropDownText}
             open={preferredOpen}
             value={preferredValue}
             items={preferredItems}
@@ -199,12 +203,13 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
                 zIndex: preferredOpen ? 10 : 1
               }
             }}
+            dropDownContainerStyle={styles.dropDownContainer} 
           />
-
           
           <Text style={styles.contentText}>Allergens</Text>
           <DropDownPicker
             style={styles.dropDownBox}
+            textStyle={styles.dropDownText}
             open={allergensOpen}
             value={allergensValue}
             items={allergensItems}
@@ -222,11 +227,13 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
                 zIndex: allergensOpen ? 10 : 1
               }
             }}
+            dropDownContainerStyle={styles.dropDownContainer} 
           />
 
           <Text style={styles.contentText}>Time</Text>
           <DropDownPicker
             style={styles.dropDownBox}
+            textStyle={styles.dropDownText}
             open={timeOpen}
             value={timeValue}
             items={timeItems}
@@ -244,6 +251,7 @@ const FilterContent: React.FC<FilterContentProps> = ({ onFilter, isVisible, setI
                 zIndex: timeOpen ? 10 : 1
               }
             }}
+            dropDownContainerStyle={styles.dropDownContainer}
           />
 
           <View style={styles.sliderContainer}>
@@ -292,8 +300,7 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     marginBottom: 0,
     borderBottomWidth: 1,
-    borderBottomColor: colors.grayStroke,
-
+    borderBottomColor: colors.outlineDarkBrown,
   },
   bottomSheetButton: {
     marginTop: 10,
@@ -301,33 +308,49 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     borderRadius: 6,
   },
+  filterHeader: {
+    fontSize: 18,
+    color: colors.textGray,
+    textAlign: 'center',
+    fontFamily: 'Satoshi-Bold',
+  },
   buttonText: {
     fontSize: 16,
     color: colors.textGray,
     textAlign: 'center',
     fontFamily: 'Satoshi-Medium',
   },
-  fancy: {
+  myPreferencesButton: {
+    borderRadius: 15,
+    borderColor: colors.outlineBrown,
+    borderWidth: 1,
+    backgroundColor: colors.offWhite,
+    marginLeft: 30,
+    marginTop: 15,
+    padding: 10,
+    alignSelf: 'flex-start',
+  },
+  myPreferences: {
     fontFamily: 'Satoshi-Bold',
-    fontSize: 18,
+    fontSize: 14,
+    color: colors.textGray,
   },
   content: {
     paddingBottom: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 40,
+    paddingHorizontal: 30,
+    paddingVertical: 30,
   },
   contentText: {
     fontFamily: 'Satoshi-Bold',
     fontSize: 16, 
+    color: colors.textGray,
     marginBottom: 0
   },
   dropDownBox: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: colors.offWhite,
     marginVertical: 10,
-    color: "#000",
-    fontSize: 14,
-    fontWeight: "600",
+    color: colors.textGray,
     marginBottom: 40,
     borderColor: colors.outlineBrown,
     // shadowColor: '#000',
@@ -337,7 +360,11 @@ const styles = StyleSheet.create({
     // },
     // shadowOpacity: 0.3, 
     // shadowRadius: 4, 
-
+  },
+  dropDownText: {
+    fontFamily: 'Satoshi-Medium',
+    fontSize: 14, 
+    color: colors.textGray,
   },
   BottomSheetStyle: {
     shadowColor: '#000', 
@@ -347,6 +374,10 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.8, 
     shadowRadius: 40, 
+  },
+  dropDownContainer: {
+    marginTop: 10,
+    borderColor: colors.outlineBrown,
   },
   sliderContainer: {
     flexDirection: 'column',
