@@ -14,7 +14,7 @@ const AllFilter: React.FC<{
   
 }> = ({ isDisabled, toggleBottomSheet, handleFilterClick, resetSimpleFilter, onSimpleFilterChange, onSearchChange }) => {
   return (
-    <View>
+    <View style={styles.container}>
       <View style={styles.containerTop}>
         <View style={styles.searchFilterRow}>
           <View style={styles.searchBarContainer}>
@@ -29,12 +29,16 @@ const AllFilter: React.FC<{
       <View style={styles.simpleFilterContainer}>
         <SimpleFilter disable={isDisabled} reset={resetSimpleFilter} onSimpleFilterChange={onSimpleFilterChange} />
       </View>
+
     </View>
    
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    marginBottom: 15,
+  },
   containerTop: {
     padding: 20,
   },
