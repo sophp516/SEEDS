@@ -93,14 +93,14 @@ Setting up the project on your device:
 
 ### Installation
 
-1. To view the nutrition value informations, Get an API Key [here](https://platform.fatsecret.com/docs/guides/authentication/oauth2). 
+1. To view nutrition information, get an API key [here](https://platform.fatsecret.com/docs/guides/authentication/oauth2). 
 
 2. Clone the repo
    ```sh
    git clone https://github.com/sophp516/SEEDS.git
    ```
 
-3. Change Directory
+3. Change directory
    ```sh
    cd frontend
    ```
@@ -136,7 +136,7 @@ Main Features:
 
 * Selected Menu and Add Review- [[Demo]](https://github.com/user-attachments/assets/ddbcd6fb-a78e-42b9-a90b-4c69e833c6d8)
 
-* Discover Page: Commenting and Adding Post- [[Demo]](https://github.com/user-attachments/assets/ef5e1368-f400-4f5c-a9c3-439eb415065f)
+* Discover Page: Commenting and Adding Post- [[Demo]](https://github.com/user-attachments/assets/ef6fa678-ed5b-401b-81e4-c006af0c8f9c)
 
 * Ranking Page - [[Demo]](https://github.com/user-attachments/assets/b5a231cd-6495-4dcc-a987-e3ecd4f294d1)
 
