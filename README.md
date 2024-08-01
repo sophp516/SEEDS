@@ -130,7 +130,7 @@ Main Features:
 
 * Profile Editing
 
-* Adding User Preferences - [[Demo]](https://github.com/user-attachments/assets/e11a13dd-452a-4d57-82e8-eba6a46150b2)
+* Adding User Preferences - [[Demo]](https://github.com/user-attachments/assets/a9d8504f-011b-4b87-b113-9688a1faa2d1)
 
 * Dining Home Menu Page Filtering - [[Demo]](https://github.com/user-attachments/assets/0096bea7-3d50-4f18-b815-172e3298c1ad)
 
