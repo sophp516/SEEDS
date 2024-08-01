@@ -126,7 +126,7 @@ Setting up the project on your device:
 ## Usage
 Main Features:
 
-* Sign up & Login in
+* Sign up & Log in
 
 * Profile Editing
 
@@ -138,10 +138,9 @@ Main Features:
 
 * Discover Page: Commenting and Adding Post- [[Demo]](https://github.com/user-attachments/assets/ef6fa678-ed5b-401b-81e4-c006af0c8f9c)
 
-* Ranking Page - [[Demo]](https://github.com/user-attachments/assets/b5a231cd-6495-4dcc-a987-e3ecd4f294d1)
+* Rankings Page - [[Demo]](https://github.com/user-attachments/assets/b5a231cd-6495-4dcc-a987-e3ecd4f294d1)
 
-* Surprise Me Button - [[Demo]](https://github.com/user-attachments/assets/771a661e-a516-4d3b-a153-d649b94382c6)
-
+* Surprise Me Button - [[Demo]](https://github.com/user-attachments/assets/9d9951a4-fbe2-4a23-9eb0-5ba6b68bfd44)
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
