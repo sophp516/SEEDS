@@ -132,7 +132,7 @@ Main Features:
 
 * Adding User Preferences - [[Demo]](https://github.com/user-attachments/assets/a9d8504f-011b-4b87-b113-9688a1faa2d1)
 
-* Dining Home Menu Page Filtering - [[Demo]](https://github.com/user-attachments/assets/0096bea7-3d50-4f18-b815-172e3298c1ad)
+* Dining Home Menu Page Filtering - [[Demo]](https://github.com/user-attachments/assets/15aa1df4-0625-446a-a627-cb4d8867a49a)
 
 * Selected Menu and Add Review- [[Demo]](https://github.com/user-attachments/assets/ddbcd6fb-a78e-42b9-a90b-4c69e833c6d8)
 
