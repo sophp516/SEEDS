@@ -23,6 +23,8 @@
     <a href="https://github.com/sophp516/SEEDS"><strong>Explore the docs »</strong></a>
     <br />
     <br />
+    <a href="https://www.youtube.com/watch?v=cTJDU03fZ6E">View Presentation</a>
+    ·
     <a href="https://github.com/user-attachments/assets/0193d6cf-907d-4280-83ad-f1b5c627ff5a">View Demo</a>
     ·
     <a href="https://github.com/sophp516/SEEDS/issues/new?labels=bug&template=bug-report---.md">Report Bugs</a>
