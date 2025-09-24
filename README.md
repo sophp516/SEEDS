@@ -30,6 +30,10 @@
     <a href="https://github.com/sophp516/SEEDS/issues/new?labels=bug&template=bug-report---.md">Report Bugs</a>
     ·
     <a href="https://github.com/sophp516/SEEDS/issues/new?labels=enhancement&template=feature-request---.md">Request Features</a>
+    <br />
+    Contributions, issues, and feature requests are welcome!
+    <br />
+    Maintained by:<a href="https://github.com/Kathy331"> @Kathy331</a>
   </p>
 </div>
 
